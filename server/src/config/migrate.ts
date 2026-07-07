@@ -25,8 +25,11 @@ export async function runMigrations(): Promise<void> {
         try {
           await connection.execute(stmt);
         } catch (err: unknown) {
-          if ((err as { code?: string }).code === 'ER_UNSUPPORTED_PS') {
+          const e = err as { code?: string };
+          if (e.code === 'ER_UNSUPPORTED_PS') {
             await connection.query(stmt);
+          } else if (e.code === 'ER_DUP_FIELDNAME' || e.code === 'ER_DUP_KEYNAME') {
+            continue;
           } else {
             throw err;
           }
