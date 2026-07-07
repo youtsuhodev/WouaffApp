@@ -167,15 +167,15 @@ export function offContactAdded(cb: (data: { by: string; profile: Record<string,
 
 /* ── Call signaling ── */
 
-function onCallEvent(event: string, cb: (...args: unknown[]) => void) {
-  pendingListeners.push({ event, cb });
-  socket?.on(event, cb);
+function onCallEvent<T>(event: string, cb: (data: T) => void) {
+  pendingListeners.push({ event, cb: cb as (...args: unknown[]) => void });
+  socket?.on(event, cb as (...args: unknown[]) => void);
 }
 
-function offCallEvent(event: string, cb: (...args: unknown[]) => void) {
-  const idx = pendingListeners.findIndex((l) => l.event === event && l.cb === cb);
+function offCallEvent<T>(event: string, cb: (data: T) => void) {
+  const idx = pendingListeners.findIndex((l) => l.event === event && l.cb === (cb as (...args: unknown[]) => void));
   if (idx !== -1) pendingListeners.splice(idx, 1);
-  socket?.off(event, cb);
+  socket?.off(event, cb as (...args: unknown[]) => void);
 }
 
 export function emitCallOffer(payload: CallPayload): void {
