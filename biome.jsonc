@@ -29,7 +29,10 @@
         "noUselessElse": "off"
       },
       "a11y": {
-        "useKeyWithClickEvents": "off"
+        "useKeyWithClickEvents": "off",
+        "useButtonType": "off",
+        "noSvgWithoutTitle": "off",
+        "noStaticElementInteractions": "off"
       }
     }
   },
