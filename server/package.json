@@ -1,0 +1,40 @@
+{
+  "name": "wouaff-server",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc && node --input-type=module -e \"import{cpSync}from'node:fs';cpSync('src/migrations','dist/migrations',{recursive:true});\"",
+    "build:client": "npm --prefix ../client run build",
+    "clean": "node clean.mjs",
+    "build:all": "npm run clean && npm run build:client && npm run build",
+    "start": "node dist/index.js",
+    "start:prod": "npm run build:all && node dist/index.js",
+    "dev": "tsx watch src/index.ts"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.19.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.22.4",
+    "nodemailer": "^9.0.3",
+    "socket.io": "^4.8.0",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/cookie": "^0.6.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.9.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

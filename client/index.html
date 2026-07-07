@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b0b11" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="description" content="Wouaff — Chat privé et sécurisé" />
+  <link rel="icon" type="image/png" href="/assets/logo/logo.png" />
+  <link rel="apple-touch-icon" href="/assets/logo/logo.png" />
+  <link rel="stylesheet" href="/assets/css/app.css" />
+  <title>Wouaff — t'as capté 🐺</title>
+</head>
+<body>
+  <div id="root">
+    <div id="loadingOverlay" class="loading-overlay" style="position:fixed;inset:0;background:#0b0b11;display:flex;align-items:center;justify-content:center;z-index:99999">
+      <div class="loading-content" style="text-align:center">
+        <div class="spinner" style="width:40px;height:40px;border:3px solid var(--surface);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px"></div>
+        <div style="color:var(--text-muted);font-size:14px">Wouaff</div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+appId: com.wouaff.app
+productName: Wouaff
+copyright: Copyright © 2026 Wouaff
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+
+publish:
+  - provider: github
+    owner: youtsuhodev
+    repo: wouaff-app
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: public/assets/logo/icon.ico
+  artifactName: "${productName}-Setup-${version}-win-x64.${ext}"
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  installerIcon: public/assets/logo/icon.ico
+  uninstallerIcon: public/assets/logo/icon.ico
+  installerHeaderIcon: public/assets/logo/icon.ico
+  language: 1036
+  multiLanguageInstaller: true
+  installerLanguages:
+    - fr_FR
+    - en_US
+
+mac:
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+  icon: public/assets/logo/logo.png
+  category: public.app-category.social-networking
+  artifactName: "${productName}-${version}-mac-${arch}.${ext}"
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: link
+      path: /Applications
+
+linux:
+  target:
+    - target: AppImage
+      arch:
+        - x64
+  icon: public/assets/logo
+  category: Network
+  artifactName: "${productName}-${version}-linux-x64.${ext}"

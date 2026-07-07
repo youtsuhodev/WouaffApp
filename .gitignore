@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+client/dist/
+server/dist/
+client/release/
+
+# Environment & secrets
+.env
+.env.*
+*.local
+service-account.json
+credentials*.json
+firebase-service-account*.json
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Playwright
+.playwright-mcp/
+
+# Temp & cache
+.cache/
+tmp/
+temp/
+
+# Test scripts with credentials
+__test_db*

@@ -1,0 +1,70 @@
+import { mkdir, writeFile, unlink, readdir, access } from 'fs/promises';
+import { randomUUID } from 'crypto';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const UPLOADS_DIR = resolve(__dirname, '../uploads');
+const VIDEOS_DIR = resolve(UPLOADS_DIR, 'videos');
+const THUMBS_DIR = resolve(UPLOADS_DIR, 'thumbnails');
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+
+const ALLOWED_TYPES = ['video/mp4', 'video/webm', 'video/quicktime'];
+
+export async function initVideoStorage(): Promise<void> {
+  await mkdir(VIDEOS_DIR, { recursive: true });
+  await mkdir(THUMBS_DIR, { recursive: true });
+}
+
+export interface StoredVideo {
+  id: string;
+  videoPath: string;
+  thumbnailPath?: string;
+}
+
+export async function storeVideo(buffer: Buffer, mimeType: string): Promise<StoredVideo> {
+  if (!ALLOWED_TYPES.includes(mimeType)) {
+    throw new Error('Type de fichier non supporté. Utilisez MP4, WebM ou MOV.');
+  }
+  if (buffer.length > MAX_VIDEO_SIZE) {
+    throw new Error('Fichier trop volumineux (max 100 Mo)');
+  }
+  const id = randomUUID().replace(/-/g, '');
+  const ext = mimeType === 'video/quicktime' ? '.mov' : mimeType === 'video/webm' ? '.webm' : '.mp4';
+  const filename = `${id}${ext}`;
+  const filePath = resolve(VIDEOS_DIR, filename);
+  await writeFile(filePath, buffer);
+  const relativePath = `uploads/videos/${filename}`;
+  return { id, videoPath: relativePath };
+}
+
+export async function storeThumbnail(buffer: Buffer): Promise<string> {
+  const filename = `${randomUUID().replace(/-/g, '')}.jpg`;
+  const filePath = resolve(THUMBS_DIR, filename);
+  await writeFile(filePath, buffer);
+  return `uploads/thumbnails/${filename}`;
+}
+
+export async function deleteVideoFiles(videoPath: string, thumbnailPath?: string): Promise<void> {
+  const fullPath = resolve(UPLOADS_DIR, '..', videoPath);
+  try { await unlink(fullPath); } catch {}
+  if (thumbnailPath) {
+    try { await unlink(resolve(UPLOADS_DIR, '..', thumbnailPath)); } catch {}
+  }
+}
+
+export async function cleanupOrphanedVideos(validPaths: Set<string>): Promise<void> {
+  try {
+    const files = await readdir(VIDEOS_DIR);
+    for (const file of files) {
+      const relPath = `uploads/videos/${file}`;
+      if (!validPaths.has(relPath)) {
+        try { await unlink(resolve(VIDEOS_DIR, file)); } catch {}
+      }
+    }
+  } catch {}
+}
+
+export function getVideoUrl(videoPath: string): string {
+  return `/${videoPath}`;
+}
