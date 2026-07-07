@@ -30,7 +30,7 @@ import statusRouter from './routes/status.js';
 import storiesRouter from './routes/stories.js';
 import videosRouter from './routes/videos.js';
 import { archiveOldCalls, initColdStorage, isColdStorageEnabled } from './services/coldStorage.js';
-import { cleanExpiredEphemeralMessages } from './services/rtdb.js';
+import { cleanExpiredEphemeralMessages, getMaintenanceMode } from './services/rtdb.js';
 import { setupSocket } from './socket/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -51,8 +51,6 @@ app.use('/api/auth/forgot-password', rateLimit({ windowMs: 60000, max: 5 }));
 app.use('/api/contacts', rateLimit({ windowMs: 60000, max: 60 }));
 
 /* Public maintenance status (accessible even during maintenance) */
-import { getMaintenanceMode } from './services/rtdb.js';
-
 app.get('/api/maintenance', (_req, res) => {
   getMaintenanceMode()
     .then((m) => res.json(m))
