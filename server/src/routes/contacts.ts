@@ -4,9 +4,7 @@ import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
 import {
   acceptContactRequest,
-  addContact,
   getContacts,
-  getConversationsForUser,
   getPendingRequests,
   getProfile,
   getSentRequests,

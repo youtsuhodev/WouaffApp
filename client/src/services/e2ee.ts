@@ -41,8 +41,8 @@ async function _getAesKey(partnerPubJwk: JsonWebKey): Promise<CryptoKey> {
 /* ── Public API ── */
 
 export async function initE2EE(
-  uid: string,
-  fetchPublicKeyFromAPI: (uid: string) => Promise<JsonWebKey | null>,
+  _uid: string,
+  _fetchPublicKeyFromAPI: (uid: string) => Promise<JsonWebKey | null>,
 ): Promise<void> {
   const stored = localStorage.getItem(KEY);
   if (stored) {

@@ -15,11 +15,7 @@ import {
   onCallRejected,
 } from '../services/socket';
 import {
-  getCameraOn,
-  getDeafened,
   getLocalStream,
-  getMuted,
-  getRemoteStream,
   handleAnswer,
   handleICE,
   handleIncomingCall,

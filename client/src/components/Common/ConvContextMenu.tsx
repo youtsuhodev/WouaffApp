@@ -45,7 +45,7 @@ export default function ConvContextMenu({
       if (rect.left > maxX) ref.current.style.left = `${maxX}px`;
       if (rect.top > maxY) ref.current.style.top = `${maxY}px`;
     }
-  }, [x, y]);
+  }, []);
 
   return (
     <div ref={ref} className="ctx-menu" style={{ left: x, top: y } as React.CSSProperties}>

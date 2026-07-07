@@ -44,8 +44,8 @@ export default function VoiceMessage({ audioData, duration }: VoiceMessageProps)
 
   return (
     <div className="msg-voice">
-      <button className="voice-play-btn" onClick={toggle}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <button type="button" className="voice-play-btn" onClick={toggle}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label={playing ? 'Pause' : 'Lecture'}>
           {playing ? <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /> : <path d="M8 5v14l11-7z" />}
         </svg>
       </button>

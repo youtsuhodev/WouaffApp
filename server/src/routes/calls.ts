@@ -23,10 +23,10 @@ router.get('/history', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const uid = authReq.uid!;
   try {
-    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+    const limit = Math.min(parseInt(req.query.limit as string, 10) || 50, 200);
     const calls = await getUserCalls(uid, limit);
     res.json({ calls });
-  } catch (err) {
+  } catch (_err) {
     res.status(500).json({ error: "Erreur lors du chargement de l'historique" });
   }
 });

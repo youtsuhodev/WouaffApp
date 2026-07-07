@@ -1,6 +1,6 @@
-import { existsSync, readdirSync, readFileSync } from 'fs';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import pool from './database.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

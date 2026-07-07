@@ -1,5 +1,5 @@
 import { io, type Socket } from 'socket.io-client';
-import type { CallPayload, MessageData, SocketMessageEvent } from '../types';
+import type { CallPayload, SocketMessageEvent } from '../types';
 import { getSessionId } from './auth';
 
 const SOCKET_URL = (import.meta as any).env?.VITE_API_URL

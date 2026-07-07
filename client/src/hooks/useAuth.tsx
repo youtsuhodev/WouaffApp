@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const logout = async () => {
     await authLogout();

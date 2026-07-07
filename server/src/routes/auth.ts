@@ -1,5 +1,5 @@
+import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
-import { randomUUID } from 'crypto';
 import type { Request, Response } from 'express';
 import { Router } from 'express';
 import { getOne, query } from '../config/database.js';
@@ -210,7 +210,7 @@ router.post('/send-verification', verifyToken, async (req: Request, res: Respons
       'SELECT email, emailVerified FROM profiles WHERE uid=?',
       [authReq.uid!],
     );
-    if (!profile || !profile.email) {
+    if (!profile?.email) {
       res.status(400).json({ error: 'Aucun email associé à ce compte' });
       return;
     }

@@ -39,7 +39,7 @@ export default function FeedPage() {
 
   useEffect(() => {
     loadVideos(1);
-  }, []);
+  }, [loadVideos]);
 
   useEffect(() => {
     if (!sentinelRef.current) return;
@@ -57,7 +57,7 @@ export default function FeedPage() {
 
   useEffect(() => {
     if (page > 1) loadVideos(page);
-  }, [page]);
+  }, [page, loadVideos]);
 
   const handleLike = (id: string) => {
     setVideos((prev) =>

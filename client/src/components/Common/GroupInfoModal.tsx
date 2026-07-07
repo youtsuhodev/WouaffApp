@@ -7,7 +7,6 @@ import {
   Edit3,
   Flag,
   Globe,
-  Image,
   Link2,
   Lock,
   LogOut,
@@ -64,7 +63,7 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
 
   useEffect(() => {
     loadGroupInfo();
-  }, [gid]);
+  }, [loadGroupInfo]);
 
   useEffect(() => {
     if (!gid) return;
@@ -79,7 +78,7 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
       offGroupRoleChanged(reload);
       offGroupUpdated(reload);
     };
-  }, [gid]);
+  }, [gid, loadGroupInfo]);
 
   const loadGroupInfo = async () => {
     try {

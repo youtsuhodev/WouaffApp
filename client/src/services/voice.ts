@@ -69,7 +69,7 @@ function iceRestart() {
   }
 }
 
-function setupPeerEvents(p: Peer.Instance, targetUid: string, isInitiator: boolean) {
+function setupPeerEvents(p: Peer.Instance, targetUid: string, _isInitiator: boolean) {
   p.on('signal', (data: SignalData) => {
     if (data.type === 'offer') {
       emitCall('call:offer', { from: '', to: targetUid, sdp: JSON.stringify(data) });

@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import { getOne, query } from '../config/database.js';
 import type { AuthRequest } from '../types/index.js';

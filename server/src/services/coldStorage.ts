@@ -1,5 +1,5 @@
 import { Storage } from '@google-cloud/storage';
-import { getOne, query } from '../config/database.js';
+import { query } from '../config/database.js';
 
 interface CallRecord {
   id: string;

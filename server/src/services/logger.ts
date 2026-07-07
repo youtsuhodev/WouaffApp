@@ -1,6 +1,6 @@
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: resolve(__dirname, '../../.env') });
@@ -76,7 +76,7 @@ async function flushQueue(): Promise<void> {
 
 function enqueue(level: string, message: string): void {
   if (!WEBHOOK_URL) return;
-  const desc = message.length > 4000 ? message.substring(0, 3997) + '...' : message;
+  const desc = message.length > 4000 ? `${message.substring(0, 3997)}...` : message;
   if (!desc.trim()) return;
   queue.push({
     title: level.toUpperCase(),

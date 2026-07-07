@@ -27,6 +27,7 @@ export default function ConnectionLostOverlay() {
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-label="Connexion perdue"
         >
           <path d="M8.5 16.5a5 5 0 0 1 7 0" />
           <path d="M5.5 13.5a9 9 0 0 1 13 0" />

@@ -328,7 +328,7 @@ export default function Sidebar({
       );
       fetchAll();
     };
-    const handleStoryRemoved = (data: { uid: string }) => {
+    const handleStoryRemoved = (_data: { uid: string }) => {
       fetchAll();
     };
     const handleMessageAdded = (ev: SocketMessageEvent) => {
@@ -585,12 +585,8 @@ export default function Sidebar({
         ) : (
           filtered.map((c) => {
             const isActive = c.type === 'group' ? currentGroupId === c.id : chatWith === c.id;
-            const name = c.type === 'dm' ? c.profile?.pseudo || '?' : c.group?.name || 'Groupe';
-            const preview = c.lastMsg?.deleted ? (
-              <em>Message supprimé</em>
-            ) : (
-              <>{c.lastMsg?.text || <em>Aucun message</em>}</>
-            );
+            const _name = c.type === 'dm' ? c.profile?.pseudo || '?' : c.group?.name || 'Groupe';
+            const preview = c.lastMsg?.deleted ? <em>Message supprimé</em> : c.lastMsg?.text || <em>Aucun message</em>;
             const timeStr = c.lastMsg?.time ? formatTime(c.lastMsg.time) : '';
 
             if (c.type === 'group') {

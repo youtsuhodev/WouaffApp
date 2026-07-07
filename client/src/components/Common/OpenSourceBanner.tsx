@@ -19,9 +19,10 @@ export default function OpenSourceBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center" onClick={handleClose}>
+    <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center">
       <div
         className="bg-[var(--bg-card)] rounded-2xl p-6 max-w-[400px] w-[90%] border border-[var(--border)] shadow-[0_8px_32px_rgba(0,0,0,.4)]"
+        role="dialog"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold mb-3">🎉 WouaffApp est maintenant open source !</h2>
@@ -45,6 +46,7 @@ export default function OpenSourceBanner() {
           Chaque contribution, aussi petite soit-elle, est la bienvenue. Merci de faire partie de l'aventure ! ❤️
         </p>
         <button
+          type="button"
           onClick={handleClose}
           className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
         >

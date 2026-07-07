@@ -1,11 +1,11 @@
 import './services/logger.js';
 
+import { createServer } from 'node:http';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import { createServer } from 'http';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
 import pool from './config/database.js';
 import { runMigrations } from './config/migrate.js';
 import { patchRouter } from './middleware/asyncHandler.js';

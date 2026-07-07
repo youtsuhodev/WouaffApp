@@ -10,8 +10,8 @@ interface QuickUploadsResponse {
 }
 
 export async function uploadToQuickUploads(buffer: Buffer, filename: string, mimeType: string): Promise<string> {
-  const boundary = '----' + Math.random().toString(36).slice(2);
-  const body = '';
+  const boundary = `----${Math.random().toString(36).slice(2)}`;
+  const _body = '';
   const header = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: ${mimeType}\r\n\r\n`;
   const footer = `\r\n--${boundary}--\r\n`;
   const headerBuf = Buffer.from(header, 'latin1');
@@ -23,7 +23,7 @@ export async function uploadToQuickUploads(buffer: Buffer, filename: string, mim
     'Content-Length': bodyBuf.length.toString(),
   };
   if (API_KEY) {
-    headers['Authorization'] = `Bearer ${API_KEY}`;
+    headers.Authorization = `Bearer ${API_KEY}`;
   }
 
   const res = await fetch(API_URL, {

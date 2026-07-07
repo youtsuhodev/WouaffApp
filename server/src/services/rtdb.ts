@@ -503,7 +503,7 @@ export async function isGroupInvited(gid: string, uid: string): Promise<boolean>
   return !!row;
 }
 
-export async function reportGroup(gid: string, name: string, reporterUid: string): Promise<void> {
+export async function reportGroup(gid: string, _name: string, reporterUid: string): Promise<void> {
   await query('UPDATE groups_table SET reported=1, reportedBy=?, reportedAt=? WHERE gid=?', [
     reporterUid,
     Date.now(),
@@ -619,7 +619,7 @@ export async function createStory(uid: string, storyData: Record<string, unknown
   return storyId;
 }
 
-export async function markStoryViewed(uid: string, storyId: string, viewerUid: string): Promise<void> {
+export async function markStoryViewed(_uid: string, storyId: string, viewerUid: string): Promise<void> {
   await query(
     'INSERT INTO story_views (storyId, viewedBy, viewedAt) VALUES (?,?,?) ON DUPLICATE KEY UPDATE viewedAt=VALUES(viewedAt)',
     [storyId, viewerUid, Date.now()],
@@ -702,7 +702,7 @@ export async function seedBadges(): Promise<{ created: string[]; existed: string
 
 /* ── Croquettes (legacy) ── */
 
-export async function getCroquettes(uid: string): Promise<Record<string, unknown> | null> {
+export async function getCroquettes(_uid: string): Promise<Record<string, unknown> | null> {
   return null;
 }
 
@@ -1025,7 +1025,7 @@ export async function migrateWouaffIds(): Promise<{ migrated: number }> {
   );
   let count = 0;
   for (const row of rows) {
-    if (row.wouaffId && row.wouaffId.startsWith('@')) {
+    if (row.wouaffId?.startsWith('@')) {
       await query('INSERT INTO wouaff_id_index (wouaffId, uid) VALUES (?,?) ON DUPLICATE KEY UPDATE uid=VALUES(uid)', [
         row.wouaffId,
         row.uid,

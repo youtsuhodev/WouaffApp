@@ -13,7 +13,7 @@ type ToastItem = { id: number; msg: string; type: 'success' | 'error' | 'info' }
 const THEMES = ['default', 'rose', 'confetti', 'neon', 'fire', 'aurora', 'rgb', 'glitch', 'swing'];
 
 let toastId = 0;
-function escHtml(s: string): string {
+function _escHtml(s: string): string {
   return s.replace(
     /[&<>"']/g,
     (c: string) =>

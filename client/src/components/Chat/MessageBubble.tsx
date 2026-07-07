@@ -62,6 +62,7 @@ export default function MessageBubble({
       {!isSent && prevSame && <div className="msg-avatar-placeholder" />}
       <div
         className={`msg-bubble${msg.messageTheme && msg.messageTheme !== 'default' ? ` theme-${msg.messageTheme}` : ''}`}
+        role="presentation"
         onClick={(e) => {
           if (isGroup && !isSent && !prevSame) {
             const nameEl = (e.target as HTMLElement).closest('.msg-sender-name');
@@ -96,7 +97,7 @@ export default function MessageBubble({
           <div className="msg-image">
             <img
               src={msg.imageData || msg.text}
-              alt="Image"
+              alt=""
               loading="lazy"
               onClick={() => window.open(msg.imageData || msg.text)}
               className="cursor-pointer max-w-full max-h-[300px] rounded-lg block"
@@ -106,6 +107,7 @@ export default function MessageBubble({
           <div className="msg-file">
             <div
               className="file-link"
+              role="button"
               onClick={() => {
                 if (onDownloadFile && msg.from !== user?.uid) {
                   onDownloadFile(msg.fileData || '', msg.fileName || 'Fichier', msg.from || '');
@@ -120,7 +122,13 @@ export default function MessageBubble({
                 }
               }}
             >
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                fill="currentColor"
+                aria-label={msg.fileName || 'Fichier'}
+              >
                 <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-3.06 16L7.4 14.46l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41L10.94 18z" />
               </svg>
               <span className="file-name">{msg.fileName || 'Fichier'}</span>
@@ -152,7 +160,7 @@ export default function MessageBubble({
                   className="msg-group-seen"
                   title={`Vu par ${msg.seenBy.length} personne${msg.seenBy.length > 1 ? 's' : ''}`}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label="Vu">
                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                   </svg>
                   <span className="msg-group-seen-count">{msg.seenBy.length}</span>

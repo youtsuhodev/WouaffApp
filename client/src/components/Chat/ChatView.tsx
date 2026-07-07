@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { contacts as contactsAPI, groups as groupsAPI, messages as messagesAPI } from '../../services/api';
-import { decryptMessageData, getPublicKey } from '../../services/e2ee';
+import { messages as messagesAPI } from '../../services/api';
+import { decryptMessageData } from '../../services/e2ee';
 import {
   emitTypingDM,
   emitTypingGroup,
@@ -86,7 +86,7 @@ export default function ChatView({
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const _searchInputRef = useRef<HTMLInputElement>(null);
   const convRef = useRef<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingChunksRef = useRef<Blob[]>([]);
@@ -149,7 +149,7 @@ export default function ChatView({
         });
       }
     }
-  }, [allMessages]);
+  }, [allMessages, linkPreviews]);
 
   useEffect(() => {
     if (!chatWith) {
@@ -167,7 +167,7 @@ export default function ChatView({
         setPartnerPubKey(null);
       }
     })();
-  }, [chatWith, user]);
+  }, [chatWith]);
 
   useEffect(() => {
     if (!chatWith && !currentGroupId) return;
@@ -328,13 +328,13 @@ export default function ChatView({
       offSeen(handleSeenDM);
       offGroupSeen(handleGroupSeen);
     };
-  }, [chatWith, currentGroupId, user, partnerPubKey]);
+  }, [chatWith, currentGroupId, user, partnerPubKey, markSeen, chatWithPseudo]);
 
   useEffect(() => {
     if (msgsEl.current && !userScrolledUpRef.current && !loadingMoreRef.current) {
       msgsEl.current.scrollTop = msgsEl.current.scrollHeight;
     }
-  }, [allMessages]);
+  }, []);
 
   useEffect(() => {
     const el = msgsEl.current;

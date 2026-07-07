@@ -1,6 +1,6 @@
 import type { MessageData } from '../types';
 import type { LinkPreview } from './links';
-import { fetchLinkPreview, parseUrls, textToParts } from './links';
+import { parseUrls, textToParts } from './links';
 
 export const EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '😍'];
 
@@ -661,7 +661,7 @@ function parseMarkdown(text: string): MarkdownBlock[] {
 function renderInline(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   const regex = /(`[^`]+`)|(\*\*(.+?)\*\*)|(__(.+?)__)|(\*(.+?)\*)|(_(.+?)_)|(~~(.+?)~~)/g;
-  const lastIndex = 0;
+  const _lastIndex = 0;
   let match: RegExpExecArray | null;
   const remaining: Array<{ start: number; end: number; node: React.ReactNode }> = [];
   while ((match = regex.exec(text)) !== null) {
@@ -797,7 +797,6 @@ function renderMarkdown(text: string): React.ReactNode {
             ))}
           </ul>
         );
-      case 'paragraph':
       default:
         return (
           <p key={bi} className="md-p">

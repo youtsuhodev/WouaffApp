@@ -189,6 +189,7 @@ export default function LoginPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                 >
                   {showPassword ? (
                     <>
@@ -251,6 +252,7 @@ export default function LoginPage() {
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    aria-label={showConfirmPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                   >
                     {showConfirmPassword ? (
                       <>
@@ -291,6 +293,7 @@ export default function LoginPage() {
           )}
 
           <button
+            type="submit"
             className="w-full bg-brand text-white px-6 py-3.5 rounded-xl font-bold text-sm border-none cursor-pointer font-sans hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             onClick={handleSubmit}
             disabled={isLoading}
@@ -307,6 +310,7 @@ export default function LoginPage() {
           <div className="text-center text-sm mt-6">
             <span className="text-[var(--text-muted)]">{isRegister ? 'Déjà un compte ?' : 'Pas de compte ?'}</span>
             <button
+              type="button"
               className="bg-transparent border-none text-brand font-bold cursor-pointer text-sm ml-1 font-sans hover:underline"
               onClick={toggleMode}
             >

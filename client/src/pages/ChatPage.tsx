@@ -13,7 +13,6 @@ import {
   contacts as contactsAPI,
   groups as groupsAPI,
   profiles as profilesAPI,
-  search as searchAPI,
 } from '../services/api';
 
 export default function ChatPage() {
@@ -65,7 +64,7 @@ export default function ChatPage() {
     if (vipId) handleVipInvite(vipId);
     const groupId = params.get('group');
     if (groupId) setTimeout(() => openGroup(groupId), 100);
-  }, []);
+  }, [handleVipInvite, openGroup, handleInvite]);
 
   const handleInvite = async (inviteId: string) => {
     try {
@@ -470,7 +469,7 @@ function ProfileModalContent({
 }) {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
-  const [croqData, setCroqData] = useState<Record<string, unknown> | null>(null);
+  const [_croqData, setCroqData] = useState<Record<string, unknown> | null>(null);
   const [badgeDefs, setBadgeDefs] = useState<Record<string, BadgeDef>>({});
 
   useEffect(() => {
@@ -481,7 +480,7 @@ function ProfileModalContent({
       .catch((e) => {
         console.error(e);
       });
-  }, [uid]);
+  }, [loadProfile]);
 
   const loadProfile = async () => {
     try {

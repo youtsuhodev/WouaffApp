@@ -267,7 +267,7 @@ export default function AdminPage() {
         prof = (await res.json()) as UserProfile;
         uid = q;
       }
-      if (!prof || !prof.pseudo) throw new Error('Profil introuvable');
+      if (!prof?.pseudo) throw new Error('Profil introuvable');
       setSearchResult({ uid, profile: prof });
       setEditData({
         pseudo: prof.pseudo || '',
@@ -849,7 +849,7 @@ export default function AdminPage() {
                     </div>
                     <div className="admin-user-info">
                       <div className="admin-user-name">{p.pseudo || uid.slice(0, 8)}</div>
-                      <div className="admin-user-id">{p.wouaffId || uid.slice(0, 12) + '...'}</div>
+                      <div className="admin-user-id">{p.wouaffId || `${uid.slice(0, 12)}...`}</div>
                     </div>
                     <button
                       className="admin-btn admin-btn-danger px-2.5 py-1.5 text-[11px]"

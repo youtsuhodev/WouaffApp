@@ -32,7 +32,7 @@ export const messages = {
       const qs = new URLSearchParams();
       if (limit) qs.set('limit', String(limit));
       if (before !== undefined) qs.set('before', String(before));
-      path += '?' + qs.toString();
+      path += `?${qs.toString()}`;
     }
     return request<{ messages: Record<string, unknown>; hasMore: boolean }>('GET', path);
   },
@@ -42,7 +42,7 @@ export const messages = {
       const qs = new URLSearchParams();
       if (limit) qs.set('limit', String(limit));
       if (before !== undefined) qs.set('before', String(before));
-      path += '?' + qs.toString();
+      path += `?${qs.toString()}`;
     }
     return request<{ messages: Record<string, unknown>; hasMore: boolean }>('GET', path);
   },

@@ -9,7 +9,7 @@ export default function TitleBar() {
     api.isMaximized().then(setMaximized);
     const cleanup = api.onMaximizeChange(setMaximized);
     return cleanup;
-  }, [api]);
+  }, []);
 
   if (!api) return null;
 

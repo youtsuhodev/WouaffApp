@@ -15,7 +15,7 @@ router.use(verifyToken);
 
 router.post('/', upload.fields([{ name: 'video', maxCount: 1 }]), async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const videoFile = (req.files as any)?.['video']?.[0];
+  const videoFile = (req.files as any)?.video?.[0];
   if (!videoFile) {
     res.status(400).json({ error: 'Vidéo requise' });
     return;
@@ -45,8 +45,8 @@ router.post('/', upload.fields([{ name: 'video', maxCount: 1 }]), async (req: Re
 
 router.get('/', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const page = Math.max(1, parseInt(req.query.page as string) || 1);
-  const limit = Math.min(20, Math.max(1, parseInt(req.query.limit as string) || 10));
+  const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+  const limit = Math.min(20, Math.max(1, parseInt(req.query.limit as string, 10) || 10));
   const offset = (page - 1) * limit;
   const rows = await query<Array<VideoData & { uid: string }>>(
     'SELECT * FROM videos ORDER BY createdAt DESC LIMIT ? OFFSET ?',
@@ -169,7 +169,7 @@ router.get('/:id/liked', async (req: Request, res: Response) => {
 router.post('/:id/comments', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { text } = req.body as { text: string };
-  if (!text || !text.trim()) {
+  if (!text?.trim()) {
     res.status(400).json({ error: 'Texte requis' });
     return;
   }

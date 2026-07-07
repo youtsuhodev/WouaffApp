@@ -17,11 +17,11 @@ export default function ForwardModal({ msg, user, currentChatWith, currentGroupI
   useEffect(() => {
     contactsAPI
       .list()
-      .then((r) => setContacts(r as any))
+      .then((r: Record<string, { pseudo?: string; avatar?: string }>) => setContacts(r))
       .catch(() => {});
     groupsAPI
       .list()
-      .then((r) => setGroups(r as any))
+      .then((r: Record<string, { group: { name: string; icon?: string } }>) => setGroups(r))
       .catch(() => {});
   }, []);
 
@@ -61,9 +61,15 @@ export default function ForwardModal({ msg, user, currentChatWith, currentGroupI
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center"
+      role="button"
+      tabIndex={0}
+      onClick={onClose}
+    >
       <div
         className="bg-[var(--bg-card)] rounded-2xl p-5 max-w-[360px] w-[90%] max-h-[70vh] overflow-y-auto border border-[var(--border)]"
+        role="presentation"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-base font-bold m-0 mb-3 text-[var(--text-primary)]">Transférer le message</h3>
@@ -76,12 +82,12 @@ export default function ForwardModal({ msg, user, currentChatWith, currentGroupI
             {Object.entries(groups).map(([gid, g]) => {
               if (gid === currentGroupId) return null;
               return (
-                <div key={gid} className="forward-item" onClick={() => doForward(undefined, gid)}>
+                <button key={gid} type="button" className="forward-item" onClick={() => doForward(undefined, gid)}>
                   <div className="forward-item-avatar">
                     {g.group.icon ? <img src={g.group.icon} alt="" /> : <span>{(g.group.name || 'G')[0]}</span>}
                   </div>
                   <span className="forward-item-name">{g.group.name}</span>
-                </div>
+                </button>
               );
             })}
           </>
@@ -92,12 +98,12 @@ export default function ForwardModal({ msg, user, currentChatWith, currentGroupI
             {Object.entries(contacts).map(([uid, c]) => {
               if (uid === currentChatWith) return null;
               return (
-                <div key={uid} className="forward-item" onClick={() => doForward(uid)}>
+                <button key={uid} type="button" className="forward-item" onClick={() => doForward(uid)}>
                   <div className="forward-item-avatar">
                     {c.avatar ? <img src={c.avatar} alt="" /> : <span>{(c.pseudo || '?')[0]}</span>}
                   </div>
                   <span className="forward-item-name">{c.pseudo || uid}</span>
-                </div>
+                </button>
               );
             })}
           </>

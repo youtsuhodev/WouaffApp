@@ -36,8 +36,9 @@ export default function ContextMenu({
     <div className="ctx-menu" style={{ position: 'fixed', left: x, top: y, zIndex: 9999 } as React.CSSProperties}>
       <div className="ctx-reactions">
         {EMOJIS.map((e) => (
-          <span
+          <button
             key={e}
+            type="button"
             className="ctx-emoji"
             onClick={() => {
               toggleReaction(mid, e, convId, isGroup);
@@ -45,12 +46,13 @@ export default function ContextMenu({
             }}
           >
             {e}
-          </span>
+          </button>
         ))}
       </div>
       <div className="ctx-divider" />
       {!msg.deleted && (
-        <div
+        <button
+          type="button"
           className="ctx-item"
           onClick={() => {
             onReply();
@@ -58,11 +60,12 @@ export default function ContextMenu({
           }}
         >
           ↩️ Répondre
-        </div>
+        </button>
       )}
       {isOwn && !msg.deleted && (
         <>
-          <div
+          <button
+            type="button"
             className="ctx-item"
             onClick={() => {
               onEdit();
@@ -70,8 +73,9 @@ export default function ContextMenu({
             }}
           >
             ✏️ Modifier
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="ctx-item"
             onClick={() => {
               onForward();
@@ -79,8 +83,9 @@ export default function ContextMenu({
             }}
           >
             📤 Transférer
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="ctx-item"
             onClick={() => {
               onTogglePin();
@@ -88,8 +93,9 @@ export default function ContextMenu({
             }}
           >
             📌 {msg.pinned ? 'Désépingler' : 'Épingler'}
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className="ctx-item danger"
             onClick={() => {
               onDelete();
@@ -97,7 +103,7 @@ export default function ContextMenu({
             }}
           >
             🗑️ Supprimer
-          </div>
+          </button>
         </>
       )}
     </div>

@@ -22,7 +22,7 @@ export default function PublicGroupsPage() {
   useEffect(() => {
     loadGroups();
     loadMyGroups();
-  }, []);
+  }, [loadMyGroups, loadGroups]);
 
   const loadGroups = async () => {
     try {

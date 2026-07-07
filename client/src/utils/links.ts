@@ -75,7 +75,7 @@ export function isSocialUrl(url: string): boolean {
   ];
   try {
     const host = new URL(url).hostname.replace(/^www\./, '');
-    return social.some((s) => host === s || host.endsWith('.' + s));
+    return social.some((s) => host === s || host.endsWith(`.${s}`));
   } catch {
     return false;
   }

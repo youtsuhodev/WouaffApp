@@ -148,7 +148,7 @@ export default function StoryCreator({ onClose, onPublished }: StoryCreatorProps
       showToast('Story publiée !', 'success');
       onPublished();
       onClose();
-    } catch (e) {
+    } catch (_e) {
       showToast('Erreur lors de la publication.', 'error');
     }
     setPublishing(false);

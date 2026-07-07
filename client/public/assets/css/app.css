@@ -4456,7 +4456,7 @@ body {
     border-radius: var(--bnav-radius) var(--bnav-radius) 0 0;
   }
   #topbar {
-    display: none !important;
+    display: none;
   }
   #app {
     padding-bottom: calc(10px + var(--safe-bottom));
@@ -7179,16 +7179,16 @@ body {
   display: block;
 }
 .danger-zone-section {
-  border-color: rgba(237, 66, 69, 0.3) !important;
+  border-color: rgba(237, 66, 69, 0.3);
 }
 .danger-zone-section .section-title {
-  color: var(--danger) !important;
+  color: var(--danger);
 }
 .danger-zone-section .save-btn.danger-btn {
-  background: var(--danger) !important;
+  background: var(--danger);
 }
 .danger-zone-section .save-btn.danger-btn:hover {
-  box-shadow: 0 4px 18px rgba(237, 66, 69, 0.4) !important;
+  box-shadow: 0 4px 18px rgba(237, 66, 69, 0.4);
 }
 .delete-modal {
   position: fixed;

@@ -47,10 +47,10 @@ export default function SearchBar({
           {Object.entries(searchResults)
             .slice(0, 10)
             .map(([mid, m]) => (
-              <div key={mid} className="search-result-item" onClick={() => onResultClick(mid)}>
+              <button key={mid} type="button" className="search-result-item" onClick={() => onResultClick(mid)}>
                 <span className="search-result-text">{m.text?.substring(0, 80)}</span>
                 <span className="search-result-time">{formatTime(m.time)}</span>
-              </div>
+              </button>
             ))}
         </div>
       )}

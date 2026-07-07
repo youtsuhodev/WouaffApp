@@ -77,11 +77,11 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
       cancelled = true;
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []);
+  }, [user?.uid, startUid]);
 
   /* Resume audio on first user interaction (browser autoplay policy) */
   const tryPlayAudio = useCallback(() => {
-    if (audioRef.current && audioRef.current.paused && !paused) {
+    if (audioRef.current?.paused && !paused) {
       audioRef.current.play().catch(() => {});
     }
   }, [paused]);

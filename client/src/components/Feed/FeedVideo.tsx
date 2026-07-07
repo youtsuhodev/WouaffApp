@@ -1,4 +1,4 @@
-import { Heart, MapPin, MessageCircle, Pause, Play, Send, X } from 'lucide-react';
+import { Heart, MapPin, MessageCircle, Play, Send, X } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { VideoComment, VideoData } from '../../types';

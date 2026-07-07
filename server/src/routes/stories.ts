@@ -7,7 +7,6 @@ import {
   createStory,
   deleteStory,
   getContactUids,
-  getProfile,
   getStories,
   markStoryViewed,
 } from '../services/rtdb.js';

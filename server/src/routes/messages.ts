@@ -4,7 +4,6 @@ import { getOne, query } from '../config/database.js';
 import { verifyToken } from '../middleware/auth.js';
 import {
   chatId,
-  getGroup,
   getGroupMessages,
   getMessages,
   markMessagesAsSeen,

@@ -13,7 +13,7 @@ export default function EmojiPicker({ onEmojiSelect }: EmojiPickerProps) {
             <div className="emoji-category-name">{cat.name}</div>
             <div className="emoji-grid">
               {cat.items.map((emoji) => (
-                <button key={emoji} className="emoji-item" onClick={() => onEmojiSelect(emoji)}>
+                <button key={emoji} type="button" className="emoji-item" onClick={() => onEmojiSelect(emoji)}>
                   {emoji}
                 </button>
               ))}
