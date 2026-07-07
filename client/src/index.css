@@ -279,6 +279,122 @@
 }
 
 /* ══════════════════════════════════════════════════════════
+   MESSAGE ANIMATIONS
+══════════════════════════════════════════════════════════ */
+
+@keyframes animFloatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-120px) scale(0.8);
+  }
+}
+
+@keyframes animFallDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-100px) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100vh) rotate(720deg);
+  }
+}
+
+@keyframes animTwinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes animRise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-40px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-150px) scale(0.6);
+  }
+}
+
+@keyframes animDrift {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0);
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(80px) translateY(-200px);
+  }
+}
+
+.msg-animation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.msg-animation-particle {
+  position: absolute;
+  will-change: transform, opacity;
+  line-height: 1;
+}
+
+.anim-fireworks .msg-animation-particle {
+  animation: animFloatUp 2s ease-out forwards;
+}
+
+.anim-confetti .msg-animation-particle {
+  animation: animFallDown 3s ease-in forwards;
+}
+
+.anim-snow .msg-animation-particle {
+  animation: animFallDown 5s linear forwards;
+}
+
+.anim-hearts .msg-animation-particle {
+  animation: animRise 3s ease-out forwards;
+}
+
+.anim-stars .msg-animation-particle {
+  animation: animTwinkle 2.5s ease-in-out infinite;
+}
+
+.anim-candles .msg-animation-particle {
+  animation: animDrift 3.5s ease-out forwards;
+}
+
+.anim-bats .msg-animation-particle {
+  animation: animFallDown 4s ease-in-out forwards;
+}
+
+/* ══════════════════════════════════════════════════════════
    COMPONENT STYLES — seront progressivement supprimées
    au fur et à mesure de la migration Tailwind
 ══════════════════════════════════════════════════════════ */

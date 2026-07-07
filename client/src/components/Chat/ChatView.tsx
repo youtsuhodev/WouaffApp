@@ -32,6 +32,9 @@ import type { MessageData } from '../../types';
 import { fetchLinkPreview, parseUrls } from '../../utils/links';
 import { playMessageSound } from '../../utils/notificationSound';
 import { showToast } from '../Common/Toast';
+import type { AnimationType } from './Animations/keywords';
+import { KEYWORD_MAP } from './Animations/keywords';
+import MessageAnimation from './Animations/MessageAnimation';
 import ChatTopbar from './ChatTopbar';
 import ContextMenu from './ContextMenu';
 import ForwardModal from './ForwardModal';
@@ -85,6 +88,8 @@ export default function ChatView({
   const [linkPreviews, setLinkPreviews] = useState<Record<string, import('../../utils/links').LinkPreview | null>>({});
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+
+  const [currentAnimation, setCurrentAnimation] = useState<AnimationType | null>(null);
 
   const _searchInputRef = useRef<HTMLInputElement>(null);
   const convRef = useRef<string | null>(null);
@@ -280,6 +285,18 @@ export default function ChatView({
       if (msg.from !== user?.uid) {
         markSeen([ev.key]);
         playMessageSound();
+      }
+      if (
+        msg.type === 'text' &&
+        msg.text &&
+        localStorage.getItem('wouaff_animations_enabled') !== 'false'
+      ) {
+        for (const [regex, animType] of KEYWORD_MAP) {
+          if (regex.test(msg.text)) {
+            setCurrentAnimation(animType);
+            break;
+          }
+        }
       }
     };
     const onUpd = async (ev: { convId: string; key: string; data: MessageData }) => {
@@ -816,6 +833,9 @@ export default function ChatView({
         onEphemeralChange={setEphemeralDuration}
         placeholder={chatWith ? 'Écrivez un message…' : 'Écrivez dans le groupe…'}
       />
+      {currentAnimation && (
+        <MessageAnimation type={currentAnimation} onEnd={() => setCurrentAnimation(null)} />
+      )}
     </>
   );
 }
