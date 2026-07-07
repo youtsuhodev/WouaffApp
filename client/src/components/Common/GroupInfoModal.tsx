@@ -306,7 +306,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
         <div className="grp-body">
           {editing ? (
             <div className="grp-edit-section">
-              <label className="grp-edit-label" htmlFor="grpDesc">Description</label>
+              <label className="grp-edit-label" htmlFor="grpDesc">
+                Description
+              </label>
               <textarea
                 id="grpDesc"
                 className="grp-edit-textarea"
@@ -316,7 +318,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
                 rows={3}
                 maxLength={500}
               />
-              <label className="grp-edit-label" htmlFor="grpIcon">Icône (URL)</label>
+              <label className="grp-edit-label" htmlFor="grpIcon">
+                Icône (URL)
+              </label>
               <input
                 id="grpIcon"
                 className="grp-edit-input"
@@ -324,7 +328,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
                 onChange={(e) => setEditIcon(e.target.value)}
                 placeholder="https://..."
               />
-              <label className="grp-edit-label" htmlFor="grpBanner">Bannière (URL)</label>
+              <label className="grp-edit-label" htmlFor="grpBanner">
+                Bannière (URL)
+              </label>
               <input
                 id="grpBanner"
                 className="grp-edit-input"

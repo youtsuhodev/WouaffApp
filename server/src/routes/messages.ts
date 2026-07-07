@@ -240,8 +240,12 @@ router.get('/:uid/pinned', async (req: Request, res: Response) => {
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
-    const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as any;
-    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData) : undefined, ...rest } as MessageData;
+    const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as unknown as Record<string, unknown>;
+    result[key] = {
+      from: fromUid,
+      contact: contactData ? JSON.parse(contactData as string) : undefined,
+      ...rest,
+    } as unknown as MessageData;
   }
   res.json(result);
 });
@@ -255,8 +259,8 @@ router.get('/group/:gid/pinned', async (req: Request, res: Response) => {
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
-    const { msgKey: _, gid: __, id: ___, fromUid, ...rest } = row as any;
-    result[key] = { from: fromUid, ...rest } as MessageData;
+    const { msgKey: _, gid: __, id: ___, fromUid, ...rest } = row as unknown as Record<string, unknown>;
+    result[key] = { from: fromUid, ...rest } as unknown as MessageData;
   }
   res.json(result);
 });

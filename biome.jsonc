@@ -26,7 +26,8 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "noUselessElse": "off"
+        "noUselessElse": "off",
+        "noDescendingSpecificity": "off"
       },
       "security": {
         "noDangerouslySetInnerHtml": "off"

@@ -87,7 +87,11 @@ export async function getMessages(
   for (const row of rows) {
     const key = row.msgKey;
     const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as unknown as Record<string, unknown>;
-    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData as string) : undefined, ...rest } as unknown as MessageData;
+    result[key] = {
+      from: fromUid,
+      contact: contactData ? JSON.parse(contactData as string) : undefined,
+      ...rest,
+    } as unknown as MessageData;
   }
   return { messages: result, hasMore };
 }
@@ -275,7 +279,11 @@ export async function searchMessages(convId: string, searchQuery: string): Promi
   for (const row of rows) {
     const key = row.msgKey;
     const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as unknown as Record<string, unknown>;
-    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData as string) : undefined, ...rest } as unknown as MessageData;
+    result[key] = {
+      from: fromUid,
+      contact: contactData ? JSON.parse(contactData as string) : undefined,
+      ...rest,
+    } as unknown as MessageData;
   }
   return result;
 }

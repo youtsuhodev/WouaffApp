@@ -706,6 +706,7 @@ function renderInline(text: string): React.ReactNode[] {
         node: <del key={match.index}>{renderInline(match[11])}</del>,
       });
     }
+    match = regex.exec(text);
   }
   let pos = 0;
   remaining.sort((a, b) => a.start - b.start);
@@ -762,26 +763,26 @@ function renderInline(text: string): React.ReactNode[] {
 
 function renderMarkdown(text: string): React.ReactNode {
   const blocks = parseMarkdown(text);
-  return blocks.map((block, bi) => {
+  return blocks.map((block) => {
     switch (block.type) {
       case 'code':
         return (
-          <pre key={bi} className="md-pre">
+          <pre key={`code-${block.content || ''}`} className="md-pre">
             <code className="md-code-block">{block.content || ''}</code>
           </pre>
         );
       case 'blockquote':
         return (
-          <blockquote key={bi} className="md-blockquote">
+          <blockquote key={`bq-${block.content || ''}`} className="md-blockquote">
             {renderInline(block.content || '')}
           </blockquote>
         );
       case 'list':
         if (block.ordered) {
           return (
-            <ol key={bi} className="md-ol">
-              {block.children!.map((item, ci) => (
-                <li key={ci} className="md-li">
+            <ol key={`ol-${block.content || ''}`} className="md-ol">
+              {block.children!.map((item) => (
+                <li key={`li-${item.content}`} className="md-li">
                   {renderInline(item.content)}
                 </li>
               ))}
@@ -789,9 +790,9 @@ function renderMarkdown(text: string): React.ReactNode {
           );
         }
         return (
-          <ul key={bi} className="md-ul">
-            {block.children!.map((item, ci) => (
-              <li key={ci} className="md-li">
+          <ul key={`ul-${block.content || ''}`} className="md-ul">
+            {block.children!.map((item) => (
+              <li key={`li-${item.content}`} className="md-li">
                 {renderInline(item.content)}
               </li>
             ))}
@@ -799,7 +800,7 @@ function renderMarkdown(text: string): React.ReactNode {
         );
       default:
         return (
-          <p key={bi} className="md-p">
+          <p key={`p-${block.content || ''}`} className="md-p">
             {renderInline(block.content || '')}
           </p>
         );

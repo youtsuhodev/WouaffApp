@@ -378,7 +378,7 @@ export default function SettingsPage() {
                 {socialLinks.map((link, i) => {
                   const pf = PLATFORMS.find((p) => p.id === link.platform);
                   return (
-                    <div key={link.platform + link.url + i} className="settings-item social-link-row">
+                    <div key={link.platform + link.url} className="settings-item social-link-row">
                       <div className="social-link-inputs">
                         <select
                           value={link.platform}
@@ -473,8 +473,20 @@ export default function SettingsPage() {
                 </div>
                 <div className="settings-item">
                   <label htmlFor="themeSelectDark">Thème de l'application</label>
-                  <input type="radio" id="themeSelectDark" name="theme" className="hidden" defaultChecked={theme === 'dark'} />
-                  <input type="radio" id="themeSelectLight" name="theme" className="hidden" defaultChecked={theme === 'light'} />
+                  <input
+                    type="radio"
+                    id="themeSelectDark"
+                    name="theme"
+                    className="hidden"
+                    defaultChecked={theme === 'dark'}
+                  />
+                  <input
+                    type="radio"
+                    id="themeSelectLight"
+                    name="theme"
+                    className="hidden"
+                    defaultChecked={theme === 'light'}
+                  />
                   <div className="theme-toggle-row">
                     <button
                       className={`theme-toggle-btn${theme === 'dark' ? ' active' : ''}`}

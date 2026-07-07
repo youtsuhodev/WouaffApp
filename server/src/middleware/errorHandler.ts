@@ -20,7 +20,10 @@ export function setupProcessHandlers(cleanup?: () => Promise<void>): void {
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.error('[UNHANDLED]', (reason as { stack?: string; message?: string })?.stack || (reason as { message?: string })?.message || reason);
+    console.error(
+      '[UNHANDLED]',
+      (reason as { stack?: string; message?: string })?.stack || (reason as { message?: string })?.message || reason,
+    );
   });
 
   process.on('SIGTERM', () => {

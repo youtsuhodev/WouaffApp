@@ -74,20 +74,23 @@ export default function ChatPage() {
     setShowProfileModal(true);
   }, []);
 
-  const handleInvite = useCallback(async (inviteId: string) => {
-    try {
-      const res = await groupsAPI.join(inviteId);
-      if (res.alreadyMember) {
-        openGroup(res.gid);
-        return;
+  const handleInvite = useCallback(
+    async (inviteId: string) => {
+      try {
+        const res = await groupsAPI.join(inviteId);
+        if (res.alreadyMember) {
+          openGroup(res.gid);
+          return;
+        }
+        const g = await groupsAPI.get(res.gid);
+        setJoinGroupData({ inviteId, gid: res.gid, group: g as unknown as Record<string, unknown> });
+        setShowJoinGroup(true);
+      } catch (e) {
+        console.error(e);
       }
-      const g = await groupsAPI.get(res.gid);
-      setJoinGroupData({ inviteId, gid: res.gid, group: g as unknown as Record<string, unknown> });
-      setShowJoinGroup(true);
-    } catch (e) {
-      console.error(e);
-    }
-  }, [openGroup]);
+    },
+    [openGroup],
+  );
 
   const handleVipInvite = useCallback(async (_vipId: string) => {
     /* VIP invite handled by Cloud Functions */

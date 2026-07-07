@@ -60,7 +60,9 @@ function iceRestart() {
     });
     (peer as unknown as { _pc?: RTCPeerConnection })._pc
       ?.createOffer({ iceRestart: true })
-      .then((offer: RTCSessionDescriptionInit) => (peer as unknown as { _pc?: RTCPeerConnection })._pc?.setLocalDescription(offer))
+      .then((offer: RTCSessionDescriptionInit) =>
+        (peer as unknown as { _pc?: RTCPeerConnection })._pc?.setLocalDescription(offer),
+      )
       .catch(() => {
         reconnecting = false;
       });
@@ -329,7 +331,9 @@ function cleanup(): void {
     peer = null;
   }
   if (localStream) {
-    localStream.getTracks().forEach((t) => { t.stop(); });
+    localStream.getTracks().forEach((t) => {
+      t.stop();
+    });
     localStream = null;
   }
   remoteStream = null;

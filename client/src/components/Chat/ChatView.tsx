@@ -478,7 +478,9 @@ export default function ChatView({
         if (e.data.size > 0) recordingChunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
-        stream.getTracks().forEach((t) => { t.stop(); });
+        stream.getTracks().forEach((t) => {
+          t.stop();
+        });
         if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
         const blob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
         const reader = new FileReader();
