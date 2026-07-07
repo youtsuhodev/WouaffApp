@@ -2,7 +2,14 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
-import { deleteUserProfile, getMutualContacts, getProfile, getPublicKey, getReverseContactUids, updateProfile } from '../services/rtdb.js';
+import {
+  deleteUserProfile,
+  getMutualContacts,
+  getProfile,
+  getPublicKey,
+  getReverseContactUids,
+  updateProfile,
+} from '../services/rtdb.js';
 import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
