@@ -19,6 +19,7 @@ import {
   Save,
   Search,
   Shield,
+  ShieldAlert,
   Trash2,
   User,
   UserMinus,
@@ -45,6 +46,8 @@ const ACTIONS_LABELS: Record<string, string> = {
   account_delete: 'Suppression compte',
   wouaffid_reset: 'Réinitialisation ID',
   migrate_wouaff_ids: 'Migration IDs',
+  maintenance_on: 'Maintenance activée',
+  maintenance_off: 'Maintenance désactivée',
 };
 
 const ACTION_ICONS: Record<string, React.ReactNode> = {
@@ -55,6 +58,8 @@ const ACTION_ICONS: Record<string, React.ReactNode> = {
   account_delete: <Trash2 size={14} />,
   wouaffid_reset: <RefreshCw size={14} />,
   migrate_wouaff_ids: <Link2 size={14} />,
+  maintenance_on: <ShieldAlert size={14} />,
+  maintenance_off: <ShieldAlert size={14} />,
 };
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
@@ -150,6 +155,11 @@ export default function AdminPage() {
   >([]);
   const [showReports, setShowReports] = useState(false);
 
+  /* Maintenance state */
+  const [maintenanceOn, setMaintenanceOn] = useState(false);
+  const [maintenanceMsg, setMaintenanceMsg] = useState('');
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+
   const toast = useCallback((msg: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = ++toastId;
     setToasts((prev) => [...prev, { id, msg, type }]);
@@ -186,6 +196,13 @@ export default function AdminPage() {
             .catch((e) => {
               console.error(e);
             });
+          adminAPI.maintenance
+            .get()
+            .then((m) => {
+              setMaintenanceOn(m.enabled);
+              setMaintenanceMsg(m.message ?? '');
+            })
+            .catch(() => {});
         }
       } catch (e) {
         console.error(e);
@@ -197,6 +214,19 @@ export default function AdminPage() {
   const loadStats = async () => {
     const s = await adminAPI.stats().catch(() => null);
     if (s) setStats(s);
+  };
+
+  const toggleMaintenance = async () => {
+    setMaintenanceLoading(true);
+    try {
+      const newState = !maintenanceOn;
+      await adminAPI.maintenance.set(newState, maintenanceMsg || undefined);
+      setMaintenanceOn(newState);
+      toast(newState ? 'Mode maintenance activé' : 'Mode maintenance désactivé', 'success');
+    } catch {
+      toast("Erreur lors du changement d'état", 'error');
+    }
+    setMaintenanceLoading(false);
   };
 
   const loadRecentUsers = async () => {
@@ -574,7 +604,31 @@ export default function AdminPage() {
                 <button className="admin-btn admin-btn-secondary" onClick={loadReports}>
                   <Flag size={16} /> Signalements
                 </button>
+                <button
+                  className={`admin-btn ${maintenanceOn ? 'admin-btn-danger' : 'admin-btn-secondary'}`}
+                  onClick={toggleMaintenance}
+                  disabled={maintenanceLoading}
+                >
+                  <ShieldAlert size={16} /> {maintenanceOn ? 'Désactiver maintenance' : 'Activer maintenance'}
+                </button>
               </div>
+              {maintenanceOn && (
+                <div className="admin-card mt-1">
+                  <div className="admin-card-title">
+                    <ShieldAlert size={16} /> Message de maintenance
+                  </div>
+                  <textarea
+                    className="admin-input admin-textarea mt-1"
+                    rows={2}
+                    value={maintenanceMsg}
+                    onChange={(e) => setMaintenanceMsg(e.target.value)}
+                    placeholder="Message optionnel affiché aux utilisateurs..."
+                  />
+                  <button className="admin-btn admin-btn-primary mt-1" onClick={toggleMaintenance} disabled={maintenanceLoading}>
+                    <Save size={16} /> Appliquer
+                  </button>
+                </div>
+              )}
 
               {showReports && (
                 <div className="admin-card mt-1">

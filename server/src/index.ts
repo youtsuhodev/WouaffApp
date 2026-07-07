@@ -10,6 +10,7 @@ import pool from './config/database.js';
 import { runMigrations } from './config/migrate.js';
 import { patchRouter } from './middleware/asyncHandler.js';
 import { errorHandler, setupProcessHandlers } from './middleware/errorHandler.js';
+import { maintenanceCheck } from './middleware/maintenance.js';
 import { rateLimit } from './middleware/rateLimit.js';
 import { requestTimeout } from './middleware/timeout.js';
 import adminRouter from './routes/admin.js';
@@ -48,6 +49,15 @@ app.use('/api/auth/login', rateLimit({ windowMs: 60000, max: 20 }));
 app.use('/api/auth/register', rateLimit({ windowMs: 60000, max: 10 }));
 app.use('/api/auth/forgot-password', rateLimit({ windowMs: 60000, max: 5 }));
 app.use('/api/contacts', rateLimit({ windowMs: 60000, max: 60 }));
+
+/* Public maintenance status (accessible even during maintenance) */
+import { getMaintenanceMode } from './services/rtdb.js';
+app.get('/api/maintenance', (_req, res) => {
+  getMaintenanceMode().then((m) => res.json(m)).catch(() => res.json({ enabled: false, message: null }));
+});
+
+/* Maintenance check (blocks non-staff when enabled) */
+app.use('/api', maintenanceCheck);
 
 /* Request timeout (30s for regular, 60s for uploads) */
 app.use('/api', requestTimeout(30000));

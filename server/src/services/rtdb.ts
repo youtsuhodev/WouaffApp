@@ -1025,6 +1025,28 @@ export async function cleanExpiredEphemeralMessages(): Promise<
   return deleted;
 }
 
+/* ── Maintenance mode ── */
+
+export async function getMaintenanceMode(): Promise<{ enabled: boolean; message: string | null }> {
+  await query(
+    `CREATE TABLE IF NOT EXISTS maintenance_mode (
+      id INT PRIMARY KEY DEFAULT 1,
+      enabled TINYINT(1) NOT NULL DEFAULT 0,
+      message TEXT,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )`,
+  );
+  await query('INSERT IGNORE INTO maintenance_mode (id, enabled, message) VALUES (1, 0, NULL)');
+  const rows = await query<Array<{ enabled: number; message: string | null }>>(
+    'SELECT enabled, message FROM maintenance_mode WHERE id = 1',
+  );
+  return { enabled: rows[0]?.enabled === 1, message: rows[0]?.message ?? null };
+}
+
+export async function setMaintenanceMode(enabled: boolean, message?: string): Promise<void> {
+  await query('UPDATE maintenance_mode SET enabled = ?, message = ? WHERE id = 1', [enabled ? 1 : 0, message ?? null]);
+}
+
 /* ── Migration ── */
 
 export async function migrateWouaffIds(): Promise<{ migrated: number }> {

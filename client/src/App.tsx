@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import LoginPage from './components/Auth/LoginPage';
 import ActiveCallBar from './components/Call/ActiveCallBar';
@@ -17,6 +17,7 @@ import ChatPage from './pages/ChatPage';
 import DownloadPage from './pages/DownloadPage';
 import FeedPage from './pages/FeedPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import MaintenancePage from './pages/MaintenancePage';
 import ProfilePage from './pages/ProfilePage';
 import PublicGroupsPage from './pages/PublicGroupsPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
@@ -60,16 +61,32 @@ function ChatGuard({ children }: { children: React.ReactNode }) {
   return <EmailVerificationBanner onVerified={refresh} />;
 }
 
+function MaintenanceGuard({ children, skip }: { children: React.ReactNode; skip?: boolean }) {
+  const [status, setStatus] = useState<{ enabled: boolean; message: string | null } | null>(null);
+  useEffect(() => {
+    if (skip) return;
+    fetch('/api/maintenance')
+      .then((r) => r.json())
+      .then(setStatus)
+      .catch(() => setStatus({ enabled: false, message: null }));
+  }, [skip]);
+  if (skip || status === null) return <>{children}</>;
+  if (status.enabled) return <MaintenancePage message={status.message ?? undefined} />;
+  return <>{children}</>;
+}
+
 function CatchAll() {
   const loc = useLocation();
   if (loc.pathname.match(/^\/@(.+)/)) return <ProfilePage />;
   return (
     <ProtectedRoute>
-      <MobileLayout>
-        <ChatGuard>
-          <ChatPage />
-        </ChatGuard>
-      </MobileLayout>
+      <MaintenanceGuard>
+        <MobileLayout>
+          <ChatGuard>
+            <ChatPage />
+          </ChatGuard>
+        </MobileLayout>
+      </MaintenanceGuard>
     </ProtectedRoute>
   );
 }
@@ -97,9 +114,11 @@ export default function App() {
                   path="/settings"
                   element={
                     <ProtectedRoute>
-                      <MobileLayout>
-                        <SettingsPage />
-                      </MobileLayout>
+                      <MaintenanceGuard>
+                        <MobileLayout>
+                          <SettingsPage />
+                        </MobileLayout>
+                      </MaintenanceGuard>
                     </ProtectedRoute>
                   }
                 />
@@ -107,9 +126,11 @@ export default function App() {
                   path="/feed"
                   element={
                     <ProtectedRoute>
-                      <MobileLayout>
-                        <FeedPage />
-                      </MobileLayout>
+                      <MaintenanceGuard>
+                        <MobileLayout>
+                          <FeedPage />
+                        </MobileLayout>
+                      </MaintenanceGuard>
                     </ProtectedRoute>
                   }
                 />
@@ -118,7 +139,9 @@ export default function App() {
                   path="/explore"
                   element={
                     <ProtectedRoute>
-                      <PublicGroupsPage />
+                      <MaintenanceGuard>
+                        <PublicGroupsPage />
+                      </MaintenanceGuard>
                     </ProtectedRoute>
                   }
                 />
@@ -126,7 +149,9 @@ export default function App() {
                   path="/admin"
                   element={
                     <ProtectedRoute>
-                      <AdminPage />
+                      <MaintenanceGuard skip>
+                        <AdminPage />
+                      </MaintenanceGuard>
                     </ProtectedRoute>
                   }
                 />

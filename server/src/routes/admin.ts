@@ -8,6 +8,7 @@ import {
   getAdminStats,
   getAllStaff,
   getBadges,
+  getMaintenanceMode,
   getProfile,
   getRecentUsers,
   getReportedGroups,
@@ -16,6 +17,7 @@ import {
   migrateWouaffIds,
   resetUserWouaffId,
   seedBadges,
+  setMaintenanceMode,
   setStaff,
   setUserBadges,
   updateProfileByAdmin,
@@ -171,6 +173,22 @@ router.get('/reports', async (req: Request, res: Response) => {
   if (!(await requireStaff(req, res))) return;
   const reports = await getReportedGroups();
   res.json(reports);
+});
+
+/* GET /admin/maintenance — statut maintenance */
+router.get('/maintenance', async (req: Request, res: Response) => {
+  if (!(await requireStaff(req, res))) return;
+  const status = await getMaintenanceMode();
+  res.json(status);
+});
+
+/* POST /admin/maintenance — activer/désactiver la maintenance */
+router.post('/maintenance', async (req: Request, res: Response) => {
+  if (!(await requireStaff(req, res))) return;
+  const { enabled, message } = req.body as { enabled: boolean; message?: string };
+  await setMaintenanceMode(enabled, message);
+  await logAdminAction((req as AuthRequest).uid!, enabled ? 'maintenance_on' : 'maintenance_off', 'system', undefined, message);
+  res.json({ success: true });
 });
 
 export default router;

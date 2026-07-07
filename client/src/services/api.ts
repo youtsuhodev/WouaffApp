@@ -214,6 +214,11 @@ export const admin = {
         reportedAt: number;
       }>
     >('GET', '/admin/reports'),
+  maintenance: {
+    get: () => request<{ enabled: boolean; message: string | null }>('GET', '/admin/maintenance'),
+    set: (enabled: boolean, message?: string) =>
+      request<{ success: boolean }>('POST', '/admin/maintenance', { enabled, message }),
+  },
 };
 
 /* ── Badges ── */
@@ -235,5 +240,6 @@ export const blocks = {
   report: (uid: string, reason?: string) => request<{ success: boolean }>('POST', `/blocks/${uid}/report`, { reason }),
 };
 
-/* ── Health ── */
+/* ── Health / Maintenance ── */
 export const health = () => request<{ status: string }>('GET', '/health');
+export const maintenanceStatus = () => request<{ enabled: boolean; message: string | null }>('GET', '/maintenance');
