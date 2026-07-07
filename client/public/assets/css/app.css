@@ -6449,7 +6449,8 @@ body {
 .settings-item:last-child {
   margin-bottom: 0;
 }
-.settings-item label {
+.settings-item label,
+.settings-item .settings-label {
   display: block;
   color: var(--text-secondary);
   font-size: 12px;

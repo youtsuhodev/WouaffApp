@@ -79,9 +79,7 @@ export function generateParticles(type: AnimationType): Particle[] {
     case 'candles':
       return range(70).map((i) => ({
         id: i,
-        emoji: [
-          '🎂', '🕯️', '🕯️', '🎈', '🎉', '🎊', '✨', '💫',
-        ][Math.floor(Math.random() * 8)],
+        emoji: ['🎂', '🕯️', '🕯️', '🎈', '🎉', '🎊', '✨', '💫'][Math.floor(Math.random() * 8)],
         x: rand(5, 95),
         y: rand(10, 90),
         size: rand(18, 40),

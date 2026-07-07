@@ -51,7 +51,9 @@ export default function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
-  const [animationsEnabled, setAnimationsEnabled] = useState(localStorage.getItem('wouaff_animations_enabled') !== 'false');
+  const [animationsEnabled, setAnimationsEnabled] = useState(
+    localStorage.getItem('wouaff_animations_enabled') !== 'false',
+  );
 
   const enableAnimations = (on: boolean) => {
     localStorage.setItem('wouaff_animations_enabled', on ? 'true' : 'false');
@@ -561,7 +563,7 @@ export default function SettingsPage() {
                   )}
                 </div>
                 <div className="settings-item">
-                  <label>Animations des messages</label>
+                  <span className="settings-label">Animations des messages</span>
                   <div className="theme-toggle-row">
                     <button
                       className={`theme-toggle-btn${animationsEnabled ? ' active' : ''}`}
@@ -583,7 +585,8 @@ export default function SettingsPage() {
                     </button>
                   </div>
                   <div className="info-text">
-                    Affiche des animations (confettis, cœurs, etc.) quand certains mots-clés sont détectés dans les messages.
+                    Affiche des animations (confettis, cœurs, etc.) quand certains mots-clés sont détectés dans les
+                    messages.
                   </div>
                 </div>
               </div>

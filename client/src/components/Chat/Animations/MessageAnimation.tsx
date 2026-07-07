@@ -9,13 +9,20 @@ interface Props {
 
 function animationClass(type: AnimationType): string {
   switch (type) {
-    case 'fireworks': return 'anim-fireworks';
-    case 'confetti': return 'anim-confetti';
-    case 'snow': return 'anim-snow';
-    case 'hearts': return 'anim-hearts';
-    case 'stars': return 'anim-stars';
-    case 'candles': return 'anim-candles';
-    case 'bats': return 'anim-bats';
+    case 'fireworks':
+      return 'anim-fireworks';
+    case 'confetti':
+      return 'anim-confetti';
+    case 'snow':
+      return 'anim-snow';
+    case 'hearts':
+      return 'anim-hearts';
+    case 'stars':
+      return 'anim-stars';
+    case 'candles':
+      return 'anim-candles';
+    case 'bats':
+      return 'anim-bats';
   }
 }
 

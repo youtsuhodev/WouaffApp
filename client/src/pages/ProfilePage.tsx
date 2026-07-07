@@ -69,7 +69,10 @@ export default function ProfilePage() {
         setState('profile');
         document.title = `${esc((json.profile.pseudo as string) || 'Utilisateur')} (@${esc(((json.profile.wouaffId as string) || '').replace(/^@/, ''))}) — Wouaff`;
         if (user && json.uid && json.uid !== user.uid) {
-          profilesAPI.mutual(json.uid).then(setMutualFriends).catch(() => {});
+          profilesAPI
+            .mutual(json.uid)
+            .then(setMutualFriends)
+            .catch(() => {});
         }
       } catch {
         setErrorCode('Erreur');
@@ -77,7 +80,7 @@ export default function ProfilePage() {
         setState('error');
       }
     })();
-  }, [wouaffId]);
+  }, [wouaffId, user?.uid, user]);
 
   if (state === 'loading') {
     return (
@@ -198,12 +201,7 @@ export default function ProfilePage() {
               </div>
               <div className="profile-mutual-list">
                 {mutualFriends.slice(0, 10).map((mf) => (
-                  <Link
-                    key={mf.uid}
-                    to={`/@${mf.pseudo}`}
-                    className="profile-mutual-item"
-                    title={mf.pseudo}
-                  >
+                  <Link key={mf.uid} to={`/@${mf.pseudo}`} className="profile-mutual-item" title={mf.pseudo}>
                     {mf.avatar ? (
                       <img src={mf.avatar} alt={mf.pseudo} className="profile-mutual-avatar" />
                     ) : (

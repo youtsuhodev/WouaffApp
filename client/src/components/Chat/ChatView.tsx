@@ -286,11 +286,7 @@ export default function ChatView({
         markSeen([ev.key]);
         playMessageSound();
       }
-      if (
-        msg.type === 'text' &&
-        msg.text &&
-        localStorage.getItem('wouaff_animations_enabled') !== 'false'
-      ) {
+      if (msg.type === 'text' && msg.text && localStorage.getItem('wouaff_animations_enabled') !== 'false') {
         for (const [regex, animType] of KEYWORD_MAP) {
           if (regex.test(msg.text)) {
             setCurrentAnimation(animType);
@@ -833,9 +829,7 @@ export default function ChatView({
         onEphemeralChange={setEphemeralDuration}
         placeholder={chatWith ? 'Écrivez un message…' : 'Écrivez dans le groupe…'}
       />
-      {currentAnimation && (
-        <MessageAnimation type={currentAnimation} onEnd={() => setCurrentAnimation(null)} />
-      )}
+      {currentAnimation && <MessageAnimation type={currentAnimation} onEnd={() => setCurrentAnimation(null)} />}
     </>
   );
 }
