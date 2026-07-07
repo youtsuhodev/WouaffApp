@@ -20,8 +20,8 @@ export function patchRouter(router: Router): Router {
           return function (this: unknown, req: Request, res: Response, next: NextFunction) {
             try {
               const result = (arg as (...params: unknown[]) => unknown).call(this, req, res, next);
-              if (result && typeof (result as Record<string, unknown>).catch === 'function') {
-                (result as Record<string, unknown>).catch(next as unknown as (...params: unknown[]) => unknown);
+              if (result && typeof (result as { catch?: unknown }).catch === 'function') {
+                (result as { catch: (...args: unknown[]) => unknown }).catch(next as (...params: unknown[]) => unknown);
               }
             } catch (err) {
               next(err);
