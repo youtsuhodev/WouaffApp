@@ -41,9 +41,9 @@ export default function SwipeableConv({ children, actions }: SwipeableConvProps)
   return (
     <div className="relative overflow-hidden" onClick={reset}>
       <div className={`absolute inset-y-0 right-0 flex${swiped ? '' : ' hidden'}`}>
-        {actions.map((a, i) => (
+        {actions.map((a) => (
           <button
-            key={i}
+            key={a.label}
             className={`flex flex-col items-center justify-center w-[70px] text-xs font-bold border-none cursor-pointer text-white ${a.type === 'danger' ? 'bg-red-500' : 'bg-blue-500'}`}
             onClick={(e) => {
               e.stopPropagation();

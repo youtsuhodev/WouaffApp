@@ -37,9 +37,9 @@ export async function sendVerificationEmail(to: string, token: string): Promise<
     });
     lastError = null;
     return true;
-  } catch (err: any) {
-    lastError = err.message;
-    console.error('[EMAIL] sendVerification error:', err.message);
+  } catch (err) {
+    lastError = (err as { message?: string }).message;
+    console.error('[EMAIL] sendVerification error:', (err as { message?: string }).message);
     return false;
   }
 }
@@ -55,9 +55,9 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
     });
     lastError = null;
     return true;
-  } catch (err: any) {
-    lastError = err.message;
-    console.error('[EMAIL] sendPasswordReset error:', err.message);
+  } catch (err) {
+    lastError = (err as { message?: string }).message;
+    console.error('[EMAIL] sendPasswordReset error:', (err as { message?: string }).message);
     return false;
   }
 }

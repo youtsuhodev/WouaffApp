@@ -1,5 +1,5 @@
 import { ChevronLeft, Globe, UserPlus, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { showToast } from '../components/Common/Toast';
 import { groups as groupsAPI } from '../services/api';
@@ -19,12 +19,7 @@ export default function PublicGroupsPage() {
   const [loading, setLoading] = useState(true);
   const [joinedGids, setJoinedGids] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    loadGroups();
-    loadMyGroups();
-  }, [loadMyGroups, loadGroups]);
-
-  const loadGroups = async () => {
+  const loadGroups = useCallback(async () => {
     try {
       const data = await groupsAPI.public();
       setGroups(data as unknown as PublicGroup[]);
@@ -32,9 +27,9 @@ export default function PublicGroupsPage() {
       console.error(e);
     }
     setLoading(false);
-  };
+  }, []);
 
-  const loadMyGroups = async () => {
+  const loadMyGroups = useCallback(async () => {
     try {
       const mine = await groupsAPI.list();
       const gids = new Set<string>();
@@ -46,7 +41,12 @@ export default function PublicGroupsPage() {
     } catch (e) {
       console.error(e);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadGroups();
+    loadMyGroups();
+  }, [loadMyGroups, loadGroups]);
 
   const handleJoin = async (gid: string) => {
     try {

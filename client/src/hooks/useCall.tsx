@@ -114,8 +114,8 @@ export function CallProvider({ children }: { children: ReactNode }) {
         const profile = await profiles.get(data.from);
         const info: CallerInfo = {
           uid: data.from,
-          pseudo: ((profile as any)?.pseudo as string) || data.from,
-          avatar: (profile as any)?.avatar as string | undefined,
+          pseudo: ((profile as unknown as Record<string, string>)?.pseudo as string) || data.from,
+          avatar: (profile as unknown as Record<string, string>)?.avatar as string | undefined,
         };
         setCallerInfo(info);
         callTargetRef.current = { uid: data.from, pseudo: info.pseudo, avatar: info.avatar };

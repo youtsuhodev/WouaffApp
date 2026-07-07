@@ -378,7 +378,7 @@ export default function SettingsPage() {
                 {socialLinks.map((link, i) => {
                   const pf = PLATFORMS.find((p) => p.id === link.platform);
                   return (
-                    <div key={i} className="settings-item social-link-row">
+                    <div key={link.platform + link.url + i} className="settings-item social-link-row">
                       <div className="social-link-inputs">
                         <select
                           value={link.platform}
@@ -472,7 +472,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="settings-item">
-                  <label>Thème de l'application</label>
+                  <label htmlFor="themeSelectDark">Thème de l'application</label>
+                  <input type="radio" id="themeSelectDark" name="theme" className="hidden" defaultChecked={theme === 'dark'} />
+                  <input type="radio" id="themeSelectLight" name="theme" className="hidden" defaultChecked={theme === 'light'} />
                   <div className="theme-toggle-row">
                     <button
                       className={`theme-toggle-btn${theme === 'dark' ? ' active' : ''}`}
@@ -521,10 +523,11 @@ export default function SettingsPage() {
                   )}
                 </div>
                 <div className={`settings-item${!isVip ? ' vip-locked' : ''}`} id="messageThemeField">
-                  <label>
+                  <label htmlFor="msgThemeHidden">
                     Thème de message
                     <span className="vip-badge ml-2">✦ VIP</span>
                   </label>
+                  <input type="hidden" id="msgThemeHidden" />
                   {renderThemes()}
                   {!isVip && (
                     <div className="vip-lock-overlay">
@@ -569,9 +572,9 @@ export default function SettingsPage() {
                   Authentification
                 </div>
                 <div className="settings-item">
-                  <label>Adresse email</label>
+                  <label htmlFor="settingsEmail">Adresse email</label>
                   <div className="input-with-icon">
-                    <input readOnly value={user?.email || ''} />
+                    <input id="settingsEmail" readOnly value={user?.email || ''} />
                     <button
                       className="input-copy-btn"
                       onClick={() => {
@@ -587,9 +590,9 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="settings-item">
-                  <label>UID Firebase</label>
+                  <label htmlFor="settingsUid">UID Firebase</label>
                   <div className="input-with-icon">
-                    <input readOnly value={user?.uid || ''} />
+                    <input id="settingsUid" readOnly value={user?.uid || ''} />
                     <button
                       className="input-copy-btn"
                       onClick={() => {
@@ -760,11 +763,11 @@ export default function SettingsPage() {
                       <div className="preview-social-links">
                         {socialLinks
                           .filter((l) => l.url.trim())
-                          .map((link, i) => {
+                          .map((link) => {
                             const pf = PLATFORMS.find((p) => p.id === link.platform);
                             return (
                               <a
-                                key={i}
+                                key={link.platform + link.url}
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"

@@ -197,7 +197,7 @@ router.post('/group/:gid/seen', async (req: Request, res: Response) => {
     const seenBy: string[] = row.seenBy ? JSON.parse(row.seenBy) : [];
     if (!seenBy.includes(authReq.uid!)) {
       seenBy.push(authReq.uid!);
-      await updateGroupMessage(req.params.gid, msgKey, { seenBy } as any);
+      await updateGroupMessage(req.params.gid, msgKey, { seenBy } as unknown as Record<string, unknown>);
     }
   }
   const io = req.app.get('io');
@@ -266,7 +266,7 @@ router.post('/:uid/:msgKey/pin', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const cid = chatId(authReq.uid!, req.params.uid);
   const { pinned } = req.body as { pinned: boolean };
-  await updateMessage(cid, req.params.msgKey, { pinned } as any);
+  await updateMessage(cid, req.params.msgKey, { pinned } as unknown as Record<string, unknown>);
   const io = req.app.get('io');
   if (io) io.to(`dm:${cid}`).emit('message:updated', { convId: cid, key: req.params.msgKey, data: { pinned } });
   res.json({ success: true });
@@ -275,7 +275,7 @@ router.post('/:uid/:msgKey/pin', async (req: Request, res: Response) => {
 /* POST /messages/group/:gid/:msgKey/pin — épingler/désépingler un message groupe */
 router.post('/group/:gid/:msgKey/pin', async (req: Request, res: Response) => {
   const { pinned } = req.body as { pinned: boolean };
-  await updateGroupMessage(req.params.gid, req.params.msgKey, { pinned } as any);
+  await updateGroupMessage(req.params.gid, req.params.msgKey, { pinned } as unknown as Record<string, unknown>);
   const io = req.app.get('io');
   if (io)
     io.to(`group:${req.params.gid}`).emit('message:updated', {

@@ -69,7 +69,9 @@ export default function VideoModal({ video, onClose, onLike }: Props) {
         </button>
 
         <div className="video-modal-player">
-          <video ref={videoRef} src={resolveMediaUrl(video.videoPath)} controls playsInline />
+          <video ref={videoRef} src={resolveMediaUrl(video.videoPath)} controls playsInline aria-label="Vidéo">
+            <track kind="captions" />
+          </video>
         </div>
 
         <div className="video-modal-info">

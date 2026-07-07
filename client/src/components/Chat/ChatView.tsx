@@ -169,6 +169,34 @@ export default function ChatView({
     })();
   }, [chatWith]);
 
+  const markSeen = useCallback(
+    (msgKeys: string[]) => {
+      if (!user) return;
+      if (chatWith) {
+        const unseen = msgKeys.filter((k) => {
+          const m = allMessages[k];
+          return !m || (m.from !== user.uid && !m.seen);
+        });
+        if (unseen.length > 0) {
+          messagesAPI.seen(chatWith, unseen).catch((e) => {
+            console.error(e);
+          });
+        }
+      } else if (currentGroupId) {
+        const unseen = msgKeys.filter((k) => {
+          const m = allMessages[k];
+          return !m || (m.from !== user.uid && !m.seenBy?.includes(user.uid));
+        });
+        if (unseen.length > 0) {
+          messagesAPI.seenGroup(currentGroupId, unseen).catch((e) => {
+            console.error(e);
+          });
+        }
+      }
+    },
+    [chatWith, currentGroupId, user, allMessages],
+  );
+
   useEffect(() => {
     if (!chatWith && !currentGroupId) return;
     const convChanged = convRef.current !== (chatWith || currentGroupId);
@@ -427,34 +455,6 @@ export default function ChatView({
     return () => document.removeEventListener('click', handleClick);
   }, []);
 
-  const markSeen = useCallback(
-    (msgKeys: string[]) => {
-      if (!user) return;
-      if (chatWith) {
-        const unseen = msgKeys.filter((k) => {
-          const m = allMessages[k];
-          return !m || (m.from !== user.uid && !m.seen);
-        });
-        if (unseen.length > 0) {
-          messagesAPI.seen(chatWith, unseen).catch((e) => {
-            console.error(e);
-          });
-        }
-      } else if (currentGroupId) {
-        const unseen = msgKeys.filter((k) => {
-          const m = allMessages[k];
-          return !m || (m.from !== user.uid && !m.seenBy?.includes(user.uid));
-        });
-        if (unseen.length > 0) {
-          messagesAPI.seenGroup(currentGroupId, unseen).catch((e) => {
-            console.error(e);
-          });
-        }
-      }
-    },
-    [chatWith, currentGroupId, user, allMessages],
-  );
-
   const handleInputChange = (val: string) => {
     setInputValue(val);
     if (chatWith) {
@@ -478,7 +478,7 @@ export default function ChatView({
         if (e.data.size > 0) recordingChunksRef.current.push(e.data);
       };
       recorder.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach((t) => { t.stop(); });
         if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
         const blob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
         const reader = new FileReader();

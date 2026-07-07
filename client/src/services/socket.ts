@@ -2,12 +2,12 @@ import { io, type Socket } from 'socket.io-client';
 import type { CallPayload, SocketMessageEvent } from '../types';
 import { getSessionId } from './auth';
 
-const SOCKET_URL = (import.meta as any).env?.VITE_API_URL
-  ? (import.meta as any).env.VITE_API_URL
+const SOCKET_URL = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL
+  ? (import.meta as unknown as { env: Record<string, string> }).env.VITE_API_URL
   : 'https://wouaff-app.com';
 
 let socket: Socket | null = null;
-const pendingListeners: Array<{ event: string; cb: (...args: any[]) => void }> = [];
+const pendingListeners: Array<{ event: string; cb: (...args: unknown[]) => void }> = [];
 
 function attachPendingListeners(sock: Socket) {
   for (const { event, cb } of pendingListeners) {
@@ -167,12 +167,12 @@ export function offContactAdded(cb: (data: { by: string; profile: Record<string,
 
 /* ── Call signaling ── */
 
-function onCallEvent(event: string, cb: (...args: any[]) => void) {
+function onCallEvent(event: string, cb: (...args: unknown[]) => void) {
   pendingListeners.push({ event, cb });
   socket?.on(event, cb);
 }
 
-function offCallEvent(event: string, cb: (...args: any[]) => void) {
+function offCallEvent(event: string, cb: (...args: unknown[]) => void) {
   const idx = pendingListeners.findIndex((l) => l.event === event && l.cb === cb);
   if (idx !== -1) pendingListeners.splice(idx, 1);
   socket?.off(event, cb);
@@ -391,10 +391,10 @@ export function offGroupSeen(cb: (data: { gid: string; by: string; msgKeys: stri
 
 /* ── Video events ── */
 
-export function onVideoNew(cb: (data: any) => void): void {
+export function onVideoNew(cb: (data: unknown) => void): void {
   socket?.on('video:new', cb);
 }
-export function offVideoNew(cb: (data: any) => void): void {
+export function offVideoNew(cb: (data: unknown) => void): void {
   socket?.off('video:new', cb);
 }
 
@@ -405,10 +405,10 @@ export function offVideoLiked(cb: (data: { videoId: string; uid: string; liked: 
   socket?.off('video:liked', cb);
 }
 
-export function onVideoComment(cb: (data: { videoId: string; comment: any }) => void): void {
+export function onVideoComment(cb: (data: { videoId: string; comment: unknown }) => void): void {
   socket?.on('video:comment', cb);
 }
-export function offVideoComment(cb: (data: { videoId: string; comment: any }) => void): void {
+export function offVideoComment(cb: (data: { videoId: string; comment: unknown }) => void): void {
   socket?.off('video:comment', cb);
 }
 

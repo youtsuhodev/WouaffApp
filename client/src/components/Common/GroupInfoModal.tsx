@@ -18,7 +18,7 @@ import {
   UserX,
   X,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { groups as groupsAPI } from '../../services/api';
 import {
@@ -61,26 +61,7 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
   const [saving, setSaving] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    loadGroupInfo();
-  }, [loadGroupInfo]);
-
-  useEffect(() => {
-    if (!gid) return;
-    const reload = () => loadGroupInfo();
-    onGroupMemberAdded(reload);
-    onGroupMemberRemoved(reload);
-    onGroupRoleChanged(reload);
-    onGroupUpdated(reload);
-    return () => {
-      offGroupMemberAdded(reload);
-      offGroupMemberRemoved(reload);
-      offGroupRoleChanged(reload);
-      offGroupUpdated(reload);
-    };
-  }, [gid, loadGroupInfo]);
-
-  const loadGroupInfo = async () => {
+  const loadGroupInfo = useCallback(async () => {
     try {
       const g = await groupsAPI.get(gid);
       setGroup(g);
@@ -112,7 +93,26 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
     } catch {
       showToast('Erreur chargement groupe', 'error');
     }
-  };
+  }, [gid, user?.uid]);
+
+  useEffect(() => {
+    loadGroupInfo();
+  }, [loadGroupInfo]);
+
+  useEffect(() => {
+    if (!gid) return;
+    const reload = () => loadGroupInfo();
+    onGroupMemberAdded(reload);
+    onGroupMemberRemoved(reload);
+    onGroupRoleChanged(reload);
+    onGroupUpdated(reload);
+    return () => {
+      offGroupMemberAdded(reload);
+      offGroupMemberRemoved(reload);
+      offGroupRoleChanged(reload);
+      offGroupUpdated(reload);
+    };
+  }, [gid, loadGroupInfo]);
 
   const isAdmin = myRole === 'admin' || myRole === 'owner';
   const isOwner = myRole === 'owner';
@@ -306,8 +306,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
         <div className="grp-body">
           {editing ? (
             <div className="grp-edit-section">
-              <label className="grp-edit-label">Description</label>
+              <label className="grp-edit-label" htmlFor="grpDesc">Description</label>
               <textarea
+                id="grpDesc"
                 className="grp-edit-textarea"
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
@@ -315,15 +316,17 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
                 rows={3}
                 maxLength={500}
               />
-              <label className="grp-edit-label">Icône (URL)</label>
+              <label className="grp-edit-label" htmlFor="grpIcon">Icône (URL)</label>
               <input
+                id="grpIcon"
                 className="grp-edit-input"
                 value={editIcon}
                 onChange={(e) => setEditIcon(e.target.value)}
                 placeholder="https://..."
               />
-              <label className="grp-edit-label">Bannière (URL)</label>
+              <label className="grp-edit-label" htmlFor="grpBanner">Bannière (URL)</label>
               <input
+                id="grpBanner"
                 className="grp-edit-input"
                 value={editBanner}
                 onChange={(e) => setEditBanner(e.target.value)}

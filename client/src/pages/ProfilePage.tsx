@@ -144,9 +144,9 @@ export default function ProfilePage() {
           {bio ? <div className="profile-bio">{bio}</div> : null}
           {validBadges.length > 0 && (
             <div className="profile-badges">
-              {validBadges.map((b, i) => (
+              {validBadges.map((b) => (
                 <img
-                  key={i}
+                  key={b.icon}
                   className="profile-badge-icon"
                   src={b.icon}
                   alt={b.name || ''}
@@ -160,11 +160,11 @@ export default function ProfilePage() {
           )}
           {socialLinks.length > 0 && (
             <div className="profile-social-links">
-              {socialLinks.map((link, i) => {
+              {socialLinks.map((link) => {
                 const pf = PLATFORMS.find((p) => p.id === link.platform);
                 return (
                   <a
-                    key={i}
+                    key={link.url + (pf?.id || '')}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"

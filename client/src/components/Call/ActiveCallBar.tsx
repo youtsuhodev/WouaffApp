@@ -62,10 +62,10 @@ export default function ActiveCallBar() {
 
   return (
     <>
-      <audio ref={audioRef} autoPlay aria-label="Audio appel" />
+      <audio ref={audioRef} autoPlay aria-label="Audio appel"><track kind="captions" /></audio>
       {hasRemoteVideo && (
         <div className="call-video-container">
-          <video ref={remoteVideoRef} autoPlay playsInline className="call-video-remote" aria-label="Vidéo appel" />
+          <video ref={remoteVideoRef} autoPlay playsInline className="call-video-remote" aria-label="Vidéo appel"><track kind="captions" /></video>
         </div>
       )}
       {cameraOn && localStream && (

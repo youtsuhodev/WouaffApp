@@ -695,40 +695,45 @@ export default function AdminPage() {
                       <Edit3 size={16} /> Modifier le profil
                     </div>
                     <div className="admin-field">
-                      <label>Pseudo</label>
+                      <label htmlFor="adminPseudo">Pseudo</label>
                       <input
+                        id="adminPseudo"
                         className="admin-input"
                         value={editData.pseudo}
                         onChange={(e) => setEditData((p) => ({ ...p, pseudo: e.target.value }))}
                       />
                     </div>
                     <div className="admin-field">
-                      <label>Bio</label>
+                      <label htmlFor="adminBio">Bio</label>
                       <textarea
+                        id="adminBio"
                         className="admin-input admin-textarea"
                         value={editData.bio}
                         onChange={(e) => setEditData((p) => ({ ...p, bio: e.target.value }))}
                       />
                     </div>
                     <div className="admin-field">
-                      <label>Avatar URL</label>
+                      <label htmlFor="adminAvatar">Avatar URL</label>
                       <input
+                        id="adminAvatar"
                         className="admin-input"
                         value={editData.avatar}
                         onChange={(e) => setEditData((p) => ({ ...p, avatar: e.target.value }))}
                       />
                     </div>
                     <div className="admin-field">
-                      <label>Bannière URL</label>
+                      <label htmlFor="adminBanner">Bannière URL</label>
                       <input
+                        id="adminBanner"
                         className="admin-input"
                         value={editData.banner}
                         onChange={(e) => setEditData((p) => ({ ...p, banner: e.target.value }))}
                       />
                     </div>
                     <div className="admin-field">
-                      <label>Identifiant Wouaff</label>
+                      <label htmlFor="adminWouaffId">Identifiant Wouaff</label>
                       <input
+                        id="adminWouaffId"
                         className="admin-input"
                         value={editData.wouaffId}
                         onChange={(e) => setEditData((p) => ({ ...p, wouaffId: e.target.value }))}

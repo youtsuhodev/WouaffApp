@@ -19,16 +19,16 @@ const pool = createPool({
   keepAliveInitialDelay: 10000,
 });
 
-(pool as any).on?.('error', (err: Error) => {
+(pool as unknown as { on?: (event: string, cb: (err: Error) => void) => void }).on?.('error', (err: Error) => {
   console.error('[DB POOL ERROR]', err.message);
 });
 
-export async function query<T>(sql: string, params?: any[]): Promise<T> {
+export async function query<T>(sql: string, params?: unknown[]): Promise<T> {
   const sanitized = params?.map((p) => (p === undefined ? null : p));
   try {
     const [rows] = await pool.execute(sql, sanitized);
     return rows as T;
-  } catch (err: any) {
+  } catch (err) {
     /* Retry once on connection loss */
     if (err?.code === 'ECONNRESET' || err?.code === 'PROTOCOL_CONNECTION_LOST') {
       console.warn('[DB] Connection lost, retrying...');
@@ -39,7 +39,7 @@ export async function query<T>(sql: string, params?: any[]): Promise<T> {
   }
 }
 
-export async function getOne<T>(sql: string, params?: any[]): Promise<T | null> {
+export async function getOne<T>(sql: string, params?: unknown[]): Promise<T | null> {
   const rows = await query<T[]>(sql, params);
   return rows.length > 0 ? rows[0] : null;
 }

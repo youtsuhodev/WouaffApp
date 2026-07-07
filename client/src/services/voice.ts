@@ -58,9 +58,9 @@ function iceRestart() {
         emitCall('call:offer', { from: '', to: callTargetUid, sdp: JSON.stringify(data) });
       }
     });
-    (peer as any)._pc
+    (peer as unknown as { _pc?: RTCPeerConnection })._pc
       ?.createOffer({ iceRestart: true })
-      .then((offer: RTCSessionDescriptionInit) => (peer as any)._pc?.setLocalDescription(offer))
+      .then((offer: RTCSessionDescriptionInit) => (peer as unknown as { _pc?: RTCPeerConnection })._pc?.setLocalDescription(offer))
       .catch(() => {
         reconnecting = false;
       });
@@ -267,7 +267,7 @@ export async function toggleCamera(): Promise<boolean> {
   isCameraOn = !isCameraOn;
   if (!peer) return false;
 
-  const pc = (peer as any)._pc as RTCPeerConnection;
+  const pc = (peer as unknown as { _pc: RTCPeerConnection })._pc;
   if (isCameraOn) {
     try {
       const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -329,7 +329,7 @@ function cleanup(): void {
     peer = null;
   }
   if (localStream) {
-    localStream.getTracks().forEach((t) => t.stop());
+    localStream.getTracks().forEach((t) => { t.stop(); });
     localStream = null;
   }
   remoteStream = null;

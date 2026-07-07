@@ -2,10 +2,11 @@ import type { NextFunction, Request, Response } from 'express';
 
 /* Express 4-param error middleware — catches anything thrown or passed via next(err) */
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {
-  const status = (err as any)?.status || 500;
-  const message = (err as any)?.message || 'Erreur interne';
+  const e = err as { status?: number; message?: string; stack?: string };
+  const status = e?.status || 500;
+  const message = e?.message || 'Erreur interne';
   if (status >= 500) {
-    console.error('[ERROR]', (err as any)?.stack || message);
+    console.error('[ERROR]', e?.stack || message);
   }
   res.status(status).json({ error: status >= 500 ? 'Erreur interne' : message });
 }
@@ -19,7 +20,7 @@ export function setupProcessHandlers(cleanup?: () => Promise<void>): void {
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.error('[UNHANDLED]', (reason as any)?.stack || (reason as any)?.message || reason);
+    console.error('[UNHANDLED]', (reason as { stack?: string; message?: string })?.stack || (reason as { message?: string })?.message || reason);
   });
 
   process.on('SIGTERM', () => {

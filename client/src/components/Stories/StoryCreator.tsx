@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 import { stories as storiesAPI } from '../../services/api';
 import { compressImage, trimAudio } from '../../utils/audio';
 import { showToast } from '../Common/Toast';
@@ -16,7 +15,6 @@ const EXTRACT_OPTIONS = [
 ];
 
 export default function StoryCreator({ onClose, onPublished }: StoryCreatorProps) {
-  const { user } = useAuth();
   const [preview, setPreview] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const [audioData, setAudioData] = useState<string | null>(null);

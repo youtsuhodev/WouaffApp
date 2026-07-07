@@ -55,47 +55,6 @@ export default function ChatPage() {
   const [groupIcon, setGroupIcon] = useState('');
   const [groupFeedback, setGroupFeedback] = useState('');
 
-  /* Invite link + group direct link check */
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const inviteId = params.get('invite');
-    if (inviteId) handleInvite(inviteId);
-    const vipId = params.get('vipInvite');
-    if (vipId) handleVipInvite(vipId);
-    const groupId = params.get('group');
-    if (groupId) setTimeout(() => openGroup(groupId), 100);
-  }, [handleVipInvite, openGroup, handleInvite]);
-
-  const handleInvite = async (inviteId: string) => {
-    try {
-      const res = await groupsAPI.join(inviteId);
-      if (res.alreadyMember) {
-        openGroup(res.gid);
-        return;
-      }
-      const g = await groupsAPI.get(res.gid);
-      setJoinGroupData({ inviteId, gid: res.gid, group: g as unknown as Record<string, unknown> });
-      setShowJoinGroup(true);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleVipInvite = async (_vipId: string) => {
-    /* VIP invite handled by Cloud Functions */
-  };
-
-  const confirmJoinGroup = async () => {
-    if (!joinGroupData) return;
-    try {
-      await groupsAPI.join(joinGroupData.inviteId);
-      setShowJoinGroup(false);
-      openGroup(joinGroupData.gid);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   const openChat = useCallback((uid: string, pseudo: string) => {
     setChatWith(uid);
     setChatWithPseudo(pseudo);
@@ -114,6 +73,47 @@ export default function ChatPage() {
     setProfileModalUid(uid);
     setShowProfileModal(true);
   }, []);
+
+  const handleInvite = useCallback(async (inviteId: string) => {
+    try {
+      const res = await groupsAPI.join(inviteId);
+      if (res.alreadyMember) {
+        openGroup(res.gid);
+        return;
+      }
+      const g = await groupsAPI.get(res.gid);
+      setJoinGroupData({ inviteId, gid: res.gid, group: g as unknown as Record<string, unknown> });
+      setShowJoinGroup(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [openGroup]);
+
+  const handleVipInvite = useCallback(async (_vipId: string) => {
+    /* VIP invite handled by Cloud Functions */
+  }, []);
+
+  /* Invite link + group direct link check */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const inviteId = params.get('invite');
+    if (inviteId) handleInvite(inviteId);
+    const vipId = params.get('vipInvite');
+    if (vipId) handleVipInvite(vipId);
+    const groupId = params.get('group');
+    if (groupId) setTimeout(() => openGroup(groupId), 100);
+  }, [handleVipInvite, openGroup, handleInvite]);
+
+  const confirmJoinGroup = async () => {
+    if (!joinGroupData) return;
+    try {
+      await groupsAPI.join(joinGroupData.inviteId);
+      setShowJoinGroup(false);
+      openGroup(joinGroupData.gid);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const addTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleAddContact = async () => {
@@ -472,17 +472,7 @@ function ProfileModalContent({
   const [_croqData, setCroqData] = useState<Record<string, unknown> | null>(null);
   const [badgeDefs, setBadgeDefs] = useState<Record<string, BadgeDef>>({});
 
-  useEffect(() => {
-    loadProfile();
-    badgesAPI
-      .list()
-      .then(setBadgeDefs)
-      .catch((e) => {
-        console.error(e);
-      });
-  }, [loadProfile]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const p = (await profilesAPI.get(uid)) as Record<string, unknown>;
       setProfile(p);
@@ -496,7 +486,17 @@ function ProfileModalContent({
     } catch (e) {
       console.error(e);
     }
-  };
+  }, [uid]);
+
+  useEffect(() => {
+    loadProfile();
+    badgesAPI
+      .list()
+      .then(setBadgeDefs)
+      .catch((e) => {
+        console.error(e);
+      });
+  }, [loadProfile]);
 
   if (!profile) return null;
   const p = profile;
@@ -527,10 +527,10 @@ function ProfileModalContent({
         </div>
         {badgeIds.length > 0 && (
           <div className="profile-badges-row">
-            {badgeIds.map((id, i) => {
+            {badgeIds.map((id) => {
               const def = badgeDefs[id];
               return (
-                <span key={i} className="badge-chip">
+                <span key={id} className="badge-chip">
                   {def?.icon && <img src={def.icon} alt="" />}
                   {def?.name || id}
                 </span>

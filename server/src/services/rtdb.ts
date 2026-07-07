@@ -86,8 +86,8 @@ export async function getMessages(
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
-    const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as any;
-    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData) : undefined, ...rest } as MessageData;
+    const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as unknown as Record<string, unknown>;
+    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData as string) : undefined, ...rest } as unknown as MessageData;
   }
   return { messages: result, hasMore };
 }
@@ -126,7 +126,7 @@ export async function pushMessage(convId: string, msg: MessageData): Promise<str
 
 export async function updateMessage(convId: string, msgKey: string, updates: Partial<MessageData>): Promise<void> {
   const fields: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   if (updates.text !== undefined) {
     fields.push('text=?');
     params.push(updates.text);
@@ -186,8 +186,8 @@ export async function getGroupMessages(
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
-    const { msgKey: _, gid: __, id: ___, fromUid, ...rest } = row as any;
-    const msg = { from: fromUid, ...rest } as MessageData;
+    const { msgKey: _, gid: __, id: ___, fromUid, ...rest } = row as unknown as Record<string, unknown>;
+    const msg = { from: fromUid, ...rest } as unknown as MessageData;
     if (msg.seenBy && typeof msg.seenBy === 'string') {
       try {
         msg.seenBy = JSON.parse(msg.seenBy as string);
@@ -234,7 +234,7 @@ export async function pushGroupMessage(gid: string, msg: MessageData): Promise<s
 
 export async function updateGroupMessage(gid: string, msgKey: string, updates: Partial<MessageData>): Promise<void> {
   const fields: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   if (updates.text !== undefined) {
     fields.push('text=?');
     params.push(updates.text);
@@ -274,8 +274,8 @@ export async function searchMessages(convId: string, searchQuery: string): Promi
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
-    const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as any;
-    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData) : undefined, ...rest } as MessageData;
+    const { msgKey: _, convId: __, id: ___, fromUid, contactData, ...rest } = row as unknown as Record<string, unknown>;
+    result[key] = { from: fromUid, contact: contactData ? JSON.parse(contactData as string) : undefined, ...rest } as unknown as MessageData;
   }
   return result;
 }
@@ -288,8 +288,8 @@ export async function searchGroupMessages(gid: string, searchQuery: string): Pro
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
-    const { msgKey: _, gid: __, id: ___, fromUid, ...rest } = row as any;
-    result[key] = { from: fromUid, ...rest } as MessageData;
+    const { msgKey: _, gid: __, id: ___, fromUid, ...rest } = row as unknown as Record<string, unknown>;
+    result[key] = { from: fromUid, ...rest } as unknown as MessageData;
   }
   return result;
 }
@@ -348,7 +348,7 @@ export async function updateProfile(uid: string, data: Record<string, unknown>):
     }
   }
   const fields: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   for (const [key, value] of Object.entries(data)) {
     if (!PROFILE_COLUMNS.has(key)) continue;
     if (key === 'publicKey') {
@@ -440,7 +440,7 @@ export async function createGroup(data: Record<string, unknown>): Promise<string
 export async function updateGroup(gid: string, data: Record<string, unknown>): Promise<void> {
   const allowed = ['name', 'description', 'icon', 'banner', 'privacy'];
   const fields: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   for (const [key, value] of Object.entries(data)) {
     if (key !== 'members' && allowed.includes(key)) {
       fields.push(`${key}=?`);
@@ -564,7 +564,7 @@ export async function getPendingMessagesForUser(uid: string): Promise<Record<str
   );
   const result: Record<string, unknown> = {};
   for (const row of rows) {
-    const key = (row as any).msgKey as string;
+    const key = (row as Record<string, unknown>).msgKey as string;
     result[key] = row;
   }
   return result;
@@ -579,11 +579,11 @@ export async function getStories(uid: string): Promise<Record<string, unknown>> 
   );
   const result: Record<string, unknown> = {};
   for (const row of rows) {
-    const storyId = (row as any).storyId as string;
+    const storyId = (row as Record<string, unknown>).storyId as string;
     const views = await query<Array<{ viewedBy: string }>>('SELECT viewedBy FROM story_views WHERE storyId=?', [
       storyId,
     ]);
-    (row as any).views = views.map((v) => v.viewedBy);
+    (row as Record<string, unknown>).views = views.map((v) => v.viewedBy);
     result[storyId] = row;
   }
   return result;
@@ -661,7 +661,7 @@ export async function getBadges(): Promise<Record<string, unknown>> {
   const rows = await query<Array<Record<string, unknown>>>('SELECT * FROM badges');
   const result: Record<string, unknown> = {};
   for (const row of rows) {
-    const id = (row as any).id as string;
+    const id = (row as Record<string, unknown>).id as string;
     result[id] = row;
   }
   return result;
@@ -796,7 +796,7 @@ export async function updateProfileByAdmin(uid: string, data: Record<string, unk
     }
   }
   const fields: string[] = [];
-  const params: any[] = [];
+  const params: unknown[] = [];
   for (const [key, value] of Object.entries(data)) {
     if (!PROFILE_COLUMNS.has(key) || key === 'publicKey') continue;
     fields.push(`${key}=?`);

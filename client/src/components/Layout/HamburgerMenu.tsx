@@ -55,8 +55,8 @@ export default function HamburgerMenu({ open, onClose, storyBadge }: HamburgerMe
           <span>Menu</span>
         </div>
         <div className="hamburger-items">
-          {items.map((item, i) => (
-            <button key={i} className={`hamburger-item${item.active ? ' active' : ''}`} onClick={() => handleNav(item)}>
+          {items.map((item) => (
+            <button key={item.label} className={`hamburger-item${item.active ? ' active' : ''}`} onClick={() => handleNav(item)}>
               <i className={`bi ${item.icon} fs-5`} />
               <span>{item.label}</span>
               {item.badge && <span className="hamburger-badge" />}

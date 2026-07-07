@@ -662,9 +662,9 @@ function renderInline(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   const regex = /(`[^`]+`)|(\*\*(.+?)\*\*)|(__(.+?)__)|(\*(.+?)\*)|(_(.+?)_)|(~~(.+?)~~)/g;
   const _lastIndex = 0;
-  let match: RegExpExecArray | null;
   const remaining: Array<{ start: number; end: number; node: React.ReactNode }> = [];
-  while ((match = regex.exec(text)) !== null) {
+  let match: RegExpExecArray | null = regex.exec(text);
+  while (match !== null) {
     if (match[1]) {
       remaining.push({
         start: match.index,
@@ -814,12 +814,12 @@ export function renderLinkifiedText(text: string): React.ReactNode {
 export function renderLinkPreviews(text: string, previews: Record<string, LinkPreview | null>): React.ReactNode {
   const urls = parseUrls(text);
   const unique = [...new Set(urls)];
-  return unique.map((url, i) => {
+  return unique.map((url) => {
     const preview = previews[url];
     if (!preview) return null;
     return (
       <a
-        key={i}
+        key={url}
         href={url}
         target="_blank"
         rel="noopener noreferrer"

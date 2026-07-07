@@ -28,6 +28,12 @@
         "noNonNullAssertion": "off",
         "noUselessElse": "off"
       },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
+      "suspicious": {
+        "noUnknownAtRules": "off"
+      },
       "a11y": {
         "useKeyWithClickEvents": "off",
         "useButtonType": "off",

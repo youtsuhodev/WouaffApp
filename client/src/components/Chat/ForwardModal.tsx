@@ -63,8 +63,7 @@ export default function ForwardModal({ msg, user, currentChatWith, currentGroupI
   return (
     <div
       className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center"
-      role="button"
-      tabIndex={0}
+      role="presentation"
       onClick={onClose}
     >
       <div

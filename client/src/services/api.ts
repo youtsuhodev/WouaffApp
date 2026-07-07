@@ -1,6 +1,6 @@
 import type { GroupData, GroupEntry, SearchResult, StoryData, UserProfile } from '../types';
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || '';
+const API_BASE = (import.meta as unknown as { env?: Record<string, string> }).env?.VITE_API_URL || '';
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = {};

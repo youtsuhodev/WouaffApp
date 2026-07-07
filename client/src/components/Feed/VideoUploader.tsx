@@ -102,8 +102,8 @@ export default function VideoUploader({ onClose, onUploaded }: Props) {
       };
       onUploaded(v);
       onClose();
-    } catch (err: any) {
-      setError(err.message || "Erreur lors de l'upload");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur lors de l'upload");
     }
     setUploading(false);
   };
@@ -129,7 +129,9 @@ export default function VideoUploader({ onClose, onUploaded }: Props) {
           </div>
         ) : (
           <div className="uploader-preview">
-            <video src={preview} controls className="uploader-video" />
+            <video src={preview} controls className="uploader-video" aria-label="Aperçu vidéo">
+              <track kind="captions" />
+            </video>
             <input
               className="uploader-caption"
               value={caption}

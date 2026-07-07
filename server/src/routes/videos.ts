@@ -15,7 +15,7 @@ router.use(verifyToken);
 
 router.post('/', upload.fields([{ name: 'video', maxCount: 1 }]), async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const videoFile = (req.files as any)?.video?.[0];
+  const videoFile = (req.files as unknown as { video?: Express.Multer.File[] })?.video?.[0];
   if (!videoFile) {
     res.status(400).json({ error: 'Vidéo requise' });
     return;
@@ -38,8 +38,8 @@ router.post('/', upload.fields([{ name: 'video', maxCount: 1 }]), async (req: Re
       io.emit('video:new', { id, uid: authReq.uid!, videoPath: videoUrl, caption, location, createdAt: now });
     }
     res.json({ id, videoPath: videoUrl, caption, location, createdAt: now });
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
+  } catch (err) {
+    res.status(400).json({ error: (err as { message?: string }).message });
   }
 });
 
@@ -73,7 +73,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
     enriched.push({
       ...row,
-      location: location as any,
+      location: location as unknown as VideoData['location'],
       pseudo: (profile?.pseudo as string) || 'Inconnu',
       avatar: profile?.avatar as string,
       liked,
@@ -108,7 +108,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
   res.json({
     ...row,
-    location: location as any,
+    location: location as unknown as VideoData['location'],
     pseudo: (profile?.pseudo as string) || 'Inconnu',
     avatar: profile?.avatar as string,
     liked,
@@ -186,7 +186,7 @@ router.post('/:id/comments', async (req: Request, res: Response) => {
   await query('UPDATE videos SET commentsCount = commentsCount + 1 WHERE id=?', [req.params.id]);
   const profile = await getProfile(authReq.uid!);
   const comment: VideoComment = {
-    id: (result as any).insertId || 0,
+    id: (result as unknown as { insertId?: number }).insertId || 0,
     videoId: req.params.id,
     uid: authReq.uid!,
     text: text.trim(),

@@ -13,15 +13,15 @@ export function asyncHandler(
 export function patchRouter(router: Router): Router {
   const methods = ['get', 'post', 'put', 'delete', 'patch'] as const;
   for (const method of methods) {
-    const original = (router as any)[method];
-    (router as any)[method] = function (...args: any[]) {
-      const wrapped = args.map((arg: any) => {
+    const original = (router as unknown as Record<string, (...args: unknown[]) => unknown>)[method];
+    (router as unknown as Record<string, (...args: unknown[]) => unknown>)[method] = function (...args: unknown[]) {
+      const wrapped = args.map((arg: unknown) => {
         if (typeof arg === 'function') {
-          return function (this: any, req: Request, res: Response, next: NextFunction) {
+          return function (this: unknown, req: Request, res: Response, next: NextFunction) {
             try {
-              const result = arg.call(this, req, res, next);
-              if (result && typeof (result as any).catch === 'function') {
-                (result as any).catch(next);
+              const result = (arg as (...params: unknown[]) => unknown).call(this, req, res, next);
+              if (result && typeof (result as Record<string, unknown>).catch === 'function') {
+                (result as Record<string, unknown>).catch(next as unknown as (...params: unknown[]) => unknown);
               }
             } catch (err) {
               next(err);

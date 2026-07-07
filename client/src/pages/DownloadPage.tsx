@@ -28,7 +28,7 @@ const DOWNLOADS: Array<{ platform: string; label: string; arch: string; url: str
 
 export default function DownloadPage() {
   const navigate = useNavigate();
-  const isElectron = typeof window !== 'undefined' && !!(window as any).electronAPI;
+  const isElectron = typeof window !== 'undefined' && !!(window as unknown as Record<string, unknown>).electronAPI;
 
   useEffect(() => {
     if (isElectron) navigate('/', { replace: true });

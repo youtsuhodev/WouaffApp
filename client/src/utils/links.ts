@@ -17,15 +17,15 @@ export function parseUrls(text: string): string[] {
 export function textToParts(text: string): Array<{ type: 'text'; value: string } | { type: 'url'; value: string }> {
   const parts: Array<{ type: 'text'; value: string } | { type: 'url'; value: string }> = [];
   let lastIndex = 0;
-  let match: RegExpExecArray | null;
   const re = new RegExp(URL_REGEX.source, 'gi');
-
-  while ((match = re.exec(text)) !== null) {
+  let match: RegExpExecArray | null = re.exec(text);
+  while (match !== null) {
     if (match.index > lastIndex) {
       parts.push({ type: 'text', value: text.slice(lastIndex, match.index) });
     }
     parts.push({ type: 'url', value: match[0] });
     lastIndex = match.index + match[0].length;
+    match = re.exec(text);
   }
 
   if (lastIndex < text.length) {
