@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { Router } from 'express';
 import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
-import { deleteUserProfile, getProfile, getPublicKey, getReverseContactUids, updateProfile } from '../services/rtdb.js';
+import { deleteUserProfile, getMutualContacts, getProfile, getPublicKey, getReverseContactUids, updateProfile } from '../services/rtdb.js';
 import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
@@ -27,6 +27,13 @@ router.get('/:uid', async (req: Request, res: Response) => {
     return;
   }
   res.json(profile);
+});
+
+/* GET /profiles/:uid/mutual — amis en commun */
+router.get('/:uid/mutual', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
+  const mutual = await getMutualContacts(authReq.uid!, req.params.uid);
+  res.json(mutual);
 });
 
 /* GET /profiles/:uid/publicKey */

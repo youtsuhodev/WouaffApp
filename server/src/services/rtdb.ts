@@ -535,6 +535,20 @@ export async function addContact(uid: string, contactUid: string): Promise<void>
   );
 }
 
+export async function getMutualContacts(
+  uid1: string,
+  uid2: string,
+): Promise<Array<{ uid: string; pseudo: string; avatar: string | null }>> {
+  return query<Array<{ uid: string; pseudo: string; avatar: string | null }>>(
+    `SELECT c2.contactUid AS uid, p.pseudo, p.avatar
+     FROM contacts c1
+     INNER JOIN contacts c2 ON c1.contactUid = c2.contactUid
+     LEFT JOIN profiles p ON c2.contactUid = p.uid
+     WHERE c1.uid = ? AND c2.uid = ? AND c2.contactUid NOT IN (?, ?)`,
+    [uid1, uid2, uid1, uid2],
+  );
+}
+
 export async function removeContact(uid: string, contactUid: string): Promise<void> {
   await query('DELETE FROM contacts WHERE uid=? AND contactUid=?', [uid, contactUid]);
 }

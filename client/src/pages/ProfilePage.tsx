@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { profiles as profilesAPI } from '../services/api';
 import { PLATFORMS, parseSocialLinks } from '../utils/socialLinks';
 
 interface BadgeDef {
@@ -32,6 +33,7 @@ export default function ProfilePage() {
   const [errorCode, setErrorCode] = useState('404');
   const [errorMsg, setErrorMsg] = useState('');
   const [data, setData] = useState<ProfileData | null>(null);
+  const [mutualFriends, setMutualFriends] = useState<Array<{ uid: string; pseudo: string; avatar: string | null }>>([]);
 
   const wouaffId = rawId ? `@${rawId.replace(/^@/, '')}` : null;
 
@@ -66,6 +68,9 @@ export default function ProfilePage() {
         setData(json);
         setState('profile');
         document.title = `${esc((json.profile.pseudo as string) || 'Utilisateur')} (@${esc(((json.profile.wouaffId as string) || '').replace(/^@/, ''))}) — Wouaff`;
+        if (user && json.uid && json.uid !== user.uid) {
+          profilesAPI.mutual(json.uid).then(setMutualFriends).catch(() => {});
+        }
       } catch {
         setErrorCode('Erreur');
         setErrorMsg('Impossible de charger le profil.');
@@ -184,6 +189,31 @@ export default function ProfilePage() {
                   </a>
                 );
               })}
+            </div>
+          )}
+          {mutualFriends.length > 0 && (
+            <div className="profile-mutual">
+              <div className="profile-mutual-label">
+                {mutualFriends.length} ami{mutualFriends.length > 1 ? 's' : ''} en commun
+              </div>
+              <div className="profile-mutual-list">
+                {mutualFriends.slice(0, 10).map((mf) => (
+                  <Link
+                    key={mf.uid}
+                    to={`/@${mf.pseudo}`}
+                    className="profile-mutual-item"
+                    title={mf.pseudo}
+                  >
+                    {mf.avatar ? (
+                      <img src={mf.avatar} alt={mf.pseudo} className="profile-mutual-avatar" />
+                    ) : (
+                      <div className="profile-mutual-avatar profile-mutual-fallback">
+                        {mf.pseudo.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
           <div className="profile-actions">

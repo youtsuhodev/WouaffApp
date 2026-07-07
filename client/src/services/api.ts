@@ -75,6 +75,8 @@ export const profiles = {
   getPublicKey: (uid: string) =>
     request<{ publicKey: Record<string, unknown> | null }>('GET', `/profiles/${uid}/publicKey`),
   updateMe: (data: Record<string, unknown>) => request<{ success: boolean }>('PUT', '/profiles/me', data),
+  mutual: (uid: string) =>
+    request<Array<{ uid: string; pseudo: string; avatar: string | null }>>('GET', `/profiles/${uid}/mutual`),
 };
 
 /* ── Groups ── */
