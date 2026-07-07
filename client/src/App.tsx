@@ -20,6 +20,7 @@ import { CallProvider } from './hooks/useCall';
 import IncomingCallOverlay from './components/Call/IncomingCallOverlay';
 import ActiveCallBar from './components/Call/ActiveCallBar';
 import ConnectionLostOverlay from './components/Common/ConnectionLostOverlay';
+import OpenSourceBanner from './components/Common/OpenSourceBanner';
 import { ThemeProvider } from './hooks/useTheme';
 
 const PAGE_MAP = {
@@ -73,6 +74,7 @@ export default function App() {
       <IncomingCallOverlay />
       <ActiveCallBar />
       <ConnectionLostOverlay />
+      <OpenSourceBanner />
       <DiscordPresenceTracker />
       <div className="flex flex-col h-dvh">
         <TitleBar />
