@@ -187,7 +187,13 @@ router.post('/maintenance', async (req: Request, res: Response) => {
   if (!(await requireStaff(req, res))) return;
   const { enabled, message } = req.body as { enabled: boolean; message?: string };
   await setMaintenanceMode(enabled, message);
-  await logAdminAction((req as AuthRequest).uid!, enabled ? 'maintenance_on' : 'maintenance_off', 'system', undefined, message);
+  await logAdminAction(
+    (req as AuthRequest).uid!,
+    enabled ? 'maintenance_on' : 'maintenance_off',
+    'system',
+    undefined,
+    message,
+  );
   res.json({ success: true });
 });
 

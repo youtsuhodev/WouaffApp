@@ -52,8 +52,11 @@ app.use('/api/contacts', rateLimit({ windowMs: 60000, max: 60 }));
 
 /* Public maintenance status (accessible even during maintenance) */
 import { getMaintenanceMode } from './services/rtdb.js';
+
 app.get('/api/maintenance', (_req, res) => {
-  getMaintenanceMode().then((m) => res.json(m)).catch(() => res.json({ enabled: false, message: null }));
+  getMaintenanceMode()
+    .then((m) => res.json(m))
+    .catch(() => res.json({ enabled: false, message: null }));
 });
 
 /* Maintenance check (blocks non-staff when enabled) */

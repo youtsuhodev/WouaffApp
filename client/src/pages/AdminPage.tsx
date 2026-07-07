@@ -624,7 +624,11 @@ export default function AdminPage() {
                     onChange={(e) => setMaintenanceMsg(e.target.value)}
                     placeholder="Message optionnel affiché aux utilisateurs..."
                   />
-                  <button className="admin-btn admin-btn-primary mt-1" onClick={toggleMaintenance} disabled={maintenanceLoading}>
+                  <button
+                    className="admin-btn admin-btn-primary mt-1"
+                    onClick={toggleMaintenance}
+                    disabled={maintenanceLoading}
+                  >
                     <Save size={16} /> Appliquer
                   </button>
                 </div>
