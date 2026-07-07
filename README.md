@@ -5,7 +5,7 @@ Secure instant messaging application — chat, calls, stories, and video feed.
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)
 ![React](https://img.shields.io/badge/React-18.3-61DAFB)
 ![Express](https://img.shields.io/badge/Express-4.21-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![License](https://img.shields.io/badge/License-Custom-blue)
 ![Electron](https://img.shields.io/badge/Electron-33-47848F)
 
 ## Features
@@ -133,4 +133,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE)
+[Wouaff License](LICENSE) — Allowed for contributions and improvements only. Redistribution under a different name or branding is prohibited.

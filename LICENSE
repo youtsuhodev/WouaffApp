@@ -1,16 +1,29 @@
-MIT License
+Wouaff License — Version 1.0
 
 Copyright (c) 2026 Wouaff
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Permission is granted to any person obtaining a copy of this software and
+associated documentation files (the "Software") to use, copy, modify, merge,
+and distribute the Software solely for the purpose of contributing improvements
+to the original project (the "Wouaff" application).
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The following restrictions apply:
+
+1. The name "Wouaff" and the application branding (logo, icons, visual identity)
+   must not be changed, removed, or replaced in any distributed copy of the
+   Software.
+
+2. Redistribution of the Software under a different name or brand is
+   prohibited.
+
+3. The Software may not be used to create, distribute, or operate a competing
+   service under a different name.
+
+4. All distributed copies must retain this license notice and the original
+   copyright notice.
+
+This license does not grant permission to use the name "Wouaff" or any
+contributor names for endorsing derived products without written consent.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
