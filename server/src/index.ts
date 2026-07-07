@@ -48,7 +48,6 @@ app.use('/api/auth/login', rateLimit({ windowMs: 60000, max: 20 }));
 app.use('/api/auth/register', rateLimit({ windowMs: 60000, max: 10 }));
 app.use('/api/auth/forgot-password', rateLimit({ windowMs: 60000, max: 5 }));
 app.use('/api/contacts', rateLimit({ windowMs: 60000, max: 60 }));
-app.use('/api/messages', rateLimit({ windowMs: 60000, max: 120 }));
 
 /* Request timeout (30s for regular, 60s for uploads) */
 app.use('/api', requestTimeout(30000));
