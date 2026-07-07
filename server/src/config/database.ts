@@ -26,13 +26,13 @@ const pool = createPool({
 export async function query<T>(sql: string, params?: unknown[]): Promise<T> {
   const sanitized = params?.map((p) => (p === undefined ? null : p));
   try {
-    const [rows] = await pool.execute(sql, sanitized as any);
+    const [rows] = await pool.execute(sql, sanitized as (string | number | boolean | null | Buffer | Date)[]);
     return rows as T;
   } catch (err: unknown) {
     const dbErr = err as { code?: string };
     if (dbErr.code === 'ECONNRESET' || dbErr.code === 'PROTOCOL_CONNECTION_LOST') {
       console.warn('[DB] Connection lost, retrying...');
-      const [rows] = await pool.execute(sql, sanitized as any);
+      const [rows] = await pool.execute(sql, sanitized as (string | number | boolean | null | Buffer | Date)[]);
       return rows as T;
     }
     throw err;

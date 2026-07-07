@@ -5,7 +5,10 @@ import type { AuthRequest } from '../types/index.js';
 const PUBLIC_PREFIXES = ['/api/auth', '/api/admin', '/api/maintenance', '/api/health'];
 
 export function maintenanceCheck(req: Request, res: Response, next: NextFunction): void {
-  if (PUBLIC_PREFIXES.some((p) => req.originalUrl.startsWith(p))) return next();
+  if (PUBLIC_PREFIXES.some((p) => req.originalUrl.startsWith(p))) {
+    next();
+    return;
+  }
   getMaintenanceMode()
     .then(async ({ enabled, message }) => {
       if (!enabled) return next();
