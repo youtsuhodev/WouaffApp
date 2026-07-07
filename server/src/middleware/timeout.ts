@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 /* Request timeout middleware — returns 503 if a request takes too long */
 export function requestTimeout(ms: number) {

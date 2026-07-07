@@ -1,14 +1,36 @@
-import { useEffect, useState, useCallback } from 'react';
+import {
+  Activity,
+  AlertTriangle,
+  ArrowLeft,
+  Award,
+  BarChart3,
+  ChevronRight,
+  Circle,
+  Edit3,
+  Flag,
+  Key,
+  Link2,
+  Loader2,
+  Lock,
+  LogOut,
+  Mail,
+  MessageSquare,
+  RefreshCw,
+  Save,
+  Search,
+  Shield,
+  Trash2,
+  User,
+  UserMinus,
+  UserPlus,
+  Users,
+  X,
+} from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { admin as adminAPI, profiles } from '../services/api';
 import type { UserProfile } from '../types';
-import {
-  Lock, Key, BarChart3, Users, Search, Shield, User, MessageSquare,
-  Mail, Circle, Award, Link2, RefreshCw, Edit3, Save, AlertTriangle,
-  Trash2, ArrowLeft, LogOut, Loader2, ChevronRight, UserPlus, UserMinus,
-  Activity, Flag, X,
-} from 'lucide-react';
 
 type Tab = 'dashboard' | 'users' | 'staff' | 'logs';
 type ToastItem = { id: number; msg: string; type: 'success' | 'error' | 'info' };
@@ -54,7 +76,7 @@ const STAT_CARDS = [
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts;
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'à l\'instant';
+  if (mins < 1) return "à l'instant";
   if (mins < 60) return `il y a ${mins} min`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `il y a ${hrs}h`;
@@ -73,7 +95,14 @@ export default function AdminPage() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   /* Dashboard state */
-  const [stats, setStats] = useState<{ users: number; chats: number; messages: number; online: number; badges: number; wouaffIds: number } | null>(null);
+  const [stats, setStats] = useState<{
+    users: number;
+    chats: number;
+    messages: number;
+    online: number;
+    badges: number;
+    wouaffIds: number;
+  } | null>(null);
 
   /* Users state */
   const [recentUsers, setRecentUsers] = useState<Record<string, UserProfile>>({});
@@ -96,40 +125,71 @@ export default function AdminPage() {
   const [staffMsg, setStaffMsg] = useState('');
 
   /* Logs state */
-  const [logs, setLogs] = useState<Array<{
-    id: number; adminUid: string; action: string;
-    targetType: string | null; targetId: string | null;
-    details: string | null; createdAt: number;
-  }>>([]);
+  const [logs, setLogs] = useState<
+    Array<{
+      id: number;
+      adminUid: string;
+      action: string;
+      targetType: string | null;
+      targetId: string | null;
+      details: string | null;
+      createdAt: number;
+    }>
+  >([]);
   const [logProfiles, setLogProfiles] = useState<Record<string, { pseudo: string; avatar?: string }>>({});
   const [logsLoading, setLogsLoading] = useState(false);
 
   /* Reports state */
-  const [reports, setReports] = useState<Array<{
-    gid: string; name: string; reportedBy: string; reportedAt: number;
-  }>>([]);
+  const [reports, setReports] = useState<
+    Array<{
+      gid: string;
+      name: string;
+      reportedBy: string;
+      reportedAt: number;
+    }>
+  >([]);
   const [showReports, setShowReports] = useState(false);
 
   const toast = useCallback((msg: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = ++toastId;
-    setToasts(prev => [...prev, { id, msg, type }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+    setToasts((prev) => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
   }, []);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       try {
-        const p = await profiles.get(user!.uid) as unknown as UserProfile;
+        const p = (await profiles.get(user!.uid)) as unknown as UserProfile;
         setProfile(p);
-        const staffRes = await adminAPI.staff.list().then(() => true).catch(() => false);
+        const staffRes = await adminAPI.staff
+          .list()
+          .then(() => true)
+          .catch(() => false);
         setIsStaff(staffRes);
         if (staffRes) {
-          adminAPI.stats().then(setStats).catch((e) => { console.error(e); });
-          adminAPI.users.recent().then(setRecentUsers).catch((e) => { console.error(e); });
-          adminAPI.badges.list().then(data => setBadgeDefs(data as Record<string, { name?: string; icon?: string }>)).catch((e) => { console.error(e); });
+          adminAPI
+            .stats()
+            .then(setStats)
+            .catch((e) => {
+              console.error(e);
+            });
+          adminAPI.users
+            .recent()
+            .then(setRecentUsers)
+            .catch((e) => {
+              console.error(e);
+            });
+          adminAPI.badges
+            .list()
+            .then((data) => setBadgeDefs(data as Record<string, { name?: string; icon?: string }>))
+            .catch((e) => {
+              console.error(e);
+            });
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
       setChecking(false);
     })();
   }, [user]);
@@ -160,12 +220,16 @@ export default function AdminPage() {
         if (seen.has(log.adminUid)) continue;
         seen.add(log.adminUid);
         try {
-          const p = await profiles.get(log.adminUid) as unknown as UserProfile;
+          const p = (await profiles.get(log.adminUid)) as unknown as UserProfile;
           pMap[log.adminUid] = { pseudo: p.pseudo || log.adminUid.slice(0, 8), avatar: p.avatar };
-        } catch { pMap[log.adminUid] = { pseudo: log.adminUid.slice(0, 8) }; }
+        } catch {
+          pMap[log.adminUid] = { pseudo: log.adminUid.slice(0, 8) };
+        }
       }
       setLogProfiles(pMap);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
     setLogsLoading(false);
   };
 
@@ -174,7 +238,9 @@ export default function AdminPage() {
       const r = await adminAPI.reports();
       setReports(r);
       setShowReports(true);
-    } catch { toast('Erreur chargement signalements', 'error'); }
+    } catch {
+      toast('Erreur chargement signalements', 'error');
+    }
   };
 
   const searchProfile = async () => {
@@ -192,13 +258,13 @@ export default function AdminPage() {
       if (q.startsWith('@')) {
         const res = await fetch(`/api/search/users/${encodeURIComponent(q)}`);
         if (!res.ok) throw new Error('Utilisateur introuvable');
-        const data = await res.json() as { uid: string; profile: UserProfile };
+        const data = (await res.json()) as { uid: string; profile: UserProfile };
         uid = data.uid;
         prof = data.profile;
       } else {
         const res = await fetch(`/api/profiles/${encodeURIComponent(q)}`);
         if (!res.ok) throw new Error('Utilisateur introuvable');
-        prof = await res.json() as UserProfile;
+        prof = (await res.json()) as UserProfile;
         uid = q;
       }
       if (!prof || !prof.pseudo) throw new Error('Profil introuvable');
@@ -214,7 +280,8 @@ export default function AdminPage() {
       let ids: string[] = [];
       if (rawBadges) {
         if (Array.isArray(rawBadges)) ids = rawBadges.filter(Boolean) as string[];
-        else if (typeof rawBadges === 'object') ids = Object.values(rawBadges as Record<string, string>).filter(Boolean);
+        else if (typeof rawBadges === 'object')
+          ids = Object.values(rawBadges as Record<string, string>).filter(Boolean);
       }
       setSelectedBadges(ids);
     } catch (e) {
@@ -232,10 +299,16 @@ export default function AdminPage() {
     if (editData.avatar !== (searchResult.profile.avatar || '')) data.avatar = editData.avatar;
     if (editData.banner !== (searchResult.profile.banner || '')) data.banner = editData.banner;
     if (editData.wouaffId !== (searchResult.profile.wouaffId || '')) {
-      if (!editData.wouaffId.startsWith('@')) { setEditMsg('L\'identifiant doit commencer par @'); return; }
+      if (!editData.wouaffId.startsWith('@')) {
+        setEditMsg("L'identifiant doit commencer par @");
+        return;
+      }
       data.wouaffId = editData.wouaffId;
     }
-    if (Object.keys(data).length === 0) { setEditMsg('Aucune modification'); return; }
+    if (Object.keys(data).length === 0) {
+      setEditMsg('Aucune modification');
+      return;
+    }
     try {
       await adminAPI.profile.update(uid, data);
       adminAPI.logAction('profile_update', 'user', uid, Object.keys(data).join(', '));
@@ -248,7 +321,7 @@ export default function AdminPage() {
   };
 
   const toggleBadge = (id: string) => {
-    setSelectedBadges(prev => prev.includes(id) ? prev.filter(b => b !== id) : [...prev, id]);
+    setSelectedBadges((prev) => (prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]));
   };
 
   const saveBadges = async () => {
@@ -270,7 +343,7 @@ export default function AdminPage() {
       adminAPI.logAction('wouaffid_reset', 'user', searchResult.uid);
       setActionMsg('✓ Wouaff ID réinitialisé');
       toast('Wouaff ID réinitialisé', 'success');
-      setEditData(prev => ({ ...prev, wouaffId: '' }));
+      setEditData((prev) => ({ ...prev, wouaffId: '' }));
     } catch (e) {
       setActionMsg(e instanceof Error ? e.message : 'Erreur');
     }
@@ -296,7 +369,12 @@ export default function AdminPage() {
     if (res) {
       if (res.created.length > 0) toast(`Badges créés : ${res.created.join(', ')}`, 'success');
       else toast('Tous les badges existent déjà', 'info');
-      adminAPI.badges.list().then(data => setBadgeDefs(data as Record<string, { name?: string; icon?: string }>)).catch((e) => { console.error(e); });
+      adminAPI.badges
+        .list()
+        .then((data) => setBadgeDefs(data as Record<string, { name?: string; icon?: string }>))
+        .catch((e) => {
+          console.error(e);
+        });
     } else {
       toast('Erreur lors du seed des badges', 'error');
     }
@@ -322,7 +400,9 @@ export default function AdminPage() {
       await adminAPI.staff.remove(uid);
       toast('Membre retiré du staff', 'success');
       loadStaff();
-    } catch { toast('Erreur', 'error'); }
+    } catch {
+      toast('Erreur', 'error');
+    }
   };
 
   const clickUser = (uid: string) => {
@@ -337,7 +417,10 @@ export default function AdminPage() {
   if (checking) {
     return (
       <div className="admin-page">
-        <div className="admin-center"><div className="admin-spinner" /><p className="admin-muted">Vérification...</p></div>
+        <div className="admin-center">
+          <div className="admin-spinner" />
+          <p className="admin-muted">Vérification...</p>
+        </div>
       </div>
     );
   }
@@ -346,16 +429,30 @@ export default function AdminPage() {
     return (
       <div className="admin-page">
         <div className="admin-center">
-          <div className="admin-forbidden-icon"><Lock size={48} /></div>
+          <div className="admin-forbidden-icon">
+            <Lock size={48} />
+          </div>
           <h2 className="admin-forbidden-title">Accès refusé</h2>
           <p className="admin-muted">Vous n'avez pas les permissions nécessaires.</p>
-          <button className="admin-btn admin-btn-primary mt-3" onClick={() => navigate('/')}>Retour au chat</button>
-          <button className="admin-btn admin-btn-secondary mt-2" onClick={async () => {
-            try {
-              const r = await adminAPI.bootstrap();
-              if (r.success) { setIsStaff(true); toast('Vous êtes maintenant staff !', 'success'); }
-            } catch (e) { toast(e instanceof Error ? e.message : 'Erreur', 'error'); }
-          }}><Key size={16} /> Devenir premier admin</button>
+          <button className="admin-btn admin-btn-primary mt-3" onClick={() => navigate('/')}>
+            Retour au chat
+          </button>
+          <button
+            className="admin-btn admin-btn-secondary mt-2"
+            onClick={async () => {
+              try {
+                const r = await adminAPI.bootstrap();
+                if (r.success) {
+                  setIsStaff(true);
+                  toast('Vous êtes maintenant staff !', 'success');
+                }
+              } catch (e) {
+                toast(e instanceof Error ? e.message : 'Erreur', 'error');
+              }
+            }}
+          >
+            <Key size={16} /> Devenir premier admin
+          </button>
         </div>
       </div>
     );
@@ -382,17 +479,22 @@ export default function AdminPage() {
               </div>
               <div className="admin-self-info">
                 <div className="admin-self-name">{profile.pseudo || 'Staff'}</div>
-                <div className="admin-self-badge"><Shield size={10} /> Staff</div>
+                <div className="admin-self-badge">
+                  <Shield size={10} /> Staff
+                </div>
               </div>
             </div>
           )}
 
           <nav className="admin-menu">
-            {TABS.map(t => (
+            {TABS.map((t) => (
               <div
                 key={t.id}
                 className={`admin-menu-item${activeTab === t.id ? ' active' : ''}`}
-                onClick={() => { setActiveTab(t.id); setMobileOpen(false); }}
+                onClick={() => {
+                  setActiveTab(t.id);
+                  setMobileOpen(false);
+                }}
               >
                 <span className="admin-menu-icon">{t.icon}</span>
                 {t.label}
@@ -413,7 +515,7 @@ export default function AdminPage() {
         </aside>
 
         <div className="admin-mobile-tabs">
-          {TABS.map(t => (
+          {TABS.map((t) => (
             <button
               key={t.id}
               className={`admin-mobile-tab${activeTab === t.id ? ' active' : ''}`}
@@ -435,8 +537,12 @@ export default function AdminPage() {
 
               {stats && (
                 <div className="admin-stats-grid">
-                  {STAT_CARDS.map(s => (
-                    <div key={s.key} className="admin-stat-card" style={{ '--stat-color': s.color } as React.CSSProperties}>
+                  {STAT_CARDS.map((s) => (
+                    <div
+                      key={s.key}
+                      className="admin-stat-card"
+                      style={{ '--stat-color': s.color } as React.CSSProperties}
+                    >
                       <div className="admin-stat-icon" style={{ background: `${s.color}20`, color: s.color }}>
                         {s.icon}
                       </div>
@@ -456,9 +562,13 @@ export default function AdminPage() {
                 <button className="admin-btn admin-btn-accent" onClick={seedBadges}>
                   <Award size={16} /> Seed badges
                 </button>
-                <button className="admin-btn admin-btn-secondary" onClick={async () => {
-                  const r = await adminAPI.migrate.wouaffIds(); toast(`${r.migrated} identifiants indexés`, 'success');
-                }}>
+                <button
+                  className="admin-btn admin-btn-secondary"
+                  onClick={async () => {
+                    const r = await adminAPI.migrate.wouaffIds();
+                    toast(`${r.migrated} identifiants indexés`, 'success');
+                  }}
+                >
                   <Link2 size={16} /> Migrer wouaffIds
                 </button>
                 <button className="admin-btn admin-btn-secondary" onClick={loadReports}>
@@ -470,14 +580,23 @@ export default function AdminPage() {
                 <div className="admin-card mt-1">
                   <div className="admin-card-title">
                     <Flag size={16} /> Groupes signalés
-                    <button className="admin-card-close" onClick={() => setShowReports(false)}><X size={14} /></button>
+                    <button className="admin-card-close" onClick={() => setShowReports(false)}>
+                      <X size={14} />
+                    </button>
                   </div>
                   {reports.length === 0 ? (
                     <p className="admin-muted">Aucun signalement</p>
                   ) : (
                     <div className="admin-user-list">
-                      {reports.map(r => (
-                        <div key={r.gid} className="admin-user-item" onClick={() => { setSearchQuery(r.gid); setActiveTab('users'); }}>
+                      {reports.map((r) => (
+                        <div
+                          key={r.gid}
+                          className="admin-user-item"
+                          onClick={() => {
+                            setSearchQuery(r.gid);
+                            setActiveTab('users');
+                          }}
+                        >
                           <div className="admin-user-avatar">
                             <Flag size={16} />
                           </div>
@@ -503,13 +622,23 @@ export default function AdminPage() {
               </div>
 
               <div className="admin-search-row">
-                <input className="admin-input" placeholder="@wouaff_id, UID ou gid..." value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && searchProfile()} />
+                <input
+                  className="admin-input"
+                  placeholder="@wouaff_id, UID ou gid..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && searchProfile()}
+                />
                 <button className="admin-btn admin-btn-primary" onClick={searchProfile} disabled={searchLoading}>
                   {searchLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                 </button>
-                <button className="admin-btn admin-btn-secondary" onClick={() => { setSearchQuery(''); setSearchResult(null); }}>
+                <button
+                  className="admin-btn admin-btn-secondary"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSearchResult(null);
+                  }}
+                >
                   <X size={16} />
                 </button>
               </div>
@@ -520,63 +649,130 @@ export default function AdminPage() {
                 <div className="admin-profile-section">
                   <div className="admin-profile-card">
                     {searchResult.profile.banner && (
-                      <div className="admin-profile-banner" style={{ backgroundImage: `url(${searchResult.profile.banner})` }} />
+                      <div
+                        className="admin-profile-banner"
+                        style={{ backgroundImage: `url(${searchResult.profile.banner})` }}
+                      />
                     )}
                     <div className="admin-profile-card-body">
                       <div className="admin-profile-avatar-wrap">
-                        {searchResult.profile.avatar
-                          ? <img className="admin-profile-avatar-img" src={searchResult.profile.avatar} alt=""
-                              onError={e => { (e.target as HTMLElement).style.display = 'none'; }} />
-                          : <div className="admin-profile-avatar-fallback">{(searchResult.profile.pseudo || '?')[0]}</div>
-                        }
+                        {searchResult.profile.avatar ? (
+                          <img
+                            className="admin-profile-avatar-img"
+                            src={searchResult.profile.avatar}
+                            alt=""
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="admin-profile-avatar-fallback">{(searchResult.profile.pseudo || '?')[0]}</div>
+                        )}
                       </div>
                       <div className="admin-profile-name">{searchResult.profile.pseudo || 'Utilisateur'}</div>
                       <div className="admin-profile-handle">{searchResult.profile.wouaffId || '(aucun)'}</div>
                       <div className="admin-profile-uid">{searchResult.uid}</div>
                       {searchResult.profile.bio && <div className="admin-profile-bio">{searchResult.profile.bio}</div>}
                       <div className="admin-profile-badges">
-                        {selectedBadges.length > 0
-                          ? selectedBadges.map(id => badgeDefs[id] ? (
+                        {selectedBadges.length > 0 ? (
+                          selectedBadges.map((id) =>
+                            badgeDefs[id] ? (
                               <span key={id} className={`admin-badge-chip${id === 'staff' ? ' staff-chip' : ''}`}>
                                 {badgeDefs[id].icon && <img src={badgeDefs[id].icon} alt="" />}
                                 {badgeDefs[id].name || id}
                               </span>
-                            ) : null)
-                          : <span className="admin-muted">Aucun badge</span>
-                        }
+                            ) : null,
+                          )
+                        ) : (
+                          <span className="admin-muted">Aucun badge</span>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   <div className="admin-card">
-                    <div className="admin-card-title"><Edit3 size={16} /> Modifier le profil</div>
-                    <div className="admin-field"><label>Pseudo</label><input className="admin-input" value={editData.pseudo} onChange={e => setEditData(p => ({ ...p, pseudo: e.target.value }))} /></div>
-                    <div className="admin-field"><label>Bio</label><textarea className="admin-input admin-textarea" value={editData.bio} onChange={e => setEditData(p => ({ ...p, bio: e.target.value }))} /></div>
-                    <div className="admin-field"><label>Avatar URL</label><input className="admin-input" value={editData.avatar} onChange={e => setEditData(p => ({ ...p, avatar: e.target.value }))} /></div>
-                    <div className="admin-field"><label>Bannière URL</label><input className="admin-input" value={editData.banner} onChange={e => setEditData(p => ({ ...p, banner: e.target.value }))} /></div>
-                    <div className="admin-field"><label>Identifiant Wouaff</label><input className="admin-input" value={editData.wouaffId} onChange={e => setEditData(p => ({ ...p, wouaffId: e.target.value }))} placeholder="@identifiant" /></div>
-                    <button className="admin-btn admin-btn-primary" onClick={saveProfile}><Save size={16} /> Enregistrer</button>
+                    <div className="admin-card-title">
+                      <Edit3 size={16} /> Modifier le profil
+                    </div>
+                    <div className="admin-field">
+                      <label>Pseudo</label>
+                      <input
+                        className="admin-input"
+                        value={editData.pseudo}
+                        onChange={(e) => setEditData((p) => ({ ...p, pseudo: e.target.value }))}
+                      />
+                    </div>
+                    <div className="admin-field">
+                      <label>Bio</label>
+                      <textarea
+                        className="admin-input admin-textarea"
+                        value={editData.bio}
+                        onChange={(e) => setEditData((p) => ({ ...p, bio: e.target.value }))}
+                      />
+                    </div>
+                    <div className="admin-field">
+                      <label>Avatar URL</label>
+                      <input
+                        className="admin-input"
+                        value={editData.avatar}
+                        onChange={(e) => setEditData((p) => ({ ...p, avatar: e.target.value }))}
+                      />
+                    </div>
+                    <div className="admin-field">
+                      <label>Bannière URL</label>
+                      <input
+                        className="admin-input"
+                        value={editData.banner}
+                        onChange={(e) => setEditData((p) => ({ ...p, banner: e.target.value }))}
+                      />
+                    </div>
+                    <div className="admin-field">
+                      <label>Identifiant Wouaff</label>
+                      <input
+                        className="admin-input"
+                        value={editData.wouaffId}
+                        onChange={(e) => setEditData((p) => ({ ...p, wouaffId: e.target.value }))}
+                        placeholder="@identifiant"
+                      />
+                    </div>
+                    <button className="admin-btn admin-btn-primary" onClick={saveProfile}>
+                      <Save size={16} /> Enregistrer
+                    </button>
                     {editMsg && <div className="admin-msg">{editMsg}</div>}
                   </div>
 
                   <div className="admin-card">
-                    <div className="admin-card-title"><Award size={16} /> Gestion des badges</div>
+                    <div className="admin-card-title">
+                      <Award size={16} /> Gestion des badges
+                    </div>
                     <div className="admin-badge-grid">
                       {Object.entries(badgeDefs).map(([id, b]) => (
-                        <div key={id} className={`admin-badge-opt${selectedBadges.includes(id) ? ' selected' : ''}`} onClick={() => toggleBadge(id)}>
+                        <div
+                          key={id}
+                          className={`admin-badge-opt${selectedBadges.includes(id) ? ' selected' : ''}`}
+                          onClick={() => toggleBadge(id)}
+                        >
                           {b.icon && <img src={b.icon} alt="" />}
                           <span>{b.name || id}</span>
                         </div>
                       ))}
                     </div>
-                    <button className="admin-btn admin-btn-primary mt-3" onClick={saveBadges}><Save size={16} /> Sauvegarder</button>
+                    <button className="admin-btn admin-btn-primary mt-3" onClick={saveBadges}>
+                      <Save size={16} /> Sauvegarder
+                    </button>
                     {badgeMsg && <div className="admin-msg">{badgeMsg}</div>}
                   </div>
 
                   <div className="admin-card admin-card-danger">
-                    <div className="admin-card-title"><AlertTriangle size={16} /> Actions sur le compte</div>
-                    <button className="admin-btn admin-btn-warning mr-2" onClick={resetWouaffId}><RefreshCw size={16} /> Réinitialiser l'ID</button>
-                    <button className="admin-btn admin-btn-danger" onClick={deleteAccount}><Trash2 size={16} /> Supprimer le compte</button>
+                    <div className="admin-card-title">
+                      <AlertTriangle size={16} /> Actions sur le compte
+                    </div>
+                    <button className="admin-btn admin-btn-warning mr-2" onClick={resetWouaffId}>
+                      <RefreshCw size={16} /> Réinitialiser l'ID
+                    </button>
+                    <button className="admin-btn admin-btn-danger" onClick={deleteAccount}>
+                      <Trash2 size={16} /> Supprimer le compte
+                    </button>
                     {actionMsg && <div className="admin-msg">{actionMsg}</div>}
                   </div>
                 </div>
@@ -591,18 +787,20 @@ export default function AdminPage() {
 
               <div className="admin-user-list">
                 {Object.entries(recentUsers).length === 0 && <p className="admin-muted">Aucun utilisateur</p>}
-                {Object.entries(recentUsers).reverse().map(([uid, p]) => (
-                  <div key={uid} className="admin-user-item" onClick={() => clickUser(uid)}>
-                    <div className="admin-user-avatar">
-                      {p.avatar ? <img src={p.avatar} alt="" /> : <span>{(p.pseudo || '?')[0]}</span>}
+                {Object.entries(recentUsers)
+                  .reverse()
+                  .map(([uid, p]) => (
+                    <div key={uid} className="admin-user-item" onClick={() => clickUser(uid)}>
+                      <div className="admin-user-avatar">
+                        {p.avatar ? <img src={p.avatar} alt="" /> : <span>{(p.pseudo || '?')[0]}</span>}
+                      </div>
+                      <div className="admin-user-info">
+                        <div className="admin-user-name">{p.pseudo || '(sans pseudo)'}</div>
+                        <div className="admin-user-id">{p.wouaffId || "pas d'ID"}</div>
+                      </div>
+                      <ChevronRight size={14} className="admin-user-chevron" />
                     </div>
-                    <div className="admin-user-info">
-                      <div className="admin-user-name">{p.pseudo || '(sans pseudo)'}</div>
-                      <div className="admin-user-id">{p.wouaffId || 'pas d\'ID'}</div>
-                    </div>
-                    <ChevronRight size={14} className="admin-user-chevron" />
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           )}
@@ -615,11 +813,17 @@ export default function AdminPage() {
               </div>
 
               <div className="admin-card">
-                <div className="admin-card-title"><UserPlus size={16} /> Ajouter un membre</div>
+                <div className="admin-card-title">
+                  <UserPlus size={16} /> Ajouter un membre
+                </div>
                 <div className="admin-search-row">
-                  <input className="admin-input" placeholder="UID Firebase..." value={staffUidInput}
-                    onChange={e => setStaffUidInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addStaff()} />
+                  <input
+                    className="admin-input"
+                    placeholder="UID Firebase..."
+                    value={staffUidInput}
+                    onChange={(e) => setStaffUidInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && addStaff()}
+                  />
                   <button className="admin-btn admin-btn-primary" onClick={addStaff}>
                     <UserPlus size={16} /> Ajouter
                   </button>
@@ -627,7 +831,9 @@ export default function AdminPage() {
                 {staffMsg && <div className="admin-msg">{staffMsg}</div>}
               </div>
 
-              <div className="admin-section-divider"><span>Membres du staff</span></div>
+              <div className="admin-section-divider">
+                <span>Membres du staff</span>
+              </div>
 
               <div className="admin-user-list">
                 {Object.keys(staffList).length === 0 && (
@@ -645,7 +851,10 @@ export default function AdminPage() {
                       <div className="admin-user-name">{p.pseudo || uid.slice(0, 8)}</div>
                       <div className="admin-user-id">{p.wouaffId || uid.slice(0, 12) + '...'}</div>
                     </div>
-                    <button className="admin-btn admin-btn-danger px-2.5 py-1.5 text-[11px]" onClick={() => removeStaff(uid)}>
+                    <button
+                      className="admin-btn admin-btn-danger px-2.5 py-1.5 text-[11px]"
+                      onClick={() => removeStaff(uid)}
+                    >
                       <UserMinus size={12} /> Retirer
                     </button>
                   </div>
@@ -674,18 +883,19 @@ export default function AdminPage() {
               )}
 
               <div className="admin-log-list">
-                {logs.map(log => (
+                {logs.map((log) => (
                   <div key={log.id} className="admin-log-item">
-                    <div className="admin-log-icon">
-                      {ACTION_ICONS[log.action] || <Activity size={14} />}
-                    </div>
+                    <div className="admin-log-icon">{ACTION_ICONS[log.action] || <Activity size={14} />}</div>
                     <div className="admin-log-info">
-                      <div className="admin-log-action">
-                        {ACTIONS_LABELS[log.action] || log.action}
-                      </div>
+                      <div className="admin-log-action">{ACTIONS_LABELS[log.action] || log.action}</div>
                       <div className="admin-log-meta">
                         {logProfiles[log.adminUid]?.pseudo || log.adminUid.slice(0, 8)}
-                        {log.targetId && <> · <code>{log.targetId.slice(0, 12)}...</code></>}
+                        {log.targetId && (
+                          <>
+                            {' '}
+                            · <code>{log.targetId.slice(0, 12)}...</code>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="admin-log-time">{timeAgo(log.createdAt)}</div>
@@ -698,8 +908,10 @@ export default function AdminPage() {
       </div>
 
       <div className="admin-toasts">
-        {toasts.map(t => (
-          <div key={t.id} className={`admin-toast admin-toast-${t.type}`}>{t.msg}</div>
+        {toasts.map((t) => (
+          <div key={t.id} className={`admin-toast admin-toast-${t.type}`}>
+            {t.msg}
+          </div>
         ))}
       </div>
     </div>

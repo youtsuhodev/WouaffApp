@@ -10,7 +10,10 @@ export default function ForgotPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!email) { setError('Email requis.'); return; }
+    if (!email) {
+      setError('Email requis.');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/auth/forgot-password', {
@@ -62,12 +65,26 @@ export default function ForgotPasswordPage() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-semibold mb-1.5">Email</label>
-            <input id="email" type="email" inputMode="email" placeholder="vous@example.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email"
-              className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-brand font-sans" />
+            <label htmlFor="email" className="block text-sm font-semibold mb-1.5">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              inputMode="email"
+              placeholder="vous@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className="w-full bg-[var(--bg-page)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-brand font-sans"
+            />
           </div>
 
-          <button className="w-full bg-brand text-white px-6 py-3 rounded-xl font-bold text-sm border-none cursor-pointer font-sans disabled:opacity-50 disabled:cursor-not-allowed" type="submit" disabled={loading}>
+          <button
+            className="w-full bg-brand text-white px-6 py-3 rounded-xl font-bold text-sm border-none cursor-pointer font-sans disabled:opacity-50 disabled:cursor-not-allowed"
+            type="submit"
+            disabled={loading}
+          >
             {loading ? 'Envoi...' : 'Envoyer le lien de réinitialisation'}
           </button>
         </form>
@@ -79,7 +96,9 @@ export default function ForgotPasswordPage() {
         )}
 
         <div className="text-center mt-4 text-sm">
-          <Link to="/auth" className="text-brand">Retour à la connexion</Link>
+          <Link to="/auth" className="text-brand">
+            Retour à la connexion
+          </Link>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
-import { mkdir, writeFile, unlink, readdir, access } from 'fs/promises';
 import { randomUUID } from 'crypto';
-import { resolve, dirname } from 'path';
+import { access, mkdir, readdir, unlink, writeFile } from 'fs/promises';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -47,9 +47,13 @@ export async function storeThumbnail(buffer: Buffer): Promise<string> {
 
 export async function deleteVideoFiles(videoPath: string, thumbnailPath?: string): Promise<void> {
   const fullPath = resolve(UPLOADS_DIR, '..', videoPath);
-  try { await unlink(fullPath); } catch {}
+  try {
+    await unlink(fullPath);
+  } catch {}
   if (thumbnailPath) {
-    try { await unlink(resolve(UPLOADS_DIR, '..', thumbnailPath)); } catch {}
+    try {
+      await unlink(resolve(UPLOADS_DIR, '..', thumbnailPath));
+    } catch {}
   }
 }
 
@@ -59,7 +63,9 @@ export async function cleanupOrphanedVideos(validPaths: Set<string>): Promise<vo
     for (const file of files) {
       const relPath = `uploads/videos/${file}`;
       if (!validPaths.has(relPath)) {
-        try { await unlink(resolve(VIDEOS_DIR, file)); } catch {}
+        try {
+          await unlink(resolve(VIDEOS_DIR, file));
+        } catch {}
       }
     }
   } catch {}

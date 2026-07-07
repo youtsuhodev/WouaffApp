@@ -1,8 +1,8 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.js';
+import { getReverseContactUids, setUserOffline, setUserOnline } from '../services/rtdb.js';
 import type { AuthRequest } from '../types/index.js';
-import { setUserOnline, setUserOffline, getReverseContactUids } from '../services/rtdb.js';
 
 async function broadcastStatusChange(req: Request, uid: string, status: string) {
   try {

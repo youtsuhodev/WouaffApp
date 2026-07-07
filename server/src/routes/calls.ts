@@ -1,9 +1,9 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { verifyToken } from '../middleware/auth.js';
-import type { AuthRequest } from '../types/index.js';
+import { Router } from 'express';
 import { query } from '../config/database.js';
-import { isColdStorageEnabled, getArchivedCall, getUserCalls } from '../services/coldStorage.js';
+import { verifyToken } from '../middleware/auth.js';
+import { getArchivedCall, getUserCalls, isColdStorageEnabled } from '../services/coldStorage.js';
+import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
 router.use(verifyToken);
@@ -27,7 +27,7 @@ router.get('/history', async (req: Request, res: Response) => {
     const calls = await getUserCalls(uid, limit);
     res.json({ calls });
   } catch (err) {
-    res.status(500).json({ error: 'Erreur lors du chargement de l\'historique' });
+    res.status(500).json({ error: "Erreur lors du chargement de l'historique" });
   }
 });
 

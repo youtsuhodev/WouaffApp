@@ -1,20 +1,52 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { conversations as convAPI, stories as storiesAPI, contacts as contactsAPI, groups as groupsAPI, badges as badgesAPI, blocks as blocksAPI } from '../../services/api';
 import {
-  onStatusChanged, offStatusChanged, onContactAdded, offContactAdded, onContactRemoved, offContactRemoved,
-  onContactRequest, offContactRequest, onContactRequestAccepted, offContactRequestAccepted,
-  onContactRequestRejected, offContactRequestRejected,
-  onGroupCreated, offGroupCreated, onGroupUpdated, offGroupUpdated, onGroupDeleted, offGroupDeleted,
-  onGroupMemberAdded, offGroupMemberAdded, onGroupMemberRemoved, offGroupMemberRemoved,
-  onProfileUpdated, offProfileUpdated, onAccountDeleted, offAccountDeleted,
-  onStoryAdded, offStoryAdded, onStoryRemoved, offStoryRemoved,
-  onMessageAdded, offMessageAdded, getSocket,
+  badges as badgesAPI,
+  blocks as blocksAPI,
+  contacts as contactsAPI,
+  conversations as convAPI,
+  groups as groupsAPI,
+  stories as storiesAPI,
+} from '../../services/api';
+import {
+  getSocket,
+  offAccountDeleted,
+  offContactAdded,
+  offContactRemoved,
+  offContactRequest,
+  offContactRequestAccepted,
+  offContactRequestRejected,
+  offGroupCreated,
+  offGroupDeleted,
+  offGroupMemberAdded,
+  offGroupMemberRemoved,
+  offGroupUpdated,
+  offMessageAdded,
+  offProfileUpdated,
+  offStatusChanged,
+  offStoryAdded,
+  offStoryRemoved,
+  onAccountDeleted,
+  onContactAdded,
+  onContactRemoved,
+  onContactRequest,
+  onContactRequestAccepted,
+  onContactRequestRejected,
+  onGroupCreated,
+  onGroupDeleted,
+  onGroupMemberAdded,
+  onGroupMemberRemoved,
+  onGroupUpdated,
+  onMessageAdded,
+  onProfileUpdated,
+  onStatusChanged,
+  onStoryAdded,
+  onStoryRemoved,
 } from '../../services/socket';
-import type { UserProfile, GroupData, MessageData, SocketMessageEvent } from '../../types';
-import SwipeableConv from '../Common/SwipeableConv';
+import type { GroupData, MessageData, SocketMessageEvent, UserProfile } from '../../types';
 import { playMessageSound } from '../../utils/notificationSound';
 import ConvContextMenu from '../Common/ConvContextMenu';
+import SwipeableConv from '../Common/SwipeableConv';
 
 interface ConvEntry {
   id: string;
@@ -56,9 +88,17 @@ interface SidebarProps {
 }
 
 export default function Sidebar({
-  chatWith, currentGroupId, onOpenChat, onOpenGroup,
-  onToggleProfile, onOpenSettings, onOpenAddContact, onOpenNewGroup,
-  onOpenStoryViewer, onOpenStoryCreator, onOpenUserProfile,
+  chatWith,
+  currentGroupId,
+  onOpenChat,
+  onOpenGroup,
+  onToggleProfile,
+  onOpenSettings,
+  onOpenAddContact,
+  onOpenNewGroup,
+  onOpenStoryViewer,
+  onOpenStoryCreator,
+  onOpenUserProfile,
 }: SidebarProps) {
   const { user } = useAuth();
   const [convs, setConvs] = useState<ConvEntry[]>([]);
@@ -71,19 +111,28 @@ export default function Sidebar({
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; conv: ConvEntry } | null>(null);
   const [pendingLoading, setPendingLoading] = useState<Record<string, 'accept' | 'reject' | null>>({});
   const [pinned, setPinned] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('pinned_convs') || '[]'); } catch { return []; }
+    try {
+      return JSON.parse(localStorage.getItem('pinned_convs') || '[]');
+    } catch {
+      return [];
+    }
   });
 
   const togglePin = useCallback((id: string) => {
-    setPinned(prev => {
-      const next = prev.includes(id) ? prev.filter(x => x !== id) : [id, ...prev];
+    setPinned((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev];
       localStorage.setItem('pinned_convs', JSON.stringify(next));
       return next;
     });
   }, []);
 
   useEffect(() => {
-    badgesAPI.list().then(setBadgeDefs).catch((e) => { console.error(e); });
+    badgesAPI
+      .list()
+      .then(setBadgeDefs)
+      .catch((e) => {
+        console.error(e);
+      });
   }, []);
 
   const fetchRef = useRef<(() => Promise<void>) | null>(null);
@@ -91,10 +140,16 @@ export default function Sidebar({
     if (!user) return;
     try {
       const res = await contactsAPI.pending();
-      setPendingRequests(res.incoming.map((r: { fromUid: string; profile: UserProfile; createdAt: number }) => ({
-        fromUid: r.fromUid, profile: r.profile, createdAt: r.createdAt,
-      })));
-    } catch (e) { console.error(e); }
+      setPendingRequests(
+        res.incoming.map((r: { fromUid: string; profile: UserProfile; createdAt: number }) => ({
+          fromUid: r.fromUid,
+          profile: r.profile,
+          createdAt: r.createdAt,
+        })),
+      );
+    } catch (e) {
+      console.error(e);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -106,7 +161,9 @@ export default function Sidebar({
           convAPI.list(),
           storiesAPI.list(),
           storiesAPI.mine(),
-          fetch('/api/profiles/me').then(r => r.json() as Promise<UserProfile>).catch(() => null),
+          fetch('/api/profiles/me')
+            .then((r) => r.json() as Promise<UserProfile>)
+            .catch(() => null),
         ]);
         if (cancelled) return;
 
@@ -115,14 +172,26 @@ export default function Sidebar({
         for (const [uid, d] of Object.entries(convData.dms || {})) {
           const entry = d as { profile?: UserProfile; lastMsg?: MessageData | null; lastTime?: number };
           if (entry.profile) {
-            entries.push({ id: uid, type: 'dm', profile: entry.profile, lastMsg: entry.lastMsg || null, lastTime: entry.lastTime || 0 });
+            entries.push({
+              id: uid,
+              type: 'dm',
+              profile: entry.profile,
+              lastMsg: entry.lastMsg || null,
+              lastTime: entry.lastTime || 0,
+            });
             profiles[uid] = entry.profile;
           }
         }
         for (const [gid, d] of Object.entries(convData.groups || {})) {
           const entry = d as { group?: GroupData; lastMsg?: MessageData | null; lastTime?: number };
           if (entry.group) {
-            entries.push({ id: gid, type: 'group', group: entry.group, lastMsg: entry.lastMsg || null, lastTime: entry.lastTime || 0 });
+            entries.push({
+              id: gid,
+              type: 'group',
+              group: entry.group,
+              lastMsg: entry.lastMsg || null,
+              lastTime: entry.lastTime || 0,
+            });
           }
         }
         entries.sort((a, b) => (b.lastTime || 0) - (a.lastTime || 0));
@@ -137,23 +206,33 @@ export default function Sidebar({
         const sUsers: StoryUser[] = [];
         if (profileRes) {
           sUsers.push({
-            uid: user.uid, pseudo: 'Votre story', hasStories: myStoryCount > 0,
-            initials: (profileRes.pseudo || '?')[0].toUpperCase(), isMe: true, allViewed: false,
+            uid: user.uid,
+            pseudo: 'Votre story',
+            hasStories: myStoryCount > 0,
+            initials: (profileRes.pseudo || '?')[0].toUpperCase(),
+            isMe: true,
+            allViewed: false,
           });
         }
         for (const [uid, stories] of Object.entries(storiesData as Record<string, Record<string, unknown>>)) {
           if (uid === user.uid) continue;
-          const activeStories = Object.values(stories).filter((s: unknown) => (s as Record<string, unknown>).expiresAt as number > now);
+          const activeStories = Object.values(stories).filter(
+            (s: unknown) => ((s as Record<string, unknown>).expiresAt as number) > now,
+          );
           if (activeStories.length === 0) continue;
           const profile = profiles[uid];
           const allViewed = activeStories.every((s: unknown) => {
-            const v = (s as Record<string, unknown>).viewedBy as Record<string, boolean> || {};
+            const v = ((s as Record<string, unknown>).viewedBy as Record<string, boolean>) || {};
             return v[user.uid] === true;
           });
           sUsers.push({
-            uid, pseudo: profile?.pseudo || '?', avatar: profile?.avatar,
+            uid,
+            pseudo: profile?.pseudo || '?',
+            avatar: profile?.avatar,
             initials: (profile?.pseudo || '?')[0]?.toUpperCase() || '?',
-            hasStories: true, allViewed, isMe: false,
+            hasStories: true,
+            allViewed,
+            isMe: false,
           });
         }
         setStoryUsers(sUsers);
@@ -164,11 +243,16 @@ export default function Sidebar({
     fetchRef.current = fn;
     fn();
     const interval = setInterval(fn, 30000);
-    return () => { cancelled = true; clearInterval(interval); };
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [user]);
 
   /* Load pending requests on mount */
-  useEffect(() => { loadPending(); }, [loadPending]);
+  useEffect(() => {
+    loadPending();
+  }, [loadPending]);
 
   /* Socket listeners: real-time updates for all features */
   useEffect(() => {
@@ -182,47 +266,66 @@ export default function Sidebar({
     };
 
     const handleStatusChanged = (data: { uid: string; status: string }) => {
-      setConvs(prev => prev.map(c => {
-        if (c.type === 'dm' && c.id === data.uid && c.profile) {
-          return { ...c, profile: { ...c.profile, status: data.status } };
-        }
-        return c;
-      }));
+      setConvs((prev) =>
+        prev.map((c) => {
+          if (c.type === 'dm' && c.id === data.uid && c.profile) {
+            return { ...c, profile: { ...c.profile, status: data.status } };
+          }
+          return c;
+        }),
+      );
     };
 
     const handleGroupCreated = () => fetchAll();
     const handleGroupUpdated = (data: { gid: string } & Record<string, unknown>) => {
-      setConvs(prev => prev.map(c => c.type === 'group' && c.id === data.gid ? { ...c, group: { ...c.group!, ...data } } : c));
+      setConvs((prev) =>
+        prev.map((c) => (c.type === 'group' && c.id === data.gid ? { ...c, group: { ...c.group!, ...data } } : c)),
+      );
     };
     const handleGroupDeleted = (data: { gid: string }) => {
-      setConvs(prev => prev.filter(c => !(c.type === 'group' && c.id === data.gid)));
+      setConvs((prev) => prev.filter((c) => !(c.type === 'group' && c.id === data.gid)));
     };
     const handleGroupMemberAdded = (data: { gid: string; name?: string }) => {
       if (data.name !== undefined) fetchAll();
     };
     const handleGroupMemberRemoved = (data: { gid: string; kicked?: boolean }) => {
-      if (data.kicked) setConvs(prev => prev.filter(c => !(c.type === 'group' && c.id === data.gid)));
+      if (data.kicked) setConvs((prev) => prev.filter((c) => !(c.type === 'group' && c.id === data.gid)));
       else fetchAll();
     };
     const handleProfileUpdated = (data: { uid: string } & Record<string, unknown>) => {
-      setConvs(prev => prev.map(c => {
-        if (c.type === 'dm' && c.id === data.uid && c.profile) {
-          return { ...c, profile: { ...c.profile, ...data } };
-        }
-        return c;
-      }));
+      setConvs((prev) =>
+        prev.map((c) => {
+          if (c.type === 'dm' && c.id === data.uid && c.profile) {
+            return { ...c, profile: { ...c.profile, ...data } };
+          }
+          return c;
+        }),
+      );
     };
     const handleAccountDeleted = (data: { uid: string }) => {
-      setConvs(prev => prev.filter(c => !(c.type === 'dm' && c.id === data.uid)));
+      setConvs((prev) => prev.filter((c) => !(c.type === 'dm' && c.id === data.uid)));
     };
     const handleContactRemoved = (data: { by: string }) => {
-      setConvs(prev => prev.filter(c => !(c.type === 'dm' && c.id === data.by)));
+      setConvs((prev) => prev.filter((c) => !(c.type === 'dm' && c.id === data.by)));
       fetchAll();
     };
     const handleStoryAdded = (data: { uid: string; storyId: string }) => {
-      setStoryUsers(prev => prev.some(s => s.uid === data.uid) ? prev : [...prev, {
-        uid: data.uid, pseudo: '', avatar: undefined, initials: '?', hasStories: true, allViewed: false, isMe: false,
-      }]);
+      setStoryUsers((prev) =>
+        prev.some((s) => s.uid === data.uid)
+          ? prev
+          : [
+              ...prev,
+              {
+                uid: data.uid,
+                pseudo: '',
+                avatar: undefined,
+                initials: '?',
+                hasStories: true,
+                allViewed: false,
+                isMe: false,
+              },
+            ],
+      );
       fetchAll();
     };
     const handleStoryRemoved = (data: { uid: string }) => {
@@ -239,7 +342,7 @@ export default function Sidebar({
     onContactRequest(handleContactRequest);
     onContactRequestAccepted(fetchAll);
     const handleContactRequestRejected = (data: { by: string }) => {
-      setPendingRequests(prev => prev.filter(r => r.fromUid !== data.by));
+      setPendingRequests((prev) => prev.filter((r) => r.fromUid !== data.by));
       fetchAll();
     };
     onContactRequestRejected(handleContactRequestRejected);
@@ -277,12 +380,13 @@ export default function Sidebar({
     };
   }, [user, loadPending]);
 
-  const filtered = (search.trim()
-    ? convs.filter(c => {
-        const name = c.type === 'dm' ? c.profile?.pseudo || '' : c.group?.name || '';
-        return name.toLowerCase().includes(search.toLowerCase());
-      })
-    : convs
+  const filtered = (
+    search.trim()
+      ? convs.filter((c) => {
+          const name = c.type === 'dm' ? c.profile?.pseudo || '' : c.group?.name || '';
+          return name.toLowerCase().includes(search.toLowerCase());
+        })
+      : convs
   ).sort((a, b) => {
     const aPinned = pinned.includes(a.id) ? 1 : 0;
     const bPinned = pinned.includes(b.id) ? 1 : 0;
@@ -290,62 +394,80 @@ export default function Sidebar({
   });
 
   const handleDeleteConv = useCallback(async (uid: string) => {
-    try { await contactsAPI.remove(uid); } catch (e) { console.error(e); }
-    setConvs(prev => prev.filter(c => !(c.type === 'dm' && c.id === uid)));
+    try {
+      await contactsAPI.remove(uid);
+    } catch (e) {
+      console.error(e);
+    }
+    setConvs((prev) => prev.filter((c) => !(c.type === 'dm' && c.id === uid)));
   }, []);
 
-  const handleLeaveGroup = useCallback(async (gid: string) => {
-    try { await groupsAPI.removeMember(gid, user!.uid); } catch (e) { console.error(e); }
-    setConvs(prev => prev.filter(c => !(c.type === 'group' && c.id === gid)));
-  }, [user]);
+  const handleLeaveGroup = useCallback(
+    async (gid: string) => {
+      try {
+        await groupsAPI.removeMember(gid, user!.uid);
+      } catch (e) {
+        console.error(e);
+      }
+      setConvs((prev) => prev.filter((c) => !(c.type === 'group' && c.id === gid)));
+    },
+    [user],
+  );
 
-  const handleCtxDelete = useCallback(async (conv: ConvEntry) => {
-    if (conv.type === 'group') {
-      await handleLeaveGroup(conv.id);
-    } else {
-      await handleDeleteConv(conv.id);
-    }
-  }, [handleDeleteConv, handleLeaveGroup]);
+  const handleCtxDelete = useCallback(
+    async (conv: ConvEntry) => {
+      if (conv.type === 'group') {
+        await handleLeaveGroup(conv.id);
+      } else {
+        await handleDeleteConv(conv.id);
+      }
+    },
+    [handleDeleteConv, handleLeaveGroup],
+  );
 
   const handleCtxBlock = useCallback(async (conv: ConvEntry) => {
     if (conv.type !== 'dm') return;
     try {
       await blocksAPI.block(conv.id);
       await contactsAPI.remove(conv.id);
-      setConvs(prev => prev.filter(c => !(c.type === 'dm' && c.id === conv.id)));
-    } catch (e) { console.error(e); }
+      setConvs((prev) => prev.filter((c) => !(c.type === 'dm' && c.id === conv.id)));
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
   const handleCtxReport = useCallback(async (conv: ConvEntry) => {
     try {
       await blocksAPI.report(conv.id);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
   const handleAcceptRequest = useCallback(async (fromUid: string) => {
-    setPendingLoading(prev => ({ ...prev, [fromUid]: 'accept' }));
+    setPendingLoading((prev) => ({ ...prev, [fromUid]: 'accept' }));
     try {
       await contactsAPI.accept(fromUid);
-      setPendingRequests(prev => prev.filter(r => r.fromUid !== fromUid));
+      setPendingRequests((prev) => prev.filter((r) => r.fromUid !== fromUid));
       fetchRef.current?.();
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erreur';
-      import('../Common/Toast').then(m => m.showToast(msg, 'error'));
+      import('../Common/Toast').then((m) => m.showToast(msg, 'error'));
     } finally {
-      setPendingLoading(prev => ({ ...prev, [fromUid]: null }));
+      setPendingLoading((prev) => ({ ...prev, [fromUid]: null }));
     }
   }, []);
 
   const handleRejectRequest = useCallback(async (fromUid: string) => {
-    setPendingLoading(prev => ({ ...prev, [fromUid]: 'reject' }));
+    setPendingLoading((prev) => ({ ...prev, [fromUid]: 'reject' }));
     try {
       await contactsAPI.reject(fromUid);
-      setPendingRequests(prev => prev.filter(r => r.fromUid !== fromUid));
+      setPendingRequests((prev) => prev.filter((r) => r.fromUid !== fromUid));
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erreur';
-      import('../Common/Toast').then(m => m.showToast(msg, 'error'));
+      import('../Common/Toast').then((m) => m.showToast(msg, 'error'));
     } finally {
-      setPendingLoading(prev => ({ ...prev, [fromUid]: null }));
+      setPendingLoading((prev) => ({ ...prev, [fromUid]: null }));
     }
   }, []);
 
@@ -373,10 +495,10 @@ export default function Sidebar({
           )}
           {storyUsers.map((su) => (
             <div key={su.uid} className="story-avatar-wrap" onClick={() => onOpenStoryViewer?.(su.uid)}>
-              <div className={`story-avatar ${su.hasStories ? (su.allViewed ? 'story-ring viewed' : 'story-ring') : ''}`}>
-                {su.avatar
-                  ? <img src={su.avatar} alt={su.pseudo} />
-                  : <span>{su.initials}</span>}
+              <div
+                className={`story-avatar ${su.hasStories ? (su.allViewed ? 'story-ring viewed' : 'story-ring') : ''}`}
+              >
+                {su.avatar ? <img src={su.avatar} alt={su.pseudo} /> : <span>{su.initials}</span>}
               </div>
               <div className="story-name">{su.isMe ? 'Votre story' : su.pseudo}</div>
             </div>
@@ -386,7 +508,9 @@ export default function Sidebar({
 
       {/* Search */}
       <div className="sidebar-search">
-        <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        </svg>
         <input
           id="searchConv"
           type="text"
@@ -415,11 +539,33 @@ export default function Sidebar({
                     </div>
                     <div className="pending-item-name">{r.profile.pseudo || '?'}</div>
                     <div className="pending-item-actions">
-                      <button className="pending-accept-btn" disabled={!!loading} onClick={() => handleAcceptRequest(r.fromUid)} title="Accepter">
-                        {loading === 'accept' ? <span className="spinner-sm" /> : <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>}
+                      <button
+                        className="pending-accept-btn"
+                        disabled={!!loading}
+                        onClick={() => handleAcceptRequest(r.fromUid)}
+                        title="Accepter"
+                      >
+                        {loading === 'accept' ? (
+                          <span className="spinner-sm" />
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                          </svg>
+                        )}
                       </button>
-                      <button className="pending-decline-btn" disabled={!!loading} onClick={() => handleRejectRequest(r.fromUid)} title="Refuser">
-                        {loading === 'reject' ? <span className="spinner-sm" /> : <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>}
+                      <button
+                        className="pending-decline-btn"
+                        disabled={!!loading}
+                        onClick={() => handleRejectRequest(r.fromUid)}
+                        title="Refuser"
+                      >
+                        {loading === 'reject' ? (
+                          <span className="spinner-sm" />
+                        ) : (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                          </svg>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -440,23 +586,42 @@ export default function Sidebar({
           filtered.map((c) => {
             const isActive = c.type === 'group' ? currentGroupId === c.id : chatWith === c.id;
             const name = c.type === 'dm' ? c.profile?.pseudo || '?' : c.group?.name || 'Groupe';
-            const preview = c.lastMsg?.deleted
-              ? <em>Message supprimé</em>
-              : <>{c.lastMsg?.text || <em>Aucun message</em>}</>;
+            const preview = c.lastMsg?.deleted ? (
+              <em>Message supprimé</em>
+            ) : (
+              <>{c.lastMsg?.text || <em>Aucun message</em>}</>
+            );
             const timeStr = c.lastMsg?.time ? formatTime(c.lastMsg.time) : '';
 
             if (c.type === 'group') {
               const g = c.group!;
               const iconUrl = g.icon || 'https://cdn-icons-png.flaticon.com/512/4128/4128199.png';
               return (
-                <SwipeableConv key={c.id} actions={[{ label:'Quitter', icon:'<path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>', type:'danger', onClick:() => handleLeaveGroup(c.id) }]}>
-                  <div className={`conv-item${isActive ? ' active' : ''}`} onClick={() => onOpenGroup(c.id)} onContextMenu={(e) => handleCtxMenu(e, c)}>
+                <SwipeableConv
+                  key={c.id}
+                  actions={[
+                    {
+                      label: 'Quitter',
+                      icon: '<path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>',
+                      type: 'danger',
+                      onClick: () => handleLeaveGroup(c.id),
+                    },
+                  ]}
+                >
+                  <div
+                    className={`conv-item${isActive ? ' active' : ''}`}
+                    onClick={() => onOpenGroup(c.id)}
+                    onContextMenu={(e) => handleCtxMenu(e, c)}
+                  >
                     <div className="conv-avatar group-avatar">
                       <img src={iconUrl} alt={g.name} />
                     </div>
                     <div className="conv-info">
                       <div className="conv-row">
-                        <div className="conv-name">{g.name}<span className="group-icon">groupe</span></div>
+                        <div className="conv-name">
+                          {g.name}
+                          <span className="group-icon">groupe</span>
+                        </div>
                         <div className="conv-time">{timeStr}</div>
                       </div>
                       <div className="conv-preview">{preview}</div>
@@ -472,9 +637,29 @@ export default function Sidebar({
             const rawBadges = p.ownedBadges;
             const badgeIds: string[] = Array.isArray(rawBadges) ? rawBadges : rawBadges ? Object.values(rawBadges) : [];
             return (
-              <SwipeableConv key={c.id} actions={[{ label:'Supprimer', icon:'<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>', type:'danger', onClick:() => handleDeleteConv(c.id) }]}>
-                <div className={`conv-item${isActive ? ' active' : ''}`} onClick={() => onOpenChat(c.id, p.pseudo || '?')} onContextMenu={(e) => handleCtxMenu(e, c)}>
-                  <div className="conv-avatar" onClick={(e) => { e.stopPropagation(); onOpenUserProfile?.(c.id); }}>
+              <SwipeableConv
+                key={c.id}
+                actions={[
+                  {
+                    label: 'Supprimer',
+                    icon: '<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>',
+                    type: 'danger',
+                    onClick: () => handleDeleteConv(c.id),
+                  },
+                ]}
+              >
+                <div
+                  className={`conv-item${isActive ? ' active' : ''}`}
+                  onClick={() => onOpenChat(c.id, p.pseudo || '?')}
+                  onContextMenu={(e) => handleCtxMenu(e, c)}
+                >
+                  <div
+                    className="conv-avatar"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenUserProfile?.(c.id);
+                    }}
+                  >
                     {p.avatar ? <img src={p.avatar} alt={p.pseudo} /> : <span>{initial}</span>}
                     <div className={`status-dot ${isOnline ? 'online' : 'offline'}`} />
                   </div>
@@ -485,7 +670,15 @@ export default function Sidebar({
                         {badgeIds.map((id: string) => {
                           const def = badgeDefs[id];
                           if (!def?.icon) return null;
-                          return <img key={id} className="inline-badge" src={def.icon} alt={def.name || id} title={def.name || id} />;
+                          return (
+                            <img
+                              key={id}
+                              className="inline-badge"
+                              src={def.icon}
+                              alt={def.name || id}
+                              title={def.name || id}
+                            />
+                          );
                         })}
                       </div>
                       <div className="conv-time">{timeStr}</div>
@@ -520,24 +713,40 @@ export default function Sidebar({
             {myAvatar ? <img src={myAvatar} alt="" /> : <span>{myInitial}</span>}
           </div>
           <div className="sidebar-user-info">
-            <div className="sidebar-user-name" id="sidebarPseudo">{myProfile?.pseudo || 'Utilisateur'}</div>
+            <div className="sidebar-user-name" id="sidebarPseudo">
+              {myProfile?.pseudo || 'Utilisateur'}
+            </div>
           </div>
         </div>
         <div className="sidebar-actions">
           <button className="sidebar-icon-btn" onClick={onOpenAddContact} title="Ajouter un contact">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
           </button>
           <button className="sidebar-icon-btn" onClick={onOpenNewGroup} title="Nouveau groupe">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+            </svg>
           </button>
-          <button className="sidebar-icon-btn" onClick={() => window.location.href = '/explore'} title="Explorer les groupes">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z"/></svg>
+          <button
+            className="sidebar-icon-btn"
+            onClick={() => (window.location.href = '/explore')}
+            title="Explorer les groupes"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 10.9c-.61 0-1.1.49-1.1 1.1s.49 1.1 1.1 1.1c.61 0 1.1-.49 1.1-1.1s-.49-1.1-1.1-1.1zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm2.19 12.19L6 18l3.81-8.19L18 6l-3.81 8.19z" />
+            </svg>
           </button>
-          <button className="sidebar-icon-btn" onClick={() => window.location.href = '/feed'} title="Feed vidéo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3H3v18h18V3zm-6 6h-2v2h2v2h-2v2h-2v-2H9v-2h2V9H9V7h2V5h2v2h2v2zm2 10H7v-2h10v2z"/></svg>
+          <button className="sidebar-icon-btn" onClick={() => (window.location.href = '/feed')} title="Feed vidéo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 3H3v18h18V3zm-6 6h-2v2h2v2h-2v2h-2v-2H9v-2h2V9H9V7h2V5h2v2h2v2zm2 10H7v-2h10v2z" />
+            </svg>
           </button>
           <button className="sidebar-icon-btn" onClick={onOpenSettings} title="Paramètres">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+            </svg>
           </button>
         </div>
       </div>

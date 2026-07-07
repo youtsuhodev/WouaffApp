@@ -1,14 +1,26 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.js';
-import type { AuthRequest } from '../types/index.js';
 import {
-  isStaff, getAllStaff, setStaff,
-  getProfile, getBadges, addBadgeToUser, seedBadges,
-  getAdminStats, getRecentUsers, updateProfileByAdmin,
-  setUserBadges, resetUserWouaffId, deleteUserProfile,
-  migrateWouaffIds, logAdminAction, getAdminLogs, getReportedGroups,
+  addBadgeToUser,
+  deleteUserProfile,
+  getAdminLogs,
+  getAdminStats,
+  getAllStaff,
+  getBadges,
+  getProfile,
+  getRecentUsers,
+  getReportedGroups,
+  isStaff,
+  logAdminAction,
+  migrateWouaffIds,
+  resetUserWouaffId,
+  seedBadges,
+  setStaff,
+  setUserBadges,
+  updateProfileByAdmin,
 } from '../services/rtdb.js';
+import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
 router.use(verifyToken);
@@ -16,7 +28,10 @@ router.use(verifyToken);
 async function requireStaff(req: Request, res: Response): Promise<boolean> {
   const authReq = req as AuthRequest;
   const staff = await isStaff(authReq.uid!);
-  if (!staff) { res.status(403).json({ error: 'Accès réservé au staff' }); return false; }
+  if (!staff) {
+    res.status(403).json({ error: 'Accès réservé au staff' });
+    return false;
+  }
   return true;
 }
 
@@ -142,7 +157,10 @@ router.get('/logs', async (req: Request, res: Response) => {
 router.post('/log-action', async (req: Request, res: Response) => {
   if (!(await requireStaff(req, res))) return;
   const { action, targetType, targetId, details } = req.body as {
-    action: string; targetType?: string; targetId?: string; details?: string;
+    action: string;
+    targetType?: string;
+    targetId?: string;
+    details?: string;
   };
   await logAdminAction((req as AuthRequest).uid!, action, targetType, targetId, details);
   res.json({ success: true });

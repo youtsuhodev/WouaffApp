@@ -1,5 +1,5 @@
-import { io, Socket } from 'socket.io-client';
-import type { MessageData, SocketMessageEvent, CallPayload } from '../types';
+import { io, type Socket } from 'socket.io-client';
+import type { CallPayload, MessageData, SocketMessageEvent } from '../types';
 import { getSessionId } from './auth';
 
 const SOCKET_URL = (import.meta as any).env?.VITE_API_URL
@@ -51,7 +51,10 @@ export function connectSocket(): Socket {
 }
 
 export function disconnectSocket(): void {
-  if (socket) { socket.disconnect(); setSocket(null); }
+  if (socket) {
+    socket.disconnect();
+    setSocket(null);
+  }
 }
 
 export function getSocket(): Socket | null {
@@ -170,7 +173,7 @@ function onCallEvent(event: string, cb: (...args: any[]) => void) {
 }
 
 function offCallEvent(event: string, cb: (...args: any[]) => void) {
-  const idx = pendingListeners.findIndex(l => l.event === event && l.cb === cb);
+  const idx = pendingListeners.findIndex((l) => l.event === event && l.cb === cb);
   if (idx !== -1) pendingListeners.splice(idx, 1);
   socket?.off(event, cb);
 }
@@ -270,10 +273,14 @@ export function offGroupDeleted(cb: (data: { gid: string }) => void): void {
   socket?.off('group:deleted', cb);
 }
 
-export function onGroupMemberAdded(cb: (data: { gid: string; uid?: string; profile?: Record<string, unknown>; name?: string; kicked?: boolean }) => void): void {
+export function onGroupMemberAdded(
+  cb: (data: { gid: string; uid?: string; profile?: Record<string, unknown>; name?: string; kicked?: boolean }) => void,
+): void {
   socket?.on('group:member:added', cb);
 }
-export function offGroupMemberAdded(cb: (data: { gid: string; uid?: string; profile?: Record<string, unknown>; name?: string; kicked?: boolean }) => void): void {
+export function offGroupMemberAdded(
+  cb: (data: { gid: string; uid?: string; profile?: Record<string, unknown>; name?: string; kicked?: boolean }) => void,
+): void {
   socket?.off('group:member:added', cb);
 }
 
@@ -293,10 +300,14 @@ export function offGroupRoleChanged(cb: (data: { gid: string; uid: string; role:
 
 /* ── Story events ── */
 
-export function onStoryAdded(cb: (data: { uid: string; storyId: string; media: string; type: string; timestamp: number }) => void): void {
+export function onStoryAdded(
+  cb: (data: { uid: string; storyId: string; media: string; type: string; timestamp: number }) => void,
+): void {
   socket?.on('story:added', cb);
 }
-export function offStoryAdded(cb: (data: { uid: string; storyId: string; media: string; type: string; timestamp: number }) => void): void {
+export function offStoryAdded(
+  cb: (data: { uid: string; storyId: string; media: string; type: string; timestamp: number }) => void,
+): void {
   socket?.off('story:added', cb);
 }
 

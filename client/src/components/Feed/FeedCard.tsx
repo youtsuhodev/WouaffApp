@@ -30,7 +30,10 @@ export default function FeedCard({ video, onLike, onOpen }: Props) {
         <div className="feed-card-top-actions">
           <button
             className={`feed-card-like-btn${video.liked ? ' liked' : ''}`}
-            onClick={e => { e.stopPropagation(); onLike(video.id); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onLike(video.id);
+            }}
           >
             <Heart size={14} />
             <span>{video.likesCount || 0}</span>
@@ -40,11 +43,7 @@ export default function FeedCard({ video, onLike, onOpen }: Props) {
       <div className="feed-card-body">
         <div className="feed-card-author">
           <div className="feed-card-avatar">
-            {video.avatar ? (
-              <img src={video.avatar} alt="" />
-            ) : (
-              <span>{(video.pseudo || '?')[0]}</span>
-            )}
+            {video.avatar ? <img src={video.avatar} alt="" /> : <span>{(video.pseudo || '?')[0]}</span>}
           </div>
           <span className="feed-card-pseudo">{video.pseudo || 'Inconnu'}</span>
         </div>

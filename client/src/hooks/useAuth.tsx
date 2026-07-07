@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import { logout as authLogout, initSession } from '../services/auth';
 import { connectSocket, disconnectSocket } from '../services/socket';
 
@@ -10,7 +10,13 @@ export interface AuthState {
   refresh: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthState>({ user: null, loading: true, emailVerified: false, logout: async () => {}, refresh: async () => {} });
+const AuthContext = createContext<AuthState>({
+  user: null,
+  loading: true,
+  emailVerified: false,
+  logout: async () => {},
+  refresh: async () => {},
+});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<{ uid: string; pseudo: string; email?: string } | null>(null);
@@ -36,7 +42,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  useEffect(() => { fetchUser(); }, []);
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   const logout = async () => {
     await authLogout();

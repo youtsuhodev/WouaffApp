@@ -18,8 +18,8 @@ export default function VerifyEmailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success) {
           setStatus('success');
           setMessage('Email vérifié avec succès !');
@@ -53,7 +53,10 @@ export default function VerifyEmailPage() {
               <div className="text-5xl mb-4">✅</div>
               <h2 className="text-lg font-bold">Email vérifié !</h2>
               <p className="text-text-secondary text-sm mt-2">{message}</p>
-              <Link to="/" className="inline-block mt-4 bg-brand text-white px-6 py-3 rounded-xl font-bold text-sm no-underline">
+              <Link
+                to="/"
+                className="inline-block mt-4 bg-brand text-white px-6 py-3 rounded-xl font-bold text-sm no-underline"
+              >
                 Accéder à Wouaff
               </Link>
             </>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { stories as storiesAPI } from '../../services/api';
 import type { StoryData } from '../../types';
@@ -32,10 +32,7 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
     let cancelled = false;
     (async () => {
       try {
-        const [allStories, myStories] = await Promise.all([
-          storiesAPI.list(),
-          storiesAPI.mine(),
-        ]);
+        const [allStories, myStories] = await Promise.all([storiesAPI.list(), storiesAPI.mine()]);
         if (cancelled) return;
         const list: StoryUser[] = [];
         const myStoriesData = myStories as unknown as Record<string, StoryData>;
@@ -53,13 +50,13 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
         }
         setUsers(list);
 
-        const uids = list.map(u => u.uid);
+        const uids = list.map((u) => u.uid);
         const results = await Promise.allSettled(
-          uids.map(uid =>
+          uids.map((uid) =>
             fetch(`/api/profiles/${uid}`)
-              .then(r => r.json() as Promise<{ pseudo: string; avatar?: string }>)
-              .then(p => ({ uid, ...p }))
-          )
+              .then((r) => r.json() as Promise<{ pseudo: string; avatar?: string }>)
+              .then((p) => ({ uid, ...p })),
+          ),
         );
         if (cancelled) return;
         for (const r of results) {
@@ -69,12 +66,17 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
         }
         setProfiles(profileMap);
 
-        const startIdx = list.findIndex(u => u.uid === startUid);
+        const startIdx = list.findIndex((u) => u.uid === startUid);
         setUserIdx(startIdx >= 0 ? startIdx : 0);
         setStoryIdx(0);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     })();
-    return () => { cancelled = true; if (timerRef.current) clearTimeout(timerRef.current); };
+    return () => {
+      cancelled = true;
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   /* Resume audio on first user interaction (browser autoplay policy) */
@@ -87,15 +89,24 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
   /* Audio lifecycle */
   useEffect(() => {
     const story = users[userIdx]?.stories[users[userIdx]?.storyIds[storyIdx]];
-    if (audioEndTimerRef.current) { clearTimeout(audioEndTimerRef.current); audioEndTimerRef.current = null; }
+    if (audioEndTimerRef.current) {
+      clearTimeout(audioEndTimerRef.current);
+      audioEndTimerRef.current = null;
+    }
 
     if (!story?.audioData) {
-      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       setAudioReady(false);
       return;
     }
     if (!audioRef.current || audioRef.current.src !== story.audioData) {
-      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
       const audio = new Audio(story.audioData);
       audio.volume = 0.3;
       audio.loop = false;
@@ -118,12 +129,17 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
     /* Stop audio after extract duration */
     if (story?.audioExtractDuration && audioRef.current) {
       audioEndTimerRef.current = setTimeout(() => {
-        if (audioRef.current) { audioRef.current.pause(); }
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
       }, story.audioExtractDuration * 1000);
     }
 
     return () => {
-      if (audioEndTimerRef.current) { clearTimeout(audioEndTimerRef.current); audioEndTimerRef.current = null; }
+      if (audioEndTimerRef.current) {
+        clearTimeout(audioEndTimerRef.current);
+        audioEndTimerRef.current = null;
+      }
       if (audioRef.current && audioRef.current.src !== story?.audioData) {
         audioRef.current.pause();
         audioRef.current = null;
@@ -133,7 +149,11 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
   }, [users, userIdx, storyIdx, paused]);
 
   const markViewed = useCallback(async (uid: string, sid: string) => {
-    try { await storiesAPI.markViewed(sid, uid); } catch (e) { console.error(e); }
+    try {
+      await storiesAPI.markViewed(sid, uid);
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
   useEffect(() => {
@@ -159,7 +179,9 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
         setStoryIdx(storyIdx + 1);
       }, duration);
     }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, [users, userIdx, storyIdx, paused, markViewed, onClose]);
 
   const navigate = (dir: number) => {
@@ -168,10 +190,16 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
     if (!current) return;
     if (dir === 1) {
       if (storyIdx + 1 < current.storyIds.length) setStoryIdx(storyIdx + 1);
-      else if (userIdx + 1 < users.length) { setUserIdx(userIdx + 1); setStoryIdx(0); }
+      else if (userIdx + 1 < users.length) {
+        setUserIdx(userIdx + 1);
+        setStoryIdx(0);
+      }
     } else {
       if (storyIdx > 0) setStoryIdx(storyIdx - 1);
-      else if (userIdx > 0) { setUserIdx(userIdx - 1); setStoryIdx(0); }
+      else if (userIdx > 0) {
+        setUserIdx(userIdx - 1);
+        setStoryIdx(0);
+      }
     }
   };
 
@@ -186,12 +214,21 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
   const progressMs = storyDuration * 1000;
 
   return (
-    <div className="story-viewer-overlay" id="storyViewer"
-      onTouchStart={(e) => { tryPlayAudio(); touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() }; setPaused(true); }}
+    <div
+      className="story-viewer-overlay"
+      id="storyViewer"
+      onTouchStart={(e) => {
+        tryPlayAudio();
+        touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
+        setPaused(true);
+      }}
       onTouchEnd={(e) => {
         const dx = e.changedTouches[0].clientX - touchStartRef.current.x;
         const dy = e.changedTouches[0].clientY - touchStartRef.current.y;
-        if (Math.abs(dy) > 80 && Math.abs(dy) > Math.abs(dx)) { onClose(); return; }
+        if (Math.abs(dy) > 80 && Math.abs(dy) > Math.abs(dx)) {
+          onClose();
+          return;
+        }
         if (Math.abs(dx) > 50) navigate(dx > 0 ? -1 : 1);
         setPaused(false);
       }}
@@ -208,8 +245,10 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
       <div className="story-progress-row">
         {current.storyIds.map((id, i) => (
           <div key={id} className="story-progress-segment">
-            <div className={`story-progress-fill ${i < storyIdx ? 'done' : ''} ${i === storyIdx && !paused ? 'active' : ''}`}
-              style={i === storyIdx && !paused ? { '--pd': `${progressMs}ms` } as React.CSSProperties : undefined} />
+            <div
+              className={`story-progress-fill ${i < storyIdx ? 'done' : ''} ${i === storyIdx && !paused ? 'active' : ''}`}
+              style={i === storyIdx && !paused ? ({ '--pd': `${progressMs}ms` } as React.CSSProperties) : undefined}
+            />
           </div>
         ))}
       </div>
@@ -218,37 +257,45 @@ export default function StoryViewer({ startUid, onClose }: StoryViewerProps) {
       <div className="story-viewer-header">
         <div className="story-viewer-user">
           <div className="story-viewer-avatar" id="storyViewerAvatar">
-            {currentProfile?.avatar
-              ? <img src={currentProfile.avatar} alt="" className="w-full h-full object-cover rounded-full" />
-              : <span>{(currentProfile?.pseudo || '?')[0]}</span>}
+            {currentProfile?.avatar ? (
+              <img src={currentProfile.avatar} alt="" className="w-full h-full object-cover rounded-full" />
+            ) : (
+              <span>{(currentProfile?.pseudo || '?')[0]}</span>
+            )}
           </div>
           <div className="story-viewer-info">
-            <span className="story-viewer-name" id="storyViewerName">{currentProfile?.pseudo || 'Utilisateur'}</span>
+            <span className="story-viewer-name" id="storyViewerName">
+              {currentProfile?.pseudo || 'Utilisateur'}
+            </span>
             <span className="story-viewer-time" id="storyViewerTime">
-              {currentStory.timestamp ? new Date(currentStory.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}
+              {currentStory.timestamp
+                ? new Date(currentStory.timestamp).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                : ''}
             </span>
           </div>
         </div>
-        <button className="story-viewer-close" onClick={onClose}>✕</button>
+        <button className="story-viewer-close" onClick={onClose}>
+          ✕
+        </button>
       </div>
 
       {/* Media */}
       <img className="story-viewer-image" id="storyViewerImage" src={currentStory.media} alt="" />
 
       {/* Description */}
-      {currentStory.description && (
-        <div className="story-viewer-desc">{currentStory.description}</div>
-      )}
+      {currentStory.description && <div className="story-viewer-desc">{currentStory.description}</div>}
 
       {/* Music indicator */}
       {hasAudio && audioReady && (
         <div className={`story-music-indicator${paused ? ' paused' : ''}`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
           </svg>
           <span>{currentStory.audioName || 'Musique'}</span>
           <div className="music-bars">
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </div>
         </div>
       )}

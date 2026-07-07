@@ -1,10 +1,10 @@
+import cookie from 'cookie';
 import { randomUUID } from 'crypto';
 import type { Server as HTTPServer } from 'http';
 import { Server } from 'socket.io';
-import cookie from 'cookie';
 import { getOne, query } from '../config/database.js';
-import { chatId, setUserOnline, setUserOffline, getReverseContactUids } from '../services/rtdb.js';
 import { isColdStorageEnabled, saveCallRecord } from '../services/coldStorage.js';
+import { chatId, getReverseContactUids, setUserOffline, setUserOnline } from '../services/rtdb.js';
 
 interface AuthenticatedSocket {
   uid: string;
@@ -44,7 +44,9 @@ export function setupSocket(httpServer: HTTPServer): Server {
       const cookies = cookie.parse(socket.handshake.headers.cookie);
       sessionId = cookies.session_id;
     }
-    if (!sessionId) { return next(new Error('Session manquante')); }
+    if (!sessionId) {
+      return next(new Error('Session manquante'));
+    }
     try {
       const session = await getOne<{ uid: string }>('SELECT uid FROM sessions WHERE sessionId = ?', [sessionId]);
       if (!session) return next(new Error('Session invalide'));
@@ -129,7 +131,7 @@ export function setupSocket(httpServer: HTTPServer): Server {
         const dur = payload.duration || 0;
         query(
           'INSERT INTO calls (id, callerUid, calleeUid, startTime, endTime, duration, status) VALUES (?,?,?,?,?,?,?)',
-          [callId, caller, callee, startTime, endTime, dur, 'completed']
+          [callId, caller, callee, startTime, endTime, dur, 'completed'],
         );
         if (isColdStorageEnabled()) {
           saveCallRecord(callId, caller, callee, startTime, endTime, dur, 'completed');
@@ -145,7 +147,7 @@ export function setupSocket(httpServer: HTTPServer): Server {
     socket.on('disconnect', async () => {
       sockets.delete(socket.id);
       /* Only set offline if no other sockets for this user (multi-tab support) */
-      const hasOther = Array.from(sockets.values()).some(s => s.uid === uid);
+      const hasOther = Array.from(sockets.values()).some((s) => s.uid === uid);
       if (!hasOther) {
         await setUserOffline(uid).catch(() => {});
         await broadcastStatusChange(io, uid, 'offline').catch(() => {});

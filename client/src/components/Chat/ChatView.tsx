@@ -1,20 +1,45 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { messages as messagesAPI, contacts as contactsAPI, groups as groupsAPI } from '../../services/api';
-import { joinDM, leaveDM, joinGroup, leaveGroup, onMessageAdded, offMessageAdded, onMessageUpdated, offMessageUpdated, onMessageRemoved, offMessageRemoved, onTyping, offTyping, onGroupMemberRemoved, offGroupMemberRemoved, onProfileUpdated, offProfileUpdated, emitTypingDM, emitTypingGroup, onGroupRoleChanged, offGroupRoleChanged, onSeen, offSeen, onGroupSeen, offGroupSeen } from '../../services/socket';
+import { contacts as contactsAPI, groups as groupsAPI, messages as messagesAPI } from '../../services/api';
 import { decryptMessageData, getPublicKey } from '../../services/e2ee';
+import {
+  emitTypingDM,
+  emitTypingGroup,
+  joinDM,
+  joinGroup,
+  leaveDM,
+  leaveGroup,
+  offGroupMemberRemoved,
+  offGroupRoleChanged,
+  offGroupSeen,
+  offMessageAdded,
+  offMessageRemoved,
+  offMessageUpdated,
+  offProfileUpdated,
+  offSeen,
+  offTyping,
+  onGroupMemberRemoved,
+  onGroupRoleChanged,
+  onGroupSeen,
+  onMessageAdded,
+  onMessageRemoved,
+  onMessageUpdated,
+  onProfileUpdated,
+  onSeen,
+  onTyping,
+} from '../../services/socket';
 import type { MessageData } from '../../types';
-import { parseUrls, fetchLinkPreview } from '../../utils/links';
+import { fetchLinkPreview, parseUrls } from '../../utils/links';
 import { playMessageSound } from '../../utils/notificationSound';
 import { showToast } from '../Common/Toast';
 import ChatTopbar from './ChatTopbar';
-import SearchBar from './SearchBar';
-import PinnedBanner from './PinnedBanner';
-import MessageBubble from './MessageBubble';
 import ContextMenu from './ContextMenu';
-import ReplyPreview from './ReplyPreview';
-import MessageInput from './MessageInput';
 import ForwardModal from './ForwardModal';
+import MessageBubble from './MessageBubble';
+import MessageInput from './MessageInput';
+import PinnedBanner from './PinnedBanner';
+import ReplyPreview from './ReplyPreview';
+import SearchBar from './SearchBar';
 
 interface ChatViewProps {
   chatWith: string | null;
@@ -27,7 +52,16 @@ interface ChatViewProps {
   onGroupKicked?: () => void;
 }
 
-export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onOpenGroupInfo, onOpenUserProfile, onDeleteConv, onDownloadFile, onGroupKicked }: ChatViewProps) {
+export default function ChatView({
+  chatWith,
+  chatWithPseudo,
+  currentGroupId,
+  onOpenGroupInfo,
+  onOpenUserProfile,
+  onDeleteConv,
+  onDownloadFile,
+  onGroupKicked,
+}: ChatViewProps) {
   const { user } = useAuth();
   const [allMessages, setAllMessages] = useState<Record<string, MessageData>>({});
   const [inputValue, setInputValue] = useState('');
@@ -80,19 +114,23 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         Array.from(uids).map(async (uid) => {
           try {
             const res = await fetch(`/api/profiles/${uid}`);
-            const p = await res.json() as { avatar?: string; pseudo?: string };
+            const p = (await res.json()) as { avatar?: string; pseudo?: string };
             return [uid, { avatar: p.avatar, pseudo: p.pseudo }] as const;
-          } catch { return [uid, { avatar: undefined, pseudo: undefined }] as const; }
-        })
+          } catch {
+            return [uid, { avatar: undefined, pseudo: undefined }] as const;
+          }
+        }),
       );
       if (cancelled) return;
-      setProfiles(prev => {
+      setProfiles((prev) => {
         const next = { ...prev };
         for (const [uid, data] of entries) next[uid] = { ...prev[uid], ...data };
         return next;
       });
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [user, allMessages]);
 
   useEffect(() => {
@@ -106,15 +144,18 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     }
     for (const url of allUrls) {
       if (!(url in linkPreviews)) {
-        fetchLinkPreview(url).then(preview => {
-          setLinkPreviews(prev => ({ ...prev, [url]: preview }));
+        fetchLinkPreview(url).then((preview) => {
+          setLinkPreviews((prev) => ({ ...prev, [url]: preview }));
         });
       }
     }
   }, [allMessages]);
 
   useEffect(() => {
-    if (!chatWith) { setPartnerPubKey(null); return; }
+    if (!chatWith) {
+      setPartnerPubKey(null);
+      return;
+    }
     (async () => {
       try {
         const res = await fetch(`/api/profiles/${chatWith}/publicKey`, {
@@ -122,7 +163,9 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         });
         const data = await res.json();
         setPartnerPubKey(data.publicKey as JsonWebKey | null);
-      } catch { setPartnerPubKey(null); }
+      } catch {
+        setPartnerPubKey(null);
+      }
     })();
   }, [chatWith, user]);
 
@@ -132,8 +175,12 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     convRef.current = chatWith || currentGroupId;
     if (convChanged) {
       setAllMessages({});
-      setReplyTo(null); setEditingMsgId(null); setInputValue(''); setTypingText('');
-      setContextMenu(null); setPinnedMsgs({});
+      setReplyTo(null);
+      setEditingMsgId(null);
+      setInputValue('');
+      setTypingText('');
+      setContextMenu(null);
+      setPinnedMsgs({});
       setHasMore(false);
       oldestTimeRef.current = Infinity;
       loadingMoreRef.current = false;
@@ -143,42 +190,63 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     const load = async () => {
       try {
         if (chatWith) {
-          if (convChanged) messagesAPI.getPinned(chatWith).then(r => { if (!cancelled) setPinnedMsgs(r as Record<string, MessageData>); }).catch(() => {});
+          if (convChanged)
+            messagesAPI
+              .getPinned(chatWith)
+              .then((r) => {
+                if (!cancelled) setPinnedMsgs(r as Record<string, MessageData>);
+              })
+              .catch(() => {});
           joinDM(chatWith);
           const result = await messagesAPI.list(chatWith, 20);
           if (cancelled) return;
           const data = result.messages as Record<string, MessageData>;
           setAllMessages(data);
           setHasMore(result.hasMore);
-          const times = Object.values(data).map(m => m.time || 0);
+          const times = Object.values(data).map((m) => m.time || 0);
           oldestTimeRef.current = times.length > 0 ? Math.min(...times) : Infinity;
           if (user) {
-            const unseen = Object.entries(data).filter(([_, m]) => m.from !== user.uid && !m.seen).map(([k]) => k);
+            const unseen = Object.entries(data)
+              .filter(([_, m]) => m.from !== user.uid && !m.seen)
+              .map(([k]) => k);
             if (unseen.length > 0) messagesAPI.seen(chatWith, unseen);
           }
         } else if (currentGroupId) {
           joinGroup(currentGroupId);
-          if (convChanged) messagesAPI.getPinnedGroup(currentGroupId).then(r => { if (!cancelled) setPinnedMsgs(r as Record<string, MessageData>); }).catch(() => {});
+          if (convChanged)
+            messagesAPI
+              .getPinnedGroup(currentGroupId)
+              .then((r) => {
+                if (!cancelled) setPinnedMsgs(r as Record<string, MessageData>);
+              })
+              .catch(() => {});
           const result = await messagesAPI.listGroup(currentGroupId, 20);
           if (cancelled) return;
           const data = result.messages as Record<string, MessageData>;
           setAllMessages(data);
           setHasMore(result.hasMore);
-          const times = Object.values(data).map(m => m.time || 0);
+          const times = Object.values(data).map((m) => m.time || 0);
           oldestTimeRef.current = times.length > 0 ? Math.min(...times) : Infinity;
           if (user) {
-            const unseen = Object.entries(data).filter(([_, m]) => m.from !== user.uid && !m.seenBy?.includes(user.uid)).map(([k]) => k);
+            const unseen = Object.entries(data)
+              .filter(([_, m]) => m.from !== user.uid && !m.seenBy?.includes(user.uid))
+              .map(([k]) => k);
             if (unseen.length > 0) messagesAPI.seenGroup(currentGroupId, unseen);
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     };
     load();
 
     const onAdd = async (ev: { convId: string; key: string; data: MessageData }) => {
       let msg = ev.data;
       if (msg.encrypted && msg.ct && msg.iv && partnerPubKey) {
-        msg = await decryptMessageData(msg as unknown as Record<string, unknown>, partnerPubKey) as unknown as MessageData;
+        msg = (await decryptMessageData(
+          msg as unknown as Record<string, unknown>,
+          partnerPubKey,
+        )) as unknown as MessageData;
       }
       setAllMessages((prev) => ({ ...prev, [ev.key]: msg }));
       if (msg.from !== user?.uid) {
@@ -189,16 +257,23 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     const onUpd = async (ev: { convId: string; key: string; data: MessageData }) => {
       let msg = ev.data;
       if (msg.encrypted && msg.ct && msg.iv && partnerPubKey) {
-        msg = await decryptMessageData(msg as unknown as Record<string, unknown>, partnerPubKey) as unknown as MessageData;
+        msg = (await decryptMessageData(
+          msg as unknown as Record<string, unknown>,
+          partnerPubKey,
+        )) as unknown as MessageData;
       }
-      setAllMessages((prev) => prev[ev.key] ? { ...prev, [ev.key]: msg } : prev);
+      setAllMessages((prev) => (prev[ev.key] ? { ...prev, [ev.key]: msg } : prev));
     };
     const onRem = (ev: { convId: string; key: string }) => {
-      setAllMessages((prev) => { const next = { ...prev }; delete next[ev.key]; return next; });
+      setAllMessages((prev) => {
+        const next = { ...prev };
+        delete next[ev.key];
+        return next;
+      });
     };
     const onTyp = (ev: { from: string; isTyping: boolean }) => {
       if (ev.from !== user?.uid) {
-        setTypingText(ev.isTyping ? `${chatWithPseudo || 'Quelqu\'un'} écrit...` : '');
+        setTypingText(ev.isTyping ? `${chatWithPseudo || "Quelqu'un"} écrit...` : '');
       }
     };
     onMessageAdded(onAdd);
@@ -208,7 +283,7 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
 
     const handleSeenDM = (ev: { by: string; msgKeys: string[] }) => {
       if (chatWith === ev.by) {
-        setAllMessages(prev => {
+        setAllMessages((prev) => {
           const next = { ...prev };
           for (const key of ev.msgKeys) {
             if (next[key]) {
@@ -223,7 +298,7 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
 
     const handleGroupSeen = (ev: { gid: string; by: string; msgKeys: string[] }) => {
       if (ev.gid === currentGroupId) {
-        setAllMessages(prev => {
+        setAllMessages((prev) => {
           const next = { ...prev };
           for (const key of ev.msgKeys) {
             if (next[key]) {
@@ -283,11 +358,13 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         ? await messagesAPI.list(chatWith, 20, oldestTimeRef.current)
         : await messagesAPI.listGroup(currentGroupId!, 20, oldestTimeRef.current);
       const data = result.messages as Record<string, MessageData>;
-      setAllMessages(prev => ({ ...data, ...prev }));
+      setAllMessages((prev) => ({ ...data, ...prev }));
       setHasMore(result.hasMore);
-      const times = Object.values(data).map(m => m.time || 0);
+      const times = Object.values(data).map((m) => m.time || 0);
       oldestTimeRef.current = times.length > 0 ? Math.min(...times) : oldestTimeRef.current;
-    } catch (e) { console.error('loadMore failed', e); }
+    } catch (e) {
+      console.error('loadMore failed', e);
+    }
     requestAnimationFrame(() => {
       if (msgsEl.current) {
         msgsEl.current.scrollTop = prevScrollTop + (msgsEl.current.scrollHeight - prevHeight);
@@ -299,11 +376,14 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
 
   useEffect(() => {
     if (!sentinelRef.current) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loadingMoreRef.current) {
-        loadMore();
-      }
-    }, { root: msgsEl.current, threshold: 0.1 });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMoreRef.current) {
+          loadMore();
+        }
+      },
+      { root: msgsEl.current, threshold: 0.1 },
+    );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
   }, [loadMore, hasMore]);
@@ -317,7 +397,10 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     };
     const handleRoleChanged = (data: { gid: string; uid: string; role: string }) => {
       if (data.uid === user.uid) {
-        showToast(`Vous êtes maintenant ${data.role === 'owner' ? 'propriétaire' : data.role === 'admin' ? 'admin' : 'membre'}`, 'info');
+        showToast(
+          `Vous êtes maintenant ${data.role === 'owner' ? 'propriétaire' : data.role === 'admin' ? 'admin' : 'membre'}`,
+          'info',
+        );
       }
     };
     onGroupMemberRemoved(handleRemoved);
@@ -330,7 +413,7 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
 
   useEffect(() => {
     const handleProfileUpdated = (data: { uid: string } & Record<string, unknown>) => {
-      setProfiles(prev => prev[data.uid] ? { ...prev, [data.uid]: { ...prev[data.uid], ...data } } : prev);
+      setProfiles((prev) => (prev[data.uid] ? { ...prev, [data.uid]: { ...prev[data.uid], ...data } } : prev));
     };
     onProfileUpdated(handleProfileUpdated);
     return () => offProfileUpdated(handleProfileUpdated);
@@ -344,26 +427,33 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     return () => document.removeEventListener('click', handleClick);
   }, []);
 
-  const markSeen = useCallback((msgKeys: string[]) => {
-    if (!user) return;
-    if (chatWith) {
-      const unseen = msgKeys.filter(k => {
-        const m = allMessages[k];
-        return !m || (m.from !== user.uid && !m.seen);
-      });
-      if (unseen.length > 0) {
-        messagesAPI.seen(chatWith, unseen).catch((e) => { console.error(e); });
+  const markSeen = useCallback(
+    (msgKeys: string[]) => {
+      if (!user) return;
+      if (chatWith) {
+        const unseen = msgKeys.filter((k) => {
+          const m = allMessages[k];
+          return !m || (m.from !== user.uid && !m.seen);
+        });
+        if (unseen.length > 0) {
+          messagesAPI.seen(chatWith, unseen).catch((e) => {
+            console.error(e);
+          });
+        }
+      } else if (currentGroupId) {
+        const unseen = msgKeys.filter((k) => {
+          const m = allMessages[k];
+          return !m || (m.from !== user.uid && !m.seenBy?.includes(user.uid));
+        });
+        if (unseen.length > 0) {
+          messagesAPI.seenGroup(currentGroupId, unseen).catch((e) => {
+            console.error(e);
+          });
+        }
       }
-    } else if (currentGroupId) {
-      const unseen = msgKeys.filter(k => {
-        const m = allMessages[k];
-        return !m || (m.from !== user.uid && !m.seenBy?.includes(user.uid));
-      });
-      if (unseen.length > 0) {
-        messagesAPI.seenGroup(currentGroupId, unseen).catch((e) => { console.error(e); });
-      }
-    }
-  }, [chatWith, currentGroupId, user, allMessages]);
+    },
+    [chatWith, currentGroupId, user, allMessages],
+  );
 
   const handleInputChange = (val: string) => {
     setInputValue(val);
@@ -384,9 +474,11 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
       const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
       mediaRecorderRef.current = recorder;
       recordingChunksRef.current = [];
-      recorder.ondataavailable = (e) => { if (e.data.size > 0) recordingChunksRef.current.push(e.data); };
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordingChunksRef.current.push(e.data);
+      };
       recorder.onstop = () => {
-        stream.getTracks().forEach(t => t.stop());
+        stream.getTracks().forEach((t) => t.stop());
         if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
         const blob = new Blob(recordingChunksRef.current, { type: 'audio/webm' });
         const reader = new FileReader();
@@ -401,7 +493,9 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
           try {
             if (chatWith) await messagesAPI.send(chatWith, msg);
             else if (currentGroupId) await messagesAPI.sendGroup(currentGroupId, msg);
-          } catch (e) { console.error('Voice send failed', e); }
+          } catch (e) {
+            console.error('Voice send failed', e);
+          }
         };
         reader.readAsDataURL(blob);
         setRecording(false);
@@ -411,9 +505,11 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
       setRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => {
-        setRecordingTime(t => t + 1);
+        setRecordingTime((t) => t + 1);
       }, 1000);
-    } catch (e) { console.error('Mic access denied', e); }
+    } catch (e) {
+      console.error('Mic access denied', e);
+    }
   };
 
   const stopRecording = () => {
@@ -442,7 +538,9 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
       try {
         if (chatWith) await messagesAPI.send(chatWith, msg);
         else if (currentGroupId) await messagesAPI.sendGroup(currentGroupId, msg);
-      } catch (e) { console.error('File send failed', e); }
+      } catch (e) {
+        console.error('File send failed', e);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -459,31 +557,47 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
             body: JSON.stringify({ text: inputValue, edited: true }),
           });
         }
-      } catch (e) { console.error('Edit failed', e); }
-      setEditingMsgId(null); setInputValue(''); return;
+      } catch (e) {
+        console.error('Edit failed', e);
+      }
+      setEditingMsgId(null);
+      setInputValue('');
+      return;
     }
     const msg: Record<string, unknown> = { text: inputValue, messageTheme: 'default' };
-    if (replyTo) { msg.replyTo = replyTo; setReplyTo(null); setReplyText(''); }
-    if (ephemeralDuration) { msg.ephemeralDuration = ephemeralDuration; setEphemeralDuration(null); }
+    if (replyTo) {
+      msg.replyTo = replyTo;
+      setReplyTo(null);
+      setReplyText('');
+    }
+    if (ephemeralDuration) {
+      msg.ephemeralDuration = ephemeralDuration;
+      setEphemeralDuration(null);
+    }
     try {
       const res = chatWith
-        ? await messagesAPI.send(chatWith, msg) as unknown as { key: string } & Record<string, unknown>
-        : await messagesAPI.sendGroup(currentGroupId!, msg) as unknown as { key: string } & Record<string, unknown>;
-      setAllMessages(prev => ({ ...prev, [res.key]: { ...res, from: user.uid } as unknown as MessageData }));
+        ? ((await messagesAPI.send(chatWith, msg)) as unknown as { key: string } & Record<string, unknown>)
+        : ((await messagesAPI.sendGroup(currentGroupId!, msg)) as unknown as { key: string } & Record<string, unknown>);
+      setAllMessages((prev) => ({ ...prev, [res.key]: { ...res, from: user.uid } as unknown as MessageData }));
       setInputValue('');
-    } catch (e) { console.error('Send failed', e); }
+    } catch (e) {
+      console.error('Send failed', e);
+    }
   };
 
   const handleSearch = async (q: string) => {
     setSearchQuery(q);
-    if (!q.trim()) { setSearchResults({}); return; }
+    if (!q.trim()) {
+      setSearchResults({});
+      return;
+    }
     setSearching(true);
     try {
-      const res = chatWith
-        ? await messagesAPI.search(chatWith, q)
-        : await messagesAPI.searchGroup(currentGroupId!, q);
+      const res = chatWith ? await messagesAPI.search(chatWith, q) : await messagesAPI.searchGroup(currentGroupId!, q);
       setSearchResults(res.results as Record<string, MessageData>);
-    } catch (e) { console.error('Search failed', e); }
+    } catch (e) {
+      console.error('Search failed', e);
+    }
     setSearching(false);
   };
 
@@ -501,7 +615,9 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
     try {
       if (currentGroupId) await messagesAPI.deleteGroup(currentGroupId, mid);
       else if (chatWith) await messagesAPI.delete(chatWith, mid);
-    } catch (e) { console.error('Delete failed', e); }
+    } catch (e) {
+      console.error('Delete failed', e);
+    }
   };
 
   const handleContextMenu = (e: React.MouseEvent, mid: string, msg: MessageData) => {
@@ -540,7 +656,9 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         chatWithPseudo={chatWithPseudo}
         currentGroupId={currentGroupId}
         searchOpen={searchOpen}
-        onToggleSearch={() => { setSearchOpen(o => !o); }}
+        onToggleSearch={() => {
+          setSearchOpen((o) => !o);
+        }}
         onOpenGroupInfo={onOpenGroupInfo}
         onOpenUserProfile={onOpenUserProfile}
         onDeleteConv={onDeleteConv}
@@ -565,7 +683,9 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         )}
         {sorted.length === 0 && !loadingMore && (
           <div className="flex items-center justify-center h-full text-center px-5 py-10 text-text-muted text-sm leading-relaxed">
-            Aucun message.<br />Envoyez le premier message !
+            Aucun message.
+            <br />
+            Envoyez le premier message !
           </div>
         )}
         {sorted.map(([mid, msg], i) => {
@@ -573,8 +693,8 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
           const prev = i > 0 ? sorted[i - 1][1] : null;
           const next = i < sorted.length - 1 ? sorted[i + 1][1] : null;
           const windowMs = isGroup ? 90000 : 60000;
-          const prevSame = prev && prev.from === msg.from && (msg.time - (prev.time || 0)) < windowMs;
-          const nextSame = next && next.from === msg.from && ((next.time || 0) - msg.time) < windowMs;
+          const prevSame = prev && prev.from === msg.from && msg.time - (prev.time || 0) < windowMs;
+          const nextSame = next && next.from === msg.from && (next.time || 0) - msg.time < windowMs;
           let groupClass = '';
           if (prevSame && nextSame) groupClass = 'group-middle grouped';
           else if (prevSame && !nextSame) groupClass = 'group-end grouped';
@@ -606,7 +726,11 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         })}
         {typingText && (
           <div className="typing-indicator">
-            <div className="typing-dots"><div className="typing-dot" /><div className="typing-dot" /><div className="typing-dot" /></div>
+            <div className="typing-dots">
+              <div className="typing-dot" />
+              <div className="typing-dot" />
+              <div className="typing-dot" />
+            </div>
             {typingText}
           </div>
         )}
@@ -621,15 +745,25 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
           convId={convId}
           isGroup={isGroup}
           isOwn={contextMenu.msg.from === user?.uid}
-          onReply={() => { setReplyTo(contextMenu.mid); setReplyText(contextMenu.msg.text || ''); }}
-          onEdit={() => { setEditingMsgId(contextMenu.mid); setInputValue(contextMenu.msg.text || ''); }}
-          onForward={() => { setForwardMsg({ mid: contextMenu.mid, msg: contextMenu.msg }); }}
+          onReply={() => {
+            setReplyTo(contextMenu.mid);
+            setReplyText(contextMenu.msg.text || '');
+          }}
+          onEdit={() => {
+            setEditingMsgId(contextMenu.mid);
+            setInputValue(contextMenu.msg.text || '');
+          }}
+          onForward={() => {
+            setForwardMsg({ mid: contextMenu.mid, msg: contextMenu.msg });
+          }}
           onTogglePin={async () => {
             const pinned = !contextMenu.msg.pinned;
             try {
               if (chatWith) await messagesAPI.pin(chatWith, contextMenu.mid, pinned);
               else if (currentGroupId) await messagesAPI.pinGroup(currentGroupId, contextMenu.mid, pinned);
-            } catch (e) { console.error('Pin failed', e); }
+            } catch (e) {
+              console.error('Pin failed', e);
+            }
           }}
           onDelete={() => deleteMsg(contextMenu.mid)}
           onClose={() => setContextMenu(null)}
@@ -650,8 +784,14 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         replyTo={replyTo}
         replyText={replyText}
         editingMsgId={editingMsgId}
-        onCancelReply={() => { setReplyTo(null); setReplyText(''); }}
-        onCancelEdit={() => { setEditingMsgId(null); setInputValue(''); }}
+        onCancelReply={() => {
+          setReplyTo(null);
+          setReplyText('');
+        }}
+        onCancelEdit={() => {
+          setEditingMsgId(null);
+          setInputValue('');
+        }}
       />
 
       <MessageInput
@@ -665,8 +805,11 @@ export default function ChatView({ chatWith, chatWithPseudo, currentGroupId, onO
         onFileSelect={sendFile}
         onStartRecording={startRecording}
         onStopRecording={stopRecording}
-        onToggleEmojiPicker={() => setShowEmojiPicker(o => !o)}
-        onEmojiSelect={(emoji) => { setInputValue(v => v + emoji); setShowEmojiPicker(false); }}
+        onToggleEmojiPicker={() => setShowEmojiPicker((o) => !o)}
+        onEmojiSelect={(emoji) => {
+          setInputValue((v) => v + emoji);
+          setShowEmojiPicker(false);
+        }}
         onCloseEmojiPicker={() => setShowEmojiPicker(false)}
         onEphemeralChange={setEphemeralDuration}
         placeholder={chatWith ? 'Écrivez un message…' : 'Écrivez dans le groupe…'}

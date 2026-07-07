@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 /* Express 4-param error middleware — catches anything thrown or passed via next(err) */
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction): void {

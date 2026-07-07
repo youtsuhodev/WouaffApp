@@ -59,8 +59,10 @@ export async function fetchLinkPreview(url: string): Promise<LinkPreview | null>
 
 export function isSocialUrl(url: string): boolean {
   const social = [
-    'youtube.com', 'youtu.be',
-    'twitter.com', 'x.com',
+    'youtube.com',
+    'youtu.be',
+    'twitter.com',
+    'x.com',
     'instagram.com',
     'tiktok.com',
     'facebook.com',
@@ -73,7 +75,7 @@ export function isSocialUrl(url: string): boolean {
   ];
   try {
     const host = new URL(url).hostname.replace(/^www\./, '');
-    return social.some(s => host === s || host.endsWith('.' + s));
+    return social.some((s) => host === s || host.endsWith('.' + s));
   } catch {
     return false;
   }

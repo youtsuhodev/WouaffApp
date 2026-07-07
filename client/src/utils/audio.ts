@@ -12,7 +12,7 @@ export async function trimAudio(dataUri: string, startSec: number, durationSec: 
     const startSample = Math.floor(startSec * srcRate);
     const totalSamples = Math.floor(durationSec * srcRate);
     const maxSrc = Math.min(totalSamples, srcData.length - startSample);
-    const outLen = Math.ceil(maxSrc * targetRate / srcRate);
+    const outLen = Math.ceil((maxSrc * targetRate) / srcRate);
 
     /* Resample to targetRate (simple linear interpolation) */
     const ratio = srcRate / targetRate;
@@ -70,7 +70,9 @@ function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
   const buf = new ArrayBuffer(44 + dataBytes);
   const v = new DataView(buf);
 
-  function s(off: number, str: string) { for (let i = 0; i < str.length; i++) v.setUint8(off + i, str.charCodeAt(i)); }
+  function s(off: number, str: string) {
+    for (let i = 0; i < str.length; i++) v.setUint8(off + i, str.charCodeAt(i));
+  }
 
   s(0, 'RIFF');
   v.setUint32(4, 36 + dataBytes, true);
@@ -89,7 +91,7 @@ function encodeWav(samples: Float32Array, sampleRate: number): ArrayBuffer {
   let off = 44;
   for (let i = 0; i < samples.length; i++) {
     const s = Math.max(-1, Math.min(1, samples[i]));
-    v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
     off += 2;
   }
   return buf;

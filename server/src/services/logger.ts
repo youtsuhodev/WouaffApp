@@ -1,6 +1,6 @@
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: resolve(__dirname, '../../.env') });
@@ -20,19 +20,25 @@ let flushing = false;
 let sending = false;
 
 const LEVEL_COLORS: Record<string, number> = {
-  log: 0x57F287,
-  info: 0x57F287,
-  warn: 0xFEE75C,
-  error: 0xED4245,
-  debug: 0x5865F2,
+  log: 0x57f287,
+  info: 0x57f287,
+  warn: 0xfee75c,
+  error: 0xed4245,
+  debug: 0x5865f2,
 };
 
 function formatArgs(args: unknown[]): string {
-  return args.map(a => {
-    if (typeof a === 'string') return a;
-    if (a instanceof Error) return `${a.message}\n${a.stack || ''}`.trim();
-    try { return JSON.stringify(a, null, 2); } catch { return String(a); }
-  }).join(' ');
+  return args
+    .map((a) => {
+      if (typeof a === 'string') return a;
+      if (a instanceof Error) return `${a.message}\n${a.stack || ''}`.trim();
+      try {
+        return JSON.stringify(a, null, 2);
+      } catch {
+        return String(a);
+      }
+    })
+    .join(' ');
 }
 
 async function sendToDiscord(embeds: DiscordEmbed[]): Promise<void> {
@@ -46,7 +52,7 @@ async function sendToDiscord(embeds: DiscordEmbed[]): Promise<void> {
     });
     if (!res.ok && res.status === 429) {
       const retryAfter = parseInt(res.headers.get('Retry-After') || '2', 10);
-      await new Promise(r => setTimeout(r, retryAfter * 1000));
+      await new Promise((r) => setTimeout(r, retryAfter * 1000));
     }
   } catch {
     /* Silent — avoid recursion */
@@ -62,7 +68,7 @@ async function flushQueue(): Promise<void> {
     const batch = queue.splice(0, 10);
     await sendToDiscord(batch);
     if (queue.length > 0) {
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
   flushing = false;
@@ -75,7 +81,7 @@ function enqueue(level: string, message: string): void {
   queue.push({
     title: level.toUpperCase(),
     description: desc,
-    color: LEVEL_COLORS[level] || 0x5865F2,
+    color: LEVEL_COLORS[level] || 0x5865f2,
     timestamp: new Date().toISOString(),
   });
   if (!flushing) flushQueue();

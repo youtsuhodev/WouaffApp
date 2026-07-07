@@ -1,8 +1,8 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { Router } from 'express';
 import { verifyToken } from '../middleware/auth.js';
+import { removeFcmToken, setFcmToken } from '../services/rtdb.js';
 import type { AuthRequest } from '../types/index.js';
-import { setFcmToken, removeFcmToken } from '../services/rtdb.js';
 
 const router: Router = Router();
 router.use(verifyToken);
@@ -11,7 +11,10 @@ router.use(verifyToken);
 router.post('/fcm-token', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { token } = req.body as { token: string };
-  if (!token) { res.status(400).json({ error: 'Token requis' }); return; }
+  if (!token) {
+    res.status(400).json({ error: 'Token requis' });
+    return;
+  }
   await setFcmToken(authReq.uid!, token);
   res.json({ success: true });
 });
@@ -20,7 +23,10 @@ router.post('/fcm-token', async (req: Request, res: Response) => {
 router.delete('/fcm-token', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { token } = req.body as { token: string };
-  if (!token) { res.status(400).json({ error: 'Token requis' }); return; }
+  if (!token) {
+    res.status(400).json({ error: 'Token requis' });
+    return;
+  }
   await removeFcmToken(authReq.uid!, token);
   res.json({ success: true });
 });

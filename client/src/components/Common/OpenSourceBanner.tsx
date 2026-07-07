@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'wouaff_opensource_dismissed';
 
@@ -22,7 +22,7 @@ export default function OpenSourceBanner() {
     <div className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center" onClick={handleClose}>
       <div
         className="bg-[var(--bg-card)] rounded-2xl p-6 max-w-[400px] w-[90%] border border-[var(--border)] shadow-[0_8px_32px_rgba(0,0,0,.4)]"
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold mb-3">🎉 WouaffApp est maintenant open source !</h2>
         <p className="text-sm leading-relaxed mb-3">
@@ -38,9 +38,8 @@ export default function OpenSourceBanner() {
           .
         </p>
         <p className="text-sm leading-relaxed mb-3">
-          Vous pouvez explorer le code, nous signaler des bugs via les{' '}
-          <strong>Issues</strong>, et même proposer vos propres améliorations en créant des{' '}
-          <strong>Pull Requests</strong>.
+          Vous pouvez explorer le code, nous signaler des bugs via les <strong>Issues</strong>, et même proposer vos
+          propres améliorations en créant des <strong>Pull Requests</strong>.
         </p>
         <p className="text-sm leading-relaxed mb-4">
           Chaque contribution, aussi petite soit-elle, est la bienvenue. Merci de faire partie de l'aventure ! ❤️

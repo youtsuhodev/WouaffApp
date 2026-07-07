@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { profiles as profilesAPI, badges as badgesAPI } from '../../services/api';
-import { onProfileUpdated, offProfileUpdated, onStatusChanged, offStatusChanged } from '../../services/socket';
+import { badges as badgesAPI, profiles as profilesAPI } from '../../services/api';
+import { offProfileUpdated, offStatusChanged, onProfileUpdated, onStatusChanged } from '../../services/socket';
 import type { UserProfile } from '../../types';
 import CallButton from '../Call/CallButton';
 
@@ -20,12 +20,17 @@ export default function ProfilePanel({ onClose, targetUid }: ProfilePanelProps) 
 
   useEffect(() => {
     if (!uid) return;
-    badgesAPI.list().then(setBadgeDefs).catch(() => {});
+    badgesAPI
+      .list()
+      .then(setBadgeDefs)
+      .catch(() => {});
     (async () => {
       try {
-        const p = await profilesAPI.get(uid) as UserProfile;
+        const p = (await profilesAPI.get(uid)) as UserProfile;
         setProfile(p);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     })();
   }, [uid]);
 
@@ -33,12 +38,12 @@ export default function ProfilePanel({ onClose, targetUid }: ProfilePanelProps) 
     if (!uid) return;
     const handleProfileUpdate = (data: { uid: string } & Record<string, unknown>) => {
       if (data.uid === uid) {
-        setProfile(prev => prev ? { ...prev, ...data } : prev);
+        setProfile((prev) => (prev ? { ...prev, ...data } : prev));
       }
     };
     const handleStatus = (data: { uid: string; status: string }) => {
       if (data.uid === uid) {
-        setProfile(prev => prev ? { ...prev, status: data.status } : prev);
+        setProfile((prev) => (prev ? { ...prev, status: data.status } : prev));
       }
     };
     onProfileUpdated(handleProfileUpdate);
@@ -67,13 +72,29 @@ export default function ProfilePanel({ onClose, targetUid }: ProfilePanelProps) 
       </div>
       <div className="profile-panel-body">
         {p?.banner && (
-          <div className="profile-panel-banner" style={{ backgroundImage: `url(${p.banner})`, height: 80, backgroundSize: 'cover', borderRadius: '8px 8px 0 0' } as React.CSSProperties} />
+          <div
+            className="profile-panel-banner"
+            style={
+              {
+                backgroundImage: `url(${p.banner})`,
+                height: 80,
+                backgroundSize: 'cover',
+                borderRadius: '8px 8px 0 0',
+              } as React.CSSProperties
+            }
+          />
         )}
         <div className="profile-panel-avatar" style={{ marginTop: p?.banner ? -32 : 0 } as React.CSSProperties}>
           {p?.avatar ? (
-            <img src={p.avatar} alt="" className="w-16 h-16 rounded-full object-cover border-[3px] border-[var(--bg)]" />
+            <img
+              src={p.avatar}
+              alt=""
+              className="w-16 h-16 rounded-full object-cover border-[3px] border-[var(--bg)]"
+            />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-2xl font-bold text-white border-[3px] border-[var(--bg)]">{initial}</div>
+            <div className="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-2xl font-bold text-white border-[3px] border-[var(--bg)]">
+              {initial}
+            </div>
           )}
         </div>
         <div className="profile-panel-name">{p?.pseudo || 'Utilisateur'}</div>

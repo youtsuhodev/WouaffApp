@@ -1,9 +1,9 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { Server } from 'socket.io';
+import { Router } from 'express';
+import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
+import { blockUser, getBlockedUids, reportUser, unblockUser } from '../services/rtdb.js';
 import type { AuthRequest } from '../types/index.js';
-import { blockUser, unblockUser, getBlockedUids, reportUser } from '../services/rtdb.js';
 
 const router: Router = Router();
 router.use(verifyToken);

@@ -16,7 +16,9 @@ export default function Toast() {
 
   useEffect(() => {
     showToastFn = (message, type) => setData({ message, type });
-    return () => { showToastFn = null; };
+    return () => {
+      showToastFn = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -27,9 +29,5 @@ export default function Toast() {
 
   if (!data) return null;
 
-  return (
-    <div className={`toast show ${data.type || ''}`}>
-      {data.message}
-    </div>
-  );
+  return <div className={`toast show ${data.type || ''}`}>{data.message}</div>;
 }

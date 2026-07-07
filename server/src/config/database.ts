@@ -1,6 +1,6 @@
-import { createPool } from 'mysql2/promise';
 import dotenv from 'dotenv';
-import { resolve, dirname } from 'path';
+import { createPool } from 'mysql2/promise';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -24,7 +24,7 @@ const pool = createPool({
 });
 
 export async function query<T>(sql: string, params?: any[]): Promise<T> {
-  const sanitized = params?.map(p => (p === undefined ? null : p));
+  const sanitized = params?.map((p) => (p === undefined ? null : p));
   try {
     const [rows] = await pool.execute(sql, sanitized);
     return rows as T;

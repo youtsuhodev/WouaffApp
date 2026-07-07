@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.min.css';
 import './index.css';
-import { AuthProvider } from './hooks/useAuth';
-import { ThemeProvider } from './hooks/useTheme';
 import App from './App';
 import ErrorBoundary from './components/Common/ErrorBoundary';
+import { AuthProvider } from './hooks/useAuth';
+import { ThemeProvider } from './hooks/useTheme';
 
 /* Global error handlers — prevent silent crashes */
 window.addEventListener('error', (e) => {

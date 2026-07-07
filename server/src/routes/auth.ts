@@ -1,12 +1,12 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
-import { query, getOne } from '../config/database.js';
-import { verifyToken, createSession } from '../middleware/auth.js';
-import type { AuthRequest } from '../types/index.js';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import { getOne, query } from '../config/database.js';
+import { createSession, verifyToken } from '../middleware/auth.js';
+import { sendPasswordResetEmail, sendVerificationEmail } from '../services/email.js';
 import { isStaff } from '../services/rtdb.js';
-import { sendVerificationEmail, sendPasswordResetEmail } from '../services/email.js';
+import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
 
@@ -50,27 +50,30 @@ router.post('/register', async (req: Request, res: Response) => {
     const wouaffId = `@${finalPseudo}`;
     await query(
       'INSERT INTO profiles (uid, pseudo, email, passwordHash, wouaffId, createdAt, emailVerified) VALUES (?,?,?,?,?,?,?)',
-      [uid, finalPseudo, email, passwordHash, wouaffId, Date.now(), 0]
+      [uid, finalPseudo, email, passwordHash, wouaffId, Date.now(), 0],
     );
-    await query(
-      'INSERT INTO wouaff_id_index (wouaffId, uid) VALUES (?,?) ON DUPLICATE KEY UPDATE uid=VALUES(uid)',
-      [wouaffId, uid]
-    );
+    await query('INSERT INTO wouaff_id_index (wouaffId, uid) VALUES (?,?) ON DUPLICATE KEY UPDATE uid=VALUES(uid)', [
+      wouaffId,
+      uid,
+    ]);
     const { sessionId } = await createSession(uid);
     setSessionCookie(res, sessionId);
 
     /* Send verification email */
     const token = genToken();
-    await query(
-      'INSERT INTO email_tokens (uid, token, type, expiresAt, createdAt) VALUES (?,?,?,?,?)',
-      [uid, token, 'verify', Date.now() + 86400000, Date.now()]
-    );
+    await query('INSERT INTO email_tokens (uid, token, type, expiresAt, createdAt) VALUES (?,?,?,?,?)', [
+      uid,
+      token,
+      'verify',
+      Date.now() + 86400000,
+      Date.now(),
+    ]);
     sendVerificationEmail(email, token).catch(() => {});
 
     res.status(201).json({ uid, pseudo: finalPseudo, wouaffId, emailVerified: false });
   } catch (err) {
     console.error('Register error:', err);
-    res.status(500).json({ error: 'Erreur lors de l\'inscription' });
+    res.status(500).json({ error: "Erreur lors de l'inscription" });
   }
 });
 
@@ -83,7 +86,8 @@ router.post('/login', async (req: Request, res: Response) => {
       return;
     }
     const profile = await getOne<{ uid: string; pseudo: string; passwordHash: string | null; avatar: string | null }>(
-      'SELECT uid, pseudo, passwordHash, avatar FROM profiles WHERE email = ?', [email]
+      'SELECT uid, pseudo, passwordHash, avatar FROM profiles WHERE email = ?',
+      [email],
     );
     if (!profile) {
       res.status(401).json({ error: 'Email ou mot de passe incorrect' });
@@ -112,7 +116,7 @@ router.get('/me', verifyToken, async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const profile = await getOne<Record<string, unknown>>(
     'SELECT uid, pseudo, email, avatar, banner, bio, wouaffId, status, lastSeen, createdAt, emailVerified FROM profiles WHERE uid = ?',
-    [authReq.uid!]
+    [authReq.uid!],
   );
   if (!profile) {
     res.status(404).json({ error: 'Profil introuvable' });
@@ -151,15 +155,18 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
       return;
     }
     const token = genToken();
-    await query(
-      'INSERT INTO email_tokens (uid, token, type, expiresAt, createdAt) VALUES (?,?,?,?,?)',
-      [profile.uid, token, 'reset', Date.now() + 3600000, Date.now()]
-    );
+    await query('INSERT INTO email_tokens (uid, token, type, expiresAt, createdAt) VALUES (?,?,?,?,?)', [
+      profile.uid,
+      token,
+      'reset',
+      Date.now() + 3600000,
+      Date.now(),
+    ]);
     await sendPasswordResetEmail(email, token);
     res.json({ success: true });
   } catch (err) {
     console.error('Forgot-password error:', err);
-    res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' });
+    res.status(500).json({ error: "Erreur lors de l'envoi de l'email" });
   }
 });
 
@@ -177,7 +184,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
     }
     const row = await getOne<{ uid: string; id: number }>(
       'SELECT uid, id FROM email_tokens WHERE token=? AND type=? AND used=0 AND expiresAt>?',
-      [token, 'reset', Date.now()]
+      [token, 'reset', Date.now()],
     );
     if (!row) {
       res.status(400).json({ error: 'Token invalide ou expiré' });
@@ -200,7 +207,8 @@ router.post('/send-verification', verifyToken, async (req: Request, res: Respons
   try {
     const authReq = req as AuthRequest;
     const profile = await getOne<{ email: string | null; emailVerified: number }>(
-      'SELECT email, emailVerified FROM profiles WHERE uid=?', [authReq.uid!]
+      'SELECT email, emailVerified FROM profiles WHERE uid=?',
+      [authReq.uid!],
     );
     if (!profile || !profile.email) {
       res.status(400).json({ error: 'Aucun email associé à ce compte' });
@@ -211,15 +219,18 @@ router.post('/send-verification', verifyToken, async (req: Request, res: Respons
       return;
     }
     const token = genToken();
-    await query(
-      'INSERT INTO email_tokens (uid, token, type, expiresAt, createdAt) VALUES (?,?,?,?,?)',
-      [authReq.uid!, token, 'verify', Date.now() + 86400000, Date.now()]
-    );
+    await query('INSERT INTO email_tokens (uid, token, type, expiresAt, createdAt) VALUES (?,?,?,?,?)', [
+      authReq.uid!,
+      token,
+      'verify',
+      Date.now() + 86400000,
+      Date.now(),
+    ]);
     await sendVerificationEmail(profile.email, token);
     res.json({ success: true });
   } catch (err) {
     console.error('Send-verification error:', err);
-    res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' });
+    res.status(500).json({ error: "Erreur lors de l'envoi de l'email" });
   }
 });
 
@@ -233,7 +244,7 @@ router.post('/verify-email', async (req: Request, res: Response) => {
     }
     const row = await getOne<{ uid: string; id: number }>(
       'SELECT uid, id FROM email_tokens WHERE token=? AND type=? AND used=0 AND expiresAt>?',
-      [token, 'verify', Date.now()]
+      [token, 'verify', Date.now()],
     );
     if (!row) {
       res.status(400).json({ error: 'Token invalide ou expiré' });

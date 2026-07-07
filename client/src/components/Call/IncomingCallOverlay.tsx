@@ -11,10 +11,11 @@ export default function IncomingCallOverlay() {
     <div className="call-overlay">
       <div className="call-overlay-card">
         <div className="call-overlay-avatar">
-          {callerInfo.avatar
-            ? <img src={callerInfo.avatar} alt="" />
-            : <span className="call-overlay-initial">{initial}</span>
-          }
+          {callerInfo.avatar ? (
+            <img src={callerInfo.avatar} alt="" />
+          ) : (
+            <span className="call-overlay-initial">{initial}</span>
+          )}
         </div>
         <div className="call-overlay-name">{callerInfo.pseudo}</div>
         <div className="call-overlay-status">Appel entrant...</div>

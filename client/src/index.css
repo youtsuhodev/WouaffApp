@@ -6,67 +6,116 @@
    THEME VARIABLES
 ══════════════════════════════════════════════════════════ */
 :root {
-  --brand:#F97B3B; --brand-dark:#e06628; --brand-light:#ffa06e;
-  --brand-glow:rgba(249,123,59,0.18);
-  --bg-deep:#0e1117; --bg-base:#141921; --bg-card:#1c2333;
-  --bg-input:#111827; --bg-hover:#1e2a3a; --bg-active:#243040;
-  --border:#2a3448; --border-light:#1e2a3a;
-  --text-primary:#e8ecf0; --text-secondary:#8a9bb0; --text-muted:#5a6a80;
-  --msg-sent:#1a3a5c; --msg-sent-border:#1e4570; --msg-recv:#1c2333;
-  --online:#43b581; --offline:#74777e; --danger:#ed4245;
-  --vip-gold:#ffd166; --vip-glow:rgba(255,209,102,0.15);
-  --star:#f5c518;
-  --sidebar-w:340px; --header-h:58px;
-  --radius:12px; --radius-sm:8px; --radius-msg:18px;
-  --shadow:0 4px 24px rgba(0,0,0,0.4);
-  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
-  --safe-top:env(safe-area-inset-top, 5px);
-  --safe-bottom:env(safe-area-inset-bottom, 5px);
-  --safe-left:env(safe-area-inset-left, 0px);
-  --safe-right:env(safe-area-inset-right, 0px);
-  --bnav-h:calc(56px + var(--safe-bottom));
-  --auth-bg-image:url('/assets/logo/background_black.png');
-  --bg-page:var(--bg-deep);
-  --bg-card2:var(--bg-card);
-  --accent-soft:rgba(249,123,59,0.08);
-  --bg:var(--bg-base);
-  --text:var(--text-secondary);
-  color-scheme:dark;
+  --brand: #f97b3b;
+  --brand-dark: #e06628;
+  --brand-light: #ffa06e;
+  --brand-glow: rgba(249, 123, 59, 0.18);
+  --bg-deep: #0e1117;
+  --bg-base: #141921;
+  --bg-card: #1c2333;
+  --bg-input: #111827;
+  --bg-hover: #1e2a3a;
+  --bg-active: #243040;
+  --border: #2a3448;
+  --border-light: #1e2a3a;
+  --text-primary: #e8ecf0;
+  --text-secondary: #8a9bb0;
+  --text-muted: #5a6a80;
+  --msg-sent: #1a3a5c;
+  --msg-sent-border: #1e4570;
+  --msg-recv: #1c2333;
+  --online: #43b581;
+  --offline: #74777e;
+  --danger: #ed4245;
+  --vip-gold: #ffd166;
+  --vip-glow: rgba(255, 209, 102, 0.15);
+  --star: #f5c518;
+  --sidebar-w: 340px;
+  --header-h: 58px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-msg: 18px;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --safe-top: env(safe-area-inset-top, 5px);
+  --safe-bottom: env(safe-area-inset-bottom, 5px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --bnav-h: calc(56px + var(--safe-bottom));
+  --auth-bg-image: url("/assets/logo/background_black.png");
+  --bg-page: var(--bg-deep);
+  --bg-card2: var(--bg-card);
+  --accent-soft: rgba(249, 123, 59, 0.08);
+  --bg: var(--bg-base);
+  --text: var(--text-secondary);
+  color-scheme: dark;
 }
 
 [data-theme="light"] {
-  --bg-deep:#f2f3f7; --bg-base:#ffffff; --bg-card:#ffffff;
-  --bg-input:#f0f1f5; --bg-hover:#ebedf2; --bg-active:#e2e5ec;
-  --border:#d6dae3; --border-light:#e6e9f0;
-  --text-primary:#1c1e24; --text-secondary:#5a6577; --text-muted:#8e97a8;
-  --msg-sent:#dce8f5; --msg-sent-border:#b8cce0; --msg-recv:#f0f2f6;
-  --shadow:0 4px 24px rgba(0,0,0,0.07);
-  --brand-glow:rgba(249,123,59,0.12);
-  --vip-glow:rgba(255,209,102,0.15);
-  --auth-bg-image:url('/assets/logo/background.png');
-  color-scheme:light;
+  --bg-deep: #f2f3f7;
+  --bg-base: #ffffff;
+  --bg-card: #ffffff;
+  --bg-input: #f0f1f5;
+  --bg-hover: #ebedf2;
+  --bg-active: #e2e5ec;
+  --border: #d6dae3;
+  --border-light: #e6e9f0;
+  --text-primary: #1c1e24;
+  --text-secondary: #5a6577;
+  --text-muted: #8e97a8;
+  --msg-sent: #dce8f5;
+  --msg-sent-border: #b8cce0;
+  --msg-recv: #f0f2f6;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+  --brand-glow: rgba(249, 123, 59, 0.12);
+  --vip-glow: rgba(255, 209, 102, 0.15);
+  --auth-bg-image: url("/assets/logo/background.png");
+  color-scheme: light;
 }
 
 /* ══════════════════════════════════════════════════════════
    BASE STYLES
 ══════════════════════════════════════════════════════════ */
 @layer base {
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-  html{height:100%;height:-webkit-fill-available}
-  body{
-    font-family:'Nunito',sans-serif;
-    background:var(--bg-deep);
-    color:var(--text-primary);
-    height:100dvh;
-    overflow:hidden;
-    position:fixed;width:100%;
-    transition:background .25s ease,color .25s ease;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
-  ::-webkit-scrollbar{width:4px}
-  ::-webkit-scrollbar-track{background:transparent}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
+  }
+  body {
+    font-family: "Nunito", sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    transition:
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
 
-  @media(prefers-color-scheme:light){:root{color-scheme:dark}}
+  @media (prefers-color-scheme: light) {
+    :root {
+      color-scheme: dark;
+    }
+  }
 
   [data-theme="light"] .settings-page,
   [data-theme="light"] .auth-page,
@@ -75,31 +124,159 @@
   [data-theme="light"] .chat-placeholder,
   [data-theme="light"] .messages,
   [data-theme="light"] #messages,
-  [data-theme="light"] #joinGroupOverlay{background-image:url("/assets/logo/background.png")}
-  [data-theme="light"] .vip-locked::after{background:rgba(200,200,210,.65)}
+  [data-theme="light"] #joinGroupOverlay {
+    background-image: url("/assets/logo/background.png");
+  }
+  [data-theme="light"] .vip-locked::after {
+    background: rgba(200, 200, 210, 0.65);
+  }
 
-  :root{--bs-body-font-family:'Nunito',sans-serif;--bs-body-bg:var(--bg-deep);--bs-body-color:var(--text-primary)}
-  .dropdown-menu{background:var(--bg-card);border-color:var(--border)}
-  .form-control,.form-select{background:var(--bg-input);border-color:var(--border);color:var(--text-primary)}
-  .form-control:focus,.form-select:focus{background:var(--bg-input);border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow);color:var(--text-primary)}
-  .modal-content{background:var(--bg-card);border-color:var(--border);color:var(--text-primary)}
+  :root {
+    --bs-body-font-family: "Nunito", sans-serif;
+    --bs-body-bg: var(--bg-deep);
+    --bs-body-color: var(--text-primary);
+  }
+  .dropdown-menu {
+    background: var(--bg-card);
+    border-color: var(--border);
+  }
+  .form-control,
+  .form-select {
+    background: var(--bg-input);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
+  .form-control:focus,
+  .form-select:focus {
+    background: var(--bg-input);
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-glow);
+    color: var(--text-primary);
+  }
+  .modal-content {
+    background: var(--bg-card);
+    border-color: var(--border);
+    color: var(--text-primary);
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
    ANIMATIONS
 ══════════════════════════════════════════════════════════ */
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes drawerUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-@keyframes skeleton{0%{background-position:-200px 0}100%{background-position:calc(200px + 100%) 0}}
-@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-@keyframes bannerSlideUp{0%{transform:translateY(-100%)}100%{transform:translateY(0)}}
-@keyframes callFadeIn{0%{opacity:0}100%{opacity:1}}
-@keyframes callBarUp{0%{transform:translateY(100%)}100%{transform:translateY(0)}}
-@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-4px)}20%,40%,60%,80%{transform:translateX(4px)}}
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes drawerUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes skeleton {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes bannerSlideUp {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes callFadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes callBarUp {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
 
 /* ══════════════════════════════════════════════════════════
    COMPONENT STYLES — seront progressivement supprimées

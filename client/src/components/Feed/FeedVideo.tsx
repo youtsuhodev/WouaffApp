@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { Heart, MapPin, MessageCircle, Pause, Play, Send, X } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { VideoData, VideoComment } from '../../types';
-import { Heart, MessageCircle, MapPin, Play, Pause, X, Send } from 'lucide-react';
+import type { VideoComment, VideoData } from '../../types';
 import { resolveMediaUrl } from '../../utils/media';
 
 interface Props {
@@ -24,7 +24,9 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
     const el = videoRef.current;
     if (!el) return;
     if (isVisible) {
-      el.play().then(() => setPlaying(true)).catch(() => {});
+      el.play()
+        .then(() => setPlaying(true))
+        .catch(() => {});
     } else {
       el.pause();
       setPlaying(false);
@@ -35,7 +37,9 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
     const el = videoRef.current;
     if (!el) return;
     if (el.paused) {
-      el.play().then(() => setPlaying(true)).catch(() => {});
+      el.play()
+        .then(() => setPlaying(true))
+        .catch(() => {});
     } else {
       el.pause();
       setPlaying(false);
@@ -47,9 +51,11 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
       const res = await fetch(`/api/videos/${video.id}/like`, { method: 'POST' });
       const data = await res.json();
       setLiked(data.liked);
-      setLikeCount(prev => Math.max(0, data.liked ? prev + 1 : prev - 1));
+      setLikeCount((prev) => Math.max(0, data.liked ? prev + 1 : prev - 1));
       onLike(video.id);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const toggleComments = async () => {
@@ -58,7 +64,9 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
         const res = await fetch(`/api/videos/${video.id}/comments`);
         const data = await res.json();
         setComments(data);
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     }
     setShowComments(!showComments);
   };
@@ -67,13 +75,16 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
     if (!commentText.trim()) return;
     try {
       const res = await fetch(`/api/videos/${video.id}/comments`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: commentText.trim() }),
       });
       const comment = await res.json();
-      setComments(prev => [...prev, comment]);
+      setComments((prev) => [...prev, comment]);
       setCommentText('');
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -96,7 +107,11 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
 
       <div className="feed-video-info">
         <div className="feed-video-author" onClick={() => navigate(`/@${video.pseudo}`)}>
-          {video.avatar ? <img src={video.avatar} alt="" className="feed-video-avatar" /> : <div className="feed-video-avatar feed-video-avatar-placeholder">{(video.pseudo || '?')[0]}</div>}
+          {video.avatar ? (
+            <img src={video.avatar} alt="" className="feed-video-avatar" />
+          ) : (
+            <div className="feed-video-avatar feed-video-avatar-placeholder">{(video.pseudo || '?')[0]}</div>
+          )}
           <span className="feed-video-pseudo">{video.pseudo || 'Inconnu'}</span>
         </div>
         {video.caption && <div className="feed-video-caption">{video.caption}</div>}
@@ -121,18 +136,22 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
 
       {showComments && (
         <div className="feed-comments-overlay" onClick={() => setShowComments(false)}>
-          <div className="feed-comments-panel" onClick={e => e.stopPropagation()}>
+          <div className="feed-comments-panel" onClick={(e) => e.stopPropagation()}>
             <div className="feed-comments-header">
               <span>Commentaires</span>
-              <button onClick={() => setShowComments(false)}><X size={20} /></button>
+              <button onClick={() => setShowComments(false)}>
+                <X size={20} />
+              </button>
             </div>
             <div className="feed-comments-list">
               {comments.length === 0 ? (
                 <div className="feed-comments-empty">Aucun commentaire</div>
               ) : (
-                comments.map(c => (
+                comments.map((c) => (
                   <div key={c.id} className="feed-comment-item">
-                    <div className="feed-comment-avatar">{c.avatar ? <img src={c.avatar} alt="" /> : <span>{(c.pseudo || '?')[0]}</span>}</div>
+                    <div className="feed-comment-avatar">
+                      {c.avatar ? <img src={c.avatar} alt="" /> : <span>{(c.pseudo || '?')[0]}</span>}
+                    </div>
                     <div className="feed-comment-body">
                       <div className="feed-comment-pseudo">{c.pseudo || 'Inconnu'}</div>
                       <div className="feed-comment-text">{c.text}</div>
@@ -142,8 +161,15 @@ export default function FeedVideo({ video, isVisible, onLike }: Props) {
               )}
             </div>
             <div className="feed-comments-input">
-              <input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Écrire un commentaire..." onKeyDown={e => e.key === 'Enter' && sendComment()} />
-              <button onClick={sendComment} disabled={!commentText.trim()}><Send size={18} /></button>
+              <input
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Écrire un commentaire..."
+                onKeyDown={(e) => e.key === 'Enter' && sendComment()}
+              />
+              <button onClick={sendComment} disabled={!commentText.trim()}>
+                <Send size={18} />
+              </button>
             </div>
           </div>
         </div>

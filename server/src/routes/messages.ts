@@ -1,15 +1,30 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { verifyToken } from '../middleware/auth.js';
-import type { AuthRequest, MessageData } from '../types/index.js';
-import { chatId, getMessages, getGroupMessages, pushMessage, pushGroupMessage, updateMessage, updateGroupMessage, markMessagesAsSeen, searchMessages, searchGroupMessages, getGroup } from '../services/rtdb.js';
+import { Router } from 'express';
 import { getOne, query } from '../config/database.js';
+import { verifyToken } from '../middleware/auth.js';
+import {
+  chatId,
+  getGroup,
+  getGroupMessages,
+  getMessages,
+  markMessagesAsSeen,
+  pushGroupMessage,
+  pushMessage,
+  searchGroupMessages,
+  searchMessages,
+  updateGroupMessage,
+  updateMessage,
+} from '../services/rtdb.js';
+import type { AuthRequest, MessageData } from '../types/index.js';
 
 const router: Router = Router();
 router.use(verifyToken);
 
 async function isBlocked(uid: string, byUid: string): Promise<boolean> {
-  const row = await getOne<{ blockedUid: string }>('SELECT blockedUid FROM blocks WHERE uid=? AND blockedUid=?', [byUid, uid]);
+  const row = await getOne<{ blockedUid: string }>('SELECT blockedUid FROM blocks WHERE uid=? AND blockedUid=?', [
+    byUid,
+    uid,
+  ]);
   return !!row;
 }
 
@@ -72,7 +87,8 @@ router.post('/group/:gid', async (req: Request, res: Response) => {
   };
   const key = await pushGroupMessage(req.params.gid, msg);
   const io = req.app.get('io');
-  if (io) io.to(`group:${req.params.gid}`).emit('message:added', { convId: req.params.gid, key, data: msg, isGroup: true });
+  if (io)
+    io.to(`group:${req.params.gid}`).emit('message:added', { convId: req.params.gid, key, data: msg, isGroup: true });
   res.json({ key, ...msg });
 });
 
@@ -81,10 +97,19 @@ router.delete('/:uid/:msgKey', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const cid = chatId(authReq.uid!, req.params.uid);
   await updateMessage(cid, req.params.msgKey, {
-    text: '', deleted: true, edited: false,
-    ct: null as unknown as undefined, iv: null as unknown as undefined, encrypted: null as unknown as undefined,
-    imageData: null as unknown as undefined, fileData: null as unknown as undefined, fileName: null as unknown as undefined,
-    audioData: null as unknown as undefined, duration: null as unknown as undefined, contact: null as unknown as undefined, html: null as unknown as undefined,
+    text: '',
+    deleted: true,
+    edited: false,
+    ct: null as unknown as undefined,
+    iv: null as unknown as undefined,
+    encrypted: null as unknown as undefined,
+    imageData: null as unknown as undefined,
+    fileData: null as unknown as undefined,
+    fileName: null as unknown as undefined,
+    audioData: null as unknown as undefined,
+    duration: null as unknown as undefined,
+    contact: null as unknown as undefined,
+    html: null as unknown as undefined,
   });
   const io = req.app.get('io');
   if (io) io.to(`dm:${cid}`).emit('message:updated', { convId: cid, key: req.params.msgKey, data: { deleted: true } });
@@ -94,13 +119,28 @@ router.delete('/:uid/:msgKey', async (req: Request, res: Response) => {
 /* DELETE /messages/group/:gid/:msgKey — supprimer un message groupe */
 router.delete('/group/:gid/:msgKey', async (req: Request, res: Response) => {
   await updateGroupMessage(req.params.gid, req.params.msgKey, {
-    text: '', deleted: true, edited: false,
-    ct: null as unknown as undefined, iv: null as unknown as undefined, encrypted: null as unknown as undefined,
-    imageData: null as unknown as undefined, fileData: null as unknown as undefined, fileName: null as unknown as undefined,
-    audioData: null as unknown as undefined, duration: null as unknown as undefined, contact: null as unknown as undefined, html: null as unknown as undefined,
+    text: '',
+    deleted: true,
+    edited: false,
+    ct: null as unknown as undefined,
+    iv: null as unknown as undefined,
+    encrypted: null as unknown as undefined,
+    imageData: null as unknown as undefined,
+    fileData: null as unknown as undefined,
+    fileName: null as unknown as undefined,
+    audioData: null as unknown as undefined,
+    duration: null as unknown as undefined,
+    contact: null as unknown as undefined,
+    html: null as unknown as undefined,
   });
   const io = req.app.get('io');
-  if (io) io.to(`group:${req.params.gid}`).emit('message:updated', { convId: req.params.gid, key: req.params.msgKey, data: { deleted: true }, isGroup: true });
+  if (io)
+    io.to(`group:${req.params.gid}`).emit('message:updated', {
+      convId: req.params.gid,
+      key: req.params.msgKey,
+      data: { deleted: true },
+      isGroup: true,
+    });
   res.json({ success: true });
 });
 
@@ -118,7 +158,13 @@ router.patch('/:uid/:msgKey', async (req: Request, res: Response) => {
 router.patch('/group/:gid/:msgKey', async (req: Request, res: Response) => {
   await updateGroupMessage(req.params.gid, req.params.msgKey, req.body);
   const io = req.app.get('io');
-  if (io) io.to(`group:${req.params.gid}`).emit('message:updated', { convId: req.params.gid, key: req.params.msgKey, data: req.body, isGroup: true });
+  if (io)
+    io.to(`group:${req.params.gid}`).emit('message:updated', {
+      convId: req.params.gid,
+      key: req.params.msgKey,
+      data: req.body,
+      isGroup: true,
+    });
   res.json({ success: true });
 });
 
@@ -139,9 +185,15 @@ router.post('/:uid/seen', async (req: Request, res: Response) => {
 router.post('/group/:gid/seen', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { msgKeys } = req.body as { msgKeys: string[] };
-  if (!msgKeys?.length) { res.json({ success: true }); return; }
+  if (!msgKeys?.length) {
+    res.json({ success: true });
+    return;
+  }
   for (const msgKey of msgKeys) {
-    const row = await getOne<{ seenBy: string | null }>('SELECT seenBy FROM group_messages WHERE gid=? AND msgKey=?', [req.params.gid, msgKey]);
+    const row = await getOne<{ seenBy: string | null }>('SELECT seenBy FROM group_messages WHERE gid=? AND msgKey=?', [
+      req.params.gid,
+      msgKey,
+    ]);
     if (!row) continue;
     const seenBy: string[] = row.seenBy ? JSON.parse(row.seenBy) : [];
     if (!seenBy.includes(authReq.uid!)) {
@@ -158,16 +210,22 @@ router.post('/group/:gid/seen', async (req: Request, res: Response) => {
 router.get('/search/:uid', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const cid = chatId(authReq.uid!, req.params.uid);
-  const q = (req.query.q as string || '').trim();
-  if (!q) { res.json({ results: {} }); return; }
+  const q = ((req.query.q as string) || '').trim();
+  if (!q) {
+    res.json({ results: {} });
+    return;
+  }
   const results = await searchMessages(cid, q);
   res.json({ results });
 });
 
 /* GET /messages/group/search/:gid — rechercher dans un groupe */
 router.get('/group/search/:gid', async (req: Request, res: Response) => {
-  const q = (req.query.q as string || '').trim();
-  if (!q) { res.json({ results: {} }); return; }
+  const q = ((req.query.q as string) || '').trim();
+  if (!q) {
+    res.json({ results: {} });
+    return;
+  }
   const results = await searchGroupMessages(req.params.gid, q);
   res.json({ results });
 });
@@ -176,7 +234,10 @@ router.get('/group/search/:gid', async (req: Request, res: Response) => {
 router.get('/:uid/pinned', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const cid = chatId(authReq.uid!, req.params.uid);
-  const rows = await query<Array<MessageData & { msgKey: string }>>('SELECT * FROM messages WHERE convId=? AND pinned=1 ORDER BY time DESC LIMIT 5', [cid]);
+  const rows = await query<Array<MessageData & { msgKey: string }>>(
+    'SELECT * FROM messages WHERE convId=? AND pinned=1 ORDER BY time DESC LIMIT 5',
+    [cid],
+  );
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
@@ -188,7 +249,10 @@ router.get('/:uid/pinned', async (req: Request, res: Response) => {
 
 /* GET /messages/group/:gid/pinned — messages épinglés groupe */
 router.get('/group/:gid/pinned', async (req: Request, res: Response) => {
-  const rows = await query<Array<MessageData & { msgKey: string }>>('SELECT * FROM group_messages WHERE gid=? AND pinned=1 ORDER BY time DESC LIMIT 5', [req.params.gid]);
+  const rows = await query<Array<MessageData & { msgKey: string }>>(
+    'SELECT * FROM group_messages WHERE gid=? AND pinned=1 ORDER BY time DESC LIMIT 5',
+    [req.params.gid],
+  );
   const result: Record<string, MessageData> = {};
   for (const row of rows) {
     const key = row.msgKey;
@@ -214,7 +278,13 @@ router.post('/group/:gid/:msgKey/pin', async (req: Request, res: Response) => {
   const { pinned } = req.body as { pinned: boolean };
   await updateGroupMessage(req.params.gid, req.params.msgKey, { pinned } as any);
   const io = req.app.get('io');
-  if (io) io.to(`group:${req.params.gid}`).emit('message:updated', { convId: req.params.gid, key: req.params.msgKey, data: { pinned }, isGroup: true });
+  if (io)
+    io.to(`group:${req.params.gid}`).emit('message:updated', {
+      convId: req.params.gid,
+      key: req.params.msgKey,
+      data: { pinned },
+      isGroup: true,
+    });
   res.json({ success: true });
 });
 
@@ -223,9 +293,18 @@ router.post('/:uid/:msgKey/reaction', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const cid = chatId(authReq.uid!, req.params.uid);
   const { emoji } = req.body as { emoji?: string };
-  if (!emoji) { res.status(400).json({ error: 'Emoji requis' }); return; }
-  const row = await getOne<{ reactions: string | null }>('SELECT reactions FROM messages WHERE convId=? AND msgKey=?', [cid, req.params.msgKey]);
-  if (!row) { res.status(404).json({ error: 'Message introuvable' }); return; }
+  if (!emoji) {
+    res.status(400).json({ error: 'Emoji requis' });
+    return;
+  }
+  const row = await getOne<{ reactions: string | null }>('SELECT reactions FROM messages WHERE convId=? AND msgKey=?', [
+    cid,
+    req.params.msgKey,
+  ]);
+  if (!row) {
+    res.status(404).json({ error: 'Message introuvable' });
+    return;
+  }
   const reactions: Record<string, string> = row.reactions ? JSON.parse(row.reactions) : {};
   if (reactions[authReq.uid!] === emoji) {
     delete reactions[authReq.uid!];
@@ -242,9 +321,18 @@ router.post('/:uid/:msgKey/reaction', async (req: Request, res: Response) => {
 router.post('/group/:gid/:msgKey/reaction', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { emoji } = req.body as { emoji?: string };
-  if (!emoji) { res.status(400).json({ error: 'Emoji requis' }); return; }
-  const row = await getOne<{ reactions: string | null }>('SELECT reactions FROM group_messages WHERE gid=? AND msgKey=?', [req.params.gid, req.params.msgKey]);
-  if (!row) { res.status(404).json({ error: 'Message introuvable' }); return; }
+  if (!emoji) {
+    res.status(400).json({ error: 'Emoji requis' });
+    return;
+  }
+  const row = await getOne<{ reactions: string | null }>(
+    'SELECT reactions FROM group_messages WHERE gid=? AND msgKey=?',
+    [req.params.gid, req.params.msgKey],
+  );
+  if (!row) {
+    res.status(404).json({ error: 'Message introuvable' });
+    return;
+  }
   const reactions: Record<string, string> = row.reactions ? JSON.parse(row.reactions) : {};
   if (reactions[authReq.uid!] === emoji) {
     delete reactions[authReq.uid!];
@@ -253,7 +341,13 @@ router.post('/group/:gid/:msgKey/reaction', async (req: Request, res: Response) 
   }
   await updateGroupMessage(req.params.gid, req.params.msgKey, { reactions });
   const io = req.app.get('io');
-  if (io) io.to(`group:${req.params.gid}`).emit('message:updated', { convId: req.params.gid, key: req.params.msgKey, data: { reactions }, isGroup: true });
+  if (io)
+    io.to(`group:${req.params.gid}`).emit('message:updated', {
+      convId: req.params.gid,
+      key: req.params.msgKey,
+      data: { reactions },
+      isGroup: true,
+    });
   res.json({ reactions });
 });
 

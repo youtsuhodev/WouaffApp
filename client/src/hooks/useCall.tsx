@@ -1,35 +1,41 @@
-import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
-import type { CallState, CallPayload, CallerInfo } from '../types';
+import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { profiles } from '../services/api';
 import {
-  onCallIncoming, offCallIncoming,
-  onCallAccepted, offCallAccepted,
-  onCallAnswer, offCallAnswer,
-  onCallICE, offCallICE,
-  onCallEnded, offCallEnded,
-  onCallRejected, offCallRejected,
+  offCallAccepted,
+  offCallAnswer,
+  offCallEnded,
+  offCallICE,
+  offCallIncoming,
+  offCallRejected,
+  onCallAccepted,
+  onCallAnswer,
+  onCallEnded,
+  onCallICE,
+  onCallIncoming,
+  onCallRejected,
 } from '../services/socket';
 import {
-  startCall as voiceStartCall,
-  acceptCall as voiceAcceptCall,
-  rejectCall as voiceRejectCall,
-  endCall as voiceEndCall,
-  handleIncomingCall,
+  getCameraOn,
+  getDeafened,
+  getLocalStream,
+  getMuted,
+  getRemoteStream,
   handleAnswer,
-  handleOffer,
   handleICE,
+  handleIncomingCall,
+  handleOffer,
   handleRemoteEnd,
   subscribeCallbacks,
   unsubscribeCallbacks,
-  getRemoteStream,
-  getLocalStream,
-  toggleMute as voiceToggleMute,
-  toggleDeafen as voiceToggleDeafen,
+  acceptCall as voiceAcceptCall,
+  endCall as voiceEndCall,
+  rejectCall as voiceRejectCall,
+  startCall as voiceStartCall,
   toggleCamera as voiceToggleCamera,
-  getMuted,
-  getDeafened,
-  getCameraOn,
+  toggleDeafen as voiceToggleDeafen,
+  toggleMute as voiceToggleMute,
 } from '../services/voice';
-import { profiles } from '../services/api';
+import type { CallerInfo, CallPayload, CallState } from '../types';
 import { playRingtone, stopRingtone } from '../utils/ringtone';
 
 interface CallContextValue {
@@ -202,7 +208,24 @@ export function CallProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CallContext.Provider value={{ state, remoteStream, localStream: getLocalStream(), callerInfo, muted, deafened, cameraOn, startCall, acceptCall, rejectCall, endCall, toggleMute, toggleDeafen, toggleCamera }}>
+    <CallContext.Provider
+      value={{
+        state,
+        remoteStream,
+        localStream: getLocalStream(),
+        callerInfo,
+        muted,
+        deafened,
+        cameraOn,
+        startCall,
+        acceptCall,
+        rejectCall,
+        endCall,
+        toggleMute,
+        toggleDeafen,
+        toggleCamera,
+      }}
+    >
       {children}
     </CallContext.Provider>
   );

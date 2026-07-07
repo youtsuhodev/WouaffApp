@@ -1,5 +1,5 @@
 import { Storage } from '@google-cloud/storage';
-import { query, getOne } from '../config/database.js';
+import { getOne, query } from '../config/database.js';
 
 interface CallRecord {
   id: string;
@@ -76,7 +76,16 @@ export async function saveCallRecord(
 ): Promise<boolean> {
   if (!initialized || !bucket) return false;
   try {
-    const record: CallRecord = { id, callerUid, calleeUid, startTime, endTime, duration, status, archivedAt: Date.now() };
+    const record: CallRecord = {
+      id,
+      callerUid,
+      calleeUid,
+      startTime,
+      endTime,
+      duration,
+      status,
+      archivedAt: Date.now(),
+    };
     const key = objectKey(id, new Date(endTime));
     await bucket.file(key).save(JSON.stringify(record), {
       contentType: 'application/json',
@@ -97,10 +106,9 @@ export async function archiveOldCalls(): Promise<{ archived: number; failed: num
   let archived = 0;
   let failed = 0;
   try {
-    const rows = await query<CallRecord[]>(
-      'SELECT * FROM calls WHERE endTime < ? ORDER BY endTime ASC LIMIT 200',
-      [cutoff]
-    );
+    const rows = await query<CallRecord[]>('SELECT * FROM calls WHERE endTime < ? ORDER BY endTime ASC LIMIT 200', [
+      cutoff,
+    ]);
     for (const row of rows) {
       try {
         const record: CallRecord = { ...row, archivedAt: Date.now() };
@@ -141,7 +149,7 @@ export async function getArchivedCall(id: string): Promise<CallRecord | null> {
     }
     /* Broad prefix search as fallback */
     const [files] = await bucket.getFiles({ prefix: 'calls/' });
-    const match = files.find(f => f.name.endsWith(`-${id}.json`));
+    const match = files.find((f) => f.name.endsWith(`-${id}.json`));
     if (match) {
       const [buf] = await match.download();
       return JSON.parse(buf.toString('utf-8')) as CallRecord;
@@ -156,13 +164,13 @@ export async function getArchivedCall(id: string): Promise<CallRecord | null> {
 export async function getUserCalls(uid: string, limit = 50): Promise<CallRecord[]> {
   const recent = await query<CallRecord[]>(
     'SELECT * FROM calls WHERE callerUid=? OR calleeUid=? ORDER BY endTime DESC LIMIT ?',
-    [uid, uid, limit]
+    [uid, uid, limit],
   );
   const result = [...recent];
   if (initialized && bucket) {
     try {
       const [files] = await bucket.getFiles({ prefix: 'calls/' });
-      const userFiles = files.filter(f => f.name.endsWith('.json'));
+      const userFiles = files.filter((f) => f.name.endsWith('.json'));
       const limitRemaining = Math.max(limit - result.length, 0);
       const batch = userFiles.slice(0, limitRemaining * 3);
       const parsed: CallRecord[] = [];
@@ -171,12 +179,16 @@ export async function getUserCalls(uid: string, limit = 50): Promise<CallRecord[
           const [buf] = await f.download();
           const rec = JSON.parse(buf.toString('utf-8')) as CallRecord;
           if (rec.callerUid === uid || rec.calleeUid === uid) parsed.push(rec);
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
         if (parsed.length >= limitRemaining) break;
       }
       result.push(...parsed);
       result.sort((a, b) => b.endTime - a.endTime);
-    } catch { /* GCS unavailable */ }
+    } catch {
+      /* GCS unavailable */
+    }
   }
   return result.slice(0, limit);
 }

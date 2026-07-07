@@ -21,17 +21,26 @@ export default function TitleBar() {
       </div>
       <div className="flex">
         <button className="titlebar-btn" onClick={api.minimize} aria-label="Minimiser">
-          <svg viewBox="0 0 12 12" className="w-3 h-3"><rect x="1" y="5.5" width="10" height="1" rx="0.5" /></svg>
+          <svg viewBox="0 0 12 12" className="w-3 h-3">
+            <rect x="1" y="5.5" width="10" height="1" rx="0.5" />
+          </svg>
         </button>
         <button className="titlebar-btn" onClick={api.maximize} aria-label="Maximiser">
           {maximized ? (
-            <svg viewBox="0 0 12 12" className="w-3 h-3"><rect x="2" y="2.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" /><rect x="3" y="1.5" width="7" height="7" rx="1" fill="var(--bg-card)" stroke="currentColor" /></svg>
+            <svg viewBox="0 0 12 12" className="w-3 h-3">
+              <rect x="2" y="2.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" />
+              <rect x="3" y="1.5" width="7" height="7" rx="1" fill="var(--bg-card)" stroke="currentColor" />
+            </svg>
           ) : (
-            <svg viewBox="0 0 12 12" className="w-3 h-3"><rect x="1.5" y="2" width="9" height="8" rx="1" fill="none" stroke="currentColor" /></svg>
+            <svg viewBox="0 0 12 12" className="w-3 h-3">
+              <rect x="1.5" y="2" width="9" height="8" rx="1" fill="none" stroke="currentColor" />
+            </svg>
           )}
         </button>
         <button className="titlebar-btn close" onClick={api.close} aria-label="Fermer">
-          <svg viewBox="0 0 12 12" className="w-3 h-3"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeLinecap="round" /></svg>
+          <svg viewBox="0 0 12 12" className="w-3 h-3">
+            <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeLinecap="round" />
+          </svg>
         </button>
       </div>
     </div>

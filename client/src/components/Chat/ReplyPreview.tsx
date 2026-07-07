@@ -6,7 +6,13 @@ interface ReplyPreviewProps {
   onCancelEdit: () => void;
 }
 
-export default function ReplyPreview({ replyTo, replyText, editingMsgId, onCancelReply, onCancelEdit }: ReplyPreviewProps) {
+export default function ReplyPreview({
+  replyTo,
+  replyText,
+  editingMsgId,
+  onCancelReply,
+  onCancelEdit,
+}: ReplyPreviewProps) {
   return (
     <>
       {replyTo && (
@@ -15,13 +21,17 @@ export default function ReplyPreview({ replyTo, replyText, editingMsgId, onCance
             <div className="reply-preview-name">Répondre</div>
             <div className="reply-preview-text">{replyText?.substring(0, 60)}</div>
           </div>
-          <button className="reply-preview-close" onClick={onCancelReply}>✕</button>
+          <button className="reply-preview-close" onClick={onCancelReply}>
+            ✕
+          </button>
         </div>
       )}
       {editingMsgId && (
         <div className="edit-preview" id="editPreview">
           <span>Modification du message</span>
-          <button className="reply-preview-close" onClick={onCancelEdit}>✕</button>
+          <button className="reply-preview-close" onClick={onCancelEdit}>
+            ✕
+          </button>
         </div>
       )}
     </>

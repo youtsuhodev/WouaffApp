@@ -1,17 +1,544 @@
-import { parseUrls, textToParts, fetchLinkPreview } from './links';
-import type { LinkPreview } from './links';
 import type { MessageData } from '../types';
+import type { LinkPreview } from './links';
+import { fetchLinkPreview, parseUrls, textToParts } from './links';
 
 export const EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '🎉', '😍'];
 
 export const EMOJI_CATEGORIES: Array<{ name: string; items: string[] }> = [
-  { name: 'Sourires', items: ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮', '🥴', '😵', '🤯', '🤠', '🥳', '😎', '🤓', '🧐', '😕', '😟', '🙁', '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬', '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽', '👾', '🤖'] },
-  { name: 'Gestes', items: ['👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏', '✌️', '🤞', '🖕', '🤟', '👌', '🤌', '🤏', '🫵', '🫱', '🫲', '🫳', '🫴', '✋', '🤚', '🖐️', '🖖', '👋', '🤙', '💪', '🦵', '🦶', '👂', '🦻', '👃', '🧠', '🫀', '🫁', '🦷', '🦴', '👀', '👁️', '👅', '👄'] },
-  { name: 'Cœurs', items: ['❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💕', '💞', '💗', '💖', '💘', '💝', '💟', '❣️', '💔', '❤️‍🔥', '❤️‍🩹'] },
-  { name: 'Objets', items: ['🎉', '🎊', '🎈', '🎁', '🎀', '🪄', '🎯', '🎲', '🎮', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '🏵️', '🎗️', '🔮', '💎', '👑', '💍', '🧿', '📿', '💄', '👗', '👠', '👟', '👔', '👕', '🧢', '🎩', '🕶️', '💼', '📷', '📸', '📱', '💻', '⌚', '🔑', '🗝️', '🔒', '🔓', '📝', '✏️', '📖', '📚', '📌', '📍', '🧷', '✂️', '🖇️', '📎'] },
-  { name: 'Nourriture', items: ['🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍈', '🍒', '🍑', '🥭', '🍍', '🥝', '🍅', '🥑', '🥦', '🥬', '🥒', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🌭', '🍔', '🍟', '🍕', '🥪', '🥙', '🧆', '🌮', '🌯', '🥗', '🥘', '🍝', '🍜', '🍲', '🍛', '🍣', '🍤', '🥟', '🍱', '🍚', '🦪', '🍘', '🍙', '🥠', '🥮', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮', '🍭', '🍬', '🍫', '🍿', '🍩', '🍪', '🥜', '🌰', '☕', '🫖', '🍵', '🧋', '🥤', '🧃', '🍶', '🍺', '🍻', '🥂', '🍷', '🥃', '🍸', '🍹', '🧉'] },
-  { name: 'Animaux', items: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐻‍❄️', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊', '🐒', '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🪱', '🐛', '🦋', '🐌', '🐞', '🐜', '🪰', '🪲', '🪳', '🦟', '🦗', '🕷️', '🦂', '🐢', '🐍', '🦎', '🦖', '🦕', '🐙', '🦑', '🦐', '🦞', '🦀', '🐡', '🐠', '🐟', '🐬', '🐳', '🐋', '🦈', '🐊', '🐅', '🐆', '🦓', '🦍', '🦧', '🐘', '🦛', '🦏', '🐪', '🐫', '🦒', '🦘', '🐃', '🐂', '🐄', '🐎', '🐖', '🐏', '🐑', '🦙', '🐐', '🦌', '🐕', '🐩', '🦮', '🐕‍🦺', '🐈', '🐈‍⬛', '🪶', '🐓', '🦃', '🦤', '🦚', '🦜', '🦢', '🦩', '🕊️', '🐇', '🦝', '🦨', '🦡', '🦫', '🦦', '🦥', '🐁', '🐀', '🐿️', '🦔', '🐾', '🐉', '🐲'] },
-  { name: 'Nature', items: ['🌵', '🎄', '🌲', '🌳', '🌴', '🪵', '🌱', '🌿', '☘️', '🍀', '🎍', '🪴', '🎋', '🍃', '🍂', '🍁', '🍄', '🐚', '🪸', '🌾', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🌞', '🌝', '🌛', '🌜', '🌚', '🌕', '🌖', '🌗', '🌘', '🌑', '🌒', '🌓', '🌔', '🌙', '🌎', '🌍', '🌏', '🪐', '💫', '⭐', '🌟', '✨', '⚡', '☄️', '💥', '🔥', '🌪️', '🌈', '☀️', '🌤️', '⛅', '🌥️', '☁️', '🌦️', '🌧️', '⛈️', '🌩️', '🌨️', '❄️', '☃️', '⛄', '🌬️', '💨', '💧', '💦', '🫧', '🌊'] },
+  {
+    name: 'Sourires',
+    items: [
+      '😀',
+      '😃',
+      '😄',
+      '😁',
+      '😅',
+      '😂',
+      '🤣',
+      '😊',
+      '😇',
+      '🙂',
+      '🙃',
+      '😉',
+      '😌',
+      '😍',
+      '🥰',
+      '😘',
+      '😗',
+      '😙',
+      '😚',
+      '😋',
+      '😛',
+      '😜',
+      '🤪',
+      '😝',
+      '🤑',
+      '🤗',
+      '🤭',
+      '🤫',
+      '🤔',
+      '🤐',
+      '🤨',
+      '😐',
+      '😑',
+      '😶',
+      '😏',
+      '😒',
+      '🙄',
+      '😬',
+      '🤥',
+      '😌',
+      '😔',
+      '😪',
+      '🤤',
+      '😴',
+      '😷',
+      '🤒',
+      '🤕',
+      '🤢',
+      '🤮',
+      '🥴',
+      '😵',
+      '🤯',
+      '🤠',
+      '🥳',
+      '😎',
+      '🤓',
+      '🧐',
+      '😕',
+      '😟',
+      '🙁',
+      '😮',
+      '😯',
+      '😲',
+      '😳',
+      '🥺',
+      '😦',
+      '😧',
+      '😨',
+      '😰',
+      '😥',
+      '😢',
+      '😭',
+      '😱',
+      '😖',
+      '😣',
+      '😞',
+      '😓',
+      '😩',
+      '😫',
+      '🥱',
+      '😤',
+      '😡',
+      '😠',
+      '🤬',
+      '😈',
+      '👿',
+      '💀',
+      '☠️',
+      '💩',
+      '🤡',
+      '👹',
+      '👺',
+      '👻',
+      '👽',
+      '👾',
+      '🤖',
+    ],
+  },
+  {
+    name: 'Gestes',
+    items: [
+      '👍',
+      '👎',
+      '👊',
+      '✊',
+      '🤛',
+      '🤜',
+      '👏',
+      '🙌',
+      '👐',
+      '🤲',
+      '🤝',
+      '🙏',
+      '✌️',
+      '🤞',
+      '🖕',
+      '🤟',
+      '👌',
+      '🤌',
+      '🤏',
+      '🫵',
+      '🫱',
+      '🫲',
+      '🫳',
+      '🫴',
+      '✋',
+      '🤚',
+      '🖐️',
+      '🖖',
+      '👋',
+      '🤙',
+      '💪',
+      '🦵',
+      '🦶',
+      '👂',
+      '🦻',
+      '👃',
+      '🧠',
+      '🫀',
+      '🫁',
+      '🦷',
+      '🦴',
+      '👀',
+      '👁️',
+      '👅',
+      '👄',
+    ],
+  },
+  {
+    name: 'Cœurs',
+    items: [
+      '❤️',
+      '🧡',
+      '💛',
+      '💚',
+      '💙',
+      '💜',
+      '🖤',
+      '🤍',
+      '🤎',
+      '💕',
+      '💞',
+      '💗',
+      '💖',
+      '💘',
+      '💝',
+      '💟',
+      '❣️',
+      '💔',
+      '❤️‍🔥',
+      '❤️‍🩹',
+    ],
+  },
+  {
+    name: 'Objets',
+    items: [
+      '🎉',
+      '🎊',
+      '🎈',
+      '🎁',
+      '🎀',
+      '🪄',
+      '🎯',
+      '🎲',
+      '🎮',
+      '🏆',
+      '🥇',
+      '🥈',
+      '🥉',
+      '🏅',
+      '🎖️',
+      '🏵️',
+      '🎗️',
+      '🔮',
+      '💎',
+      '👑',
+      '💍',
+      '🧿',
+      '📿',
+      '💄',
+      '👗',
+      '👠',
+      '👟',
+      '👔',
+      '👕',
+      '🧢',
+      '🎩',
+      '🕶️',
+      '💼',
+      '📷',
+      '📸',
+      '📱',
+      '💻',
+      '⌚',
+      '🔑',
+      '🗝️',
+      '🔒',
+      '🔓',
+      '📝',
+      '✏️',
+      '📖',
+      '📚',
+      '📌',
+      '📍',
+      '🧷',
+      '✂️',
+      '🖇️',
+      '📎',
+    ],
+  },
+  {
+    name: 'Nourriture',
+    items: [
+      '🍎',
+      '🍊',
+      '🍋',
+      '🍌',
+      '🍉',
+      '🍇',
+      '🍓',
+      '🫐',
+      '🍈',
+      '🍒',
+      '🍑',
+      '🥭',
+      '🍍',
+      '🥝',
+      '🍅',
+      '🥑',
+      '🥦',
+      '🥬',
+      '🥒',
+      '🌽',
+      '🥕',
+      '🧄',
+      '🧅',
+      '🥔',
+      '🍠',
+      '🍞',
+      '🥖',
+      '🥨',
+      '🧀',
+      '🥚',
+      '🍳',
+      '🥞',
+      '🧇',
+      '🥓',
+      '🥩',
+      '🍗',
+      '🍖',
+      '🌭',
+      '🍔',
+      '🍟',
+      '🍕',
+      '🥪',
+      '🥙',
+      '🧆',
+      '🌮',
+      '🌯',
+      '🥗',
+      '🥘',
+      '🍝',
+      '🍜',
+      '🍲',
+      '🍛',
+      '🍣',
+      '🍤',
+      '🥟',
+      '🍱',
+      '🍚',
+      '🦪',
+      '🍘',
+      '🍙',
+      '🥠',
+      '🥮',
+      '🍡',
+      '🍧',
+      '🍨',
+      '🍦',
+      '🥧',
+      '🧁',
+      '🍰',
+      '🎂',
+      '🍮',
+      '🍭',
+      '🍬',
+      '🍫',
+      '🍿',
+      '🍩',
+      '🍪',
+      '🥜',
+      '🌰',
+      '☕',
+      '🫖',
+      '🍵',
+      '🧋',
+      '🥤',
+      '🧃',
+      '🍶',
+      '🍺',
+      '🍻',
+      '🥂',
+      '🍷',
+      '🥃',
+      '🍸',
+      '🍹',
+      '🧉',
+    ],
+  },
+  {
+    name: 'Animaux',
+    items: [
+      '🐶',
+      '🐱',
+      '🐭',
+      '🐹',
+      '🐰',
+      '🦊',
+      '🐻',
+      '🐼',
+      '🐻‍❄️',
+      '🐨',
+      '🐯',
+      '🦁',
+      '🐮',
+      '🐷',
+      '🐸',
+      '🐵',
+      '🙈',
+      '🙉',
+      '🙊',
+      '🐒',
+      '🐔',
+      '🐧',
+      '🐦',
+      '🐤',
+      '🐣',
+      '🐥',
+      '🦆',
+      '🦅',
+      '🦉',
+      '🦇',
+      '🐺',
+      '🐗',
+      '🐴',
+      '🦄',
+      '🐝',
+      '🪱',
+      '🐛',
+      '🦋',
+      '🐌',
+      '🐞',
+      '🐜',
+      '🪰',
+      '🪲',
+      '🪳',
+      '🦟',
+      '🦗',
+      '🕷️',
+      '🦂',
+      '🐢',
+      '🐍',
+      '🦎',
+      '🦖',
+      '🦕',
+      '🐙',
+      '🦑',
+      '🦐',
+      '🦞',
+      '🦀',
+      '🐡',
+      '🐠',
+      '🐟',
+      '🐬',
+      '🐳',
+      '🐋',
+      '🦈',
+      '🐊',
+      '🐅',
+      '🐆',
+      '🦓',
+      '🦍',
+      '🦧',
+      '🐘',
+      '🦛',
+      '🦏',
+      '🐪',
+      '🐫',
+      '🦒',
+      '🦘',
+      '🐃',
+      '🐂',
+      '🐄',
+      '🐎',
+      '🐖',
+      '🐏',
+      '🐑',
+      '🦙',
+      '🐐',
+      '🦌',
+      '🐕',
+      '🐩',
+      '🦮',
+      '🐕‍🦺',
+      '🐈',
+      '🐈‍⬛',
+      '🪶',
+      '🐓',
+      '🦃',
+      '🦤',
+      '🦚',
+      '🦜',
+      '🦢',
+      '🦩',
+      '🕊️',
+      '🐇',
+      '🦝',
+      '🦨',
+      '🦡',
+      '🦫',
+      '🦦',
+      '🦥',
+      '🐁',
+      '🐀',
+      '🐿️',
+      '🦔',
+      '🐾',
+      '🐉',
+      '🐲',
+    ],
+  },
+  {
+    name: 'Nature',
+    items: [
+      '🌵',
+      '🎄',
+      '🌲',
+      '🌳',
+      '🌴',
+      '🪵',
+      '🌱',
+      '🌿',
+      '☘️',
+      '🍀',
+      '🎍',
+      '🪴',
+      '🎋',
+      '🍃',
+      '🍂',
+      '🍁',
+      '🍄',
+      '🐚',
+      '🪸',
+      '🌾',
+      '💐',
+      '🌷',
+      '🌹',
+      '🥀',
+      '🌺',
+      '🌸',
+      '🌼',
+      '🌻',
+      '🌞',
+      '🌝',
+      '🌛',
+      '🌜',
+      '🌚',
+      '🌕',
+      '🌖',
+      '🌗',
+      '🌘',
+      '🌑',
+      '🌒',
+      '🌓',
+      '🌔',
+      '🌙',
+      '🌎',
+      '🌍',
+      '🌏',
+      '🪐',
+      '💫',
+      '⭐',
+      '🌟',
+      '✨',
+      '⚡',
+      '☄️',
+      '💥',
+      '🔥',
+      '🌪️',
+      '🌈',
+      '☀️',
+      '🌤️',
+      '⛅',
+      '🌥️',
+      '☁️',
+      '🌦️',
+      '🌧️',
+      '⛈️',
+      '🌩️',
+      '🌨️',
+      '❄️',
+      '☃️',
+      '⛄',
+      '🌬️',
+      '💨',
+      '💧',
+      '💦',
+      '🫧',
+      '🌊',
+    ],
+  },
 ];
 
 export function formatTime(ts?: number): string {
@@ -30,9 +557,7 @@ export function groupReactions(reactions: Record<string, string>): Record<string
 
 export async function toggleReaction(mid: string, emoji: string, convId: string, isGroup: boolean) {
   try {
-    const url = isGroup
-      ? `/api/messages/group/${convId}/${mid}/reaction`
-      : `/api/messages/${convId}/${mid}/reaction`;
+    const url = isGroup ? `/api/messages/group/${convId}/${mid}/reaction` : `/api/messages/${convId}/${mid}/reaction`;
     await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -98,7 +623,7 @@ function parseMarkdown(text: string): MarkdownBlock[] {
         items.push(lines[i].replace(/^\s*[-*+]\s+/, ''));
         i++;
       }
-      blocks.push({ type: 'list', children: items.map(c => ({ type: 'list-item', content: c })), ordered: false });
+      blocks.push({ type: 'list', children: items.map((c) => ({ type: 'list-item', content: c })), ordered: false });
       continue;
     }
     if (/^\s*\d+\.\s/.test(line)) {
@@ -108,7 +633,7 @@ function parseMarkdown(text: string): MarkdownBlock[] {
         items.push(lines[i].replace(/^\s*\d+\.\s+/, ''));
         i++;
       }
-      blocks.push({ type: 'list', children: items.map(c => ({ type: 'list-item', content: c })), ordered: true });
+      blocks.push({ type: 'list', children: items.map((c) => ({ type: 'list-item', content: c })), ordered: true });
       continue;
     }
     if (line.trim() === '') {
@@ -117,7 +642,14 @@ function parseMarkdown(text: string): MarkdownBlock[] {
     }
     const paraLines: string[] = [line];
     i++;
-    while (i < lines.length && lines[i].trim() !== '' && !/^\s*[-*+]\s/.test(lines[i]) && !/^\s*\d+\.\s/.test(lines[i]) && !lines[i].trimStart().startsWith('> ') && !lines[i].trimStart().startsWith('```')) {
+    while (
+      i < lines.length &&
+      lines[i].trim() !== '' &&
+      !/^\s*[-*+]\s/.test(lines[i]) &&
+      !/^\s*\d+\.\s/.test(lines[i]) &&
+      !lines[i].trimStart().startsWith('> ') &&
+      !lines[i].trimStart().startsWith('```')
+    ) {
       paraLines.push(lines[i]);
       i++;
     }
@@ -129,22 +661,50 @@ function parseMarkdown(text: string): MarkdownBlock[] {
 function renderInline(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   const regex = /(`[^`]+`)|(\*\*(.+?)\*\*)|(__(.+?)__)|(\*(.+?)\*)|(_(.+?)_)|(~~(.+?)~~)/g;
-  let lastIndex = 0;
+  const lastIndex = 0;
   let match: RegExpExecArray | null;
   const remaining: Array<{ start: number; end: number; node: React.ReactNode }> = [];
   while ((match = regex.exec(text)) !== null) {
     if (match[1]) {
-      remaining.push({ start: match.index, end: match.index + match[0].length, node: <code key={match.index} className="md-code">{match[1].slice(1, -1)}</code> });
+      remaining.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        node: (
+          <code key={match.index} className="md-code">
+            {match[1].slice(1, -1)}
+          </code>
+        ),
+      });
     } else if (match[2]) {
-      remaining.push({ start: match.index, end: match.index + match[0].length, node: <strong key={match.index}>{renderInline(match[3])}</strong> });
+      remaining.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        node: <strong key={match.index}>{renderInline(match[3])}</strong>,
+      });
     } else if (match[4]) {
-      remaining.push({ start: match.index, end: match.index + match[0].length, node: <strong key={match.index}>{renderInline(match[5])}</strong> });
+      remaining.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        node: <strong key={match.index}>{renderInline(match[5])}</strong>,
+      });
     } else if (match[6]) {
-      remaining.push({ start: match.index, end: match.index + match[0].length, node: <em key={match.index}>{renderInline(match[7])}</em> });
+      remaining.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        node: <em key={match.index}>{renderInline(match[7])}</em>,
+      });
     } else if (match[8]) {
-      remaining.push({ start: match.index, end: match.index + match[0].length, node: <em key={match.index}>{renderInline(match[9])}</em> });
+      remaining.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        node: <em key={match.index}>{renderInline(match[9])}</em>,
+      });
     } else if (match[10]) {
-      remaining.push({ start: match.index, end: match.index + match[0].length, node: <del key={match.index}>{renderInline(match[11])}</del> });
+      remaining.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        node: <del key={match.index}>{renderInline(match[11])}</del>,
+      });
     }
   }
   let pos = 0;
@@ -155,7 +715,18 @@ function renderInline(text: string): React.ReactNode[] {
       const urlParts = textToParts(raw);
       for (const p of urlParts) {
         if (p.type === 'url') {
-          nodes.push(<a key={`${pos}-${p.value}`} className="msg-link" href={p.value} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{p.value}</a>);
+          nodes.push(
+            <a
+              key={`${pos}-${p.value}`}
+              className="msg-link"
+              href={p.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {p.value}
+            </a>,
+          );
         } else {
           nodes.push(<span key={`${pos}-${p.value}`}>{p.value}</span>);
         }
@@ -169,7 +740,18 @@ function renderInline(text: string): React.ReactNode[] {
     const urlParts = textToParts(raw);
     for (const p of urlParts) {
       if (p.type === 'url') {
-        nodes.push(<a key={`${pos}-${p.value}`} className="msg-link" href={p.value} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{p.value}</a>);
+        nodes.push(
+          <a
+            key={`${pos}-${p.value}`}
+            className="msg-link"
+            href={p.value}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {p.value}
+          </a>,
+        );
       } else {
         nodes.push(<span key={`${pos}-${p.value}`}>{p.value}</span>);
       }
@@ -184,28 +766,44 @@ function renderMarkdown(text: string): React.ReactNode {
     switch (block.type) {
       case 'code':
         return (
-          <pre key={bi} className="md-pre"><code className="md-code-block">{block.content || ''}</code></pre>
+          <pre key={bi} className="md-pre">
+            <code className="md-code-block">{block.content || ''}</code>
+          </pre>
         );
       case 'blockquote':
         return (
-          <blockquote key={bi} className="md-blockquote">{renderInline(block.content || '')}</blockquote>
+          <blockquote key={bi} className="md-blockquote">
+            {renderInline(block.content || '')}
+          </blockquote>
         );
       case 'list':
         if (block.ordered) {
           return (
-            <ol key={bi} className="md-ol">{block.children!.map((item, ci) => (
-              <li key={ci} className="md-li">{renderInline(item.content)}</li>
-            ))}</ol>
+            <ol key={bi} className="md-ol">
+              {block.children!.map((item, ci) => (
+                <li key={ci} className="md-li">
+                  {renderInline(item.content)}
+                </li>
+              ))}
+            </ol>
           );
         }
         return (
-          <ul key={bi} className="md-ul">{block.children!.map((item, ci) => (
-            <li key={ci} className="md-li">{renderInline(item.content)}</li>
-          ))}</ul>
+          <ul key={bi} className="md-ul">
+            {block.children!.map((item, ci) => (
+              <li key={ci} className="md-li">
+                {renderInline(item.content)}
+              </li>
+            ))}
+          </ul>
         );
       case 'paragraph':
       default:
-        return <p key={bi} className="md-p">{renderInline(block.content || '')}</p>;
+        return (
+          <p key={bi} className="md-p">
+            {renderInline(block.content || '')}
+          </p>
+        );
     }
   });
 }
@@ -221,10 +819,24 @@ export function renderLinkPreviews(text: string, previews: Record<string, LinkPr
     const preview = previews[url];
     if (!preview) return null;
     return (
-      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="link-preview-card" onClick={(e) => e.stopPropagation()}>
+      <a
+        key={i}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="link-preview-card"
+        onClick={(e) => e.stopPropagation()}
+      >
         {preview.image && (
           <div className="link-preview-img-wrap">
-            <img className="link-preview-img" src={preview.image} alt="" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+            <img
+              className="link-preview-img"
+              src={preview.image}
+              alt=""
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
           </div>
         )}
         <div className="link-preview-body">

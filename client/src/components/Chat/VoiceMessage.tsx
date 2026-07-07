@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface VoiceMessageProps {
   audioData?: string;
@@ -14,7 +14,10 @@ export default function VoiceMessage({ audioData, duration }: VoiceMessageProps)
     if (!audioRef.current && audioData) {
       const audio = new Audio(audioData);
       audioRef.current = audio;
-      audio.onended = () => { setPlaying(false); setProgress(0); };
+      audio.onended = () => {
+        setPlaying(false);
+        setProgress(0);
+      };
       audio.ontimeupdate = () => {
         if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);
       };
@@ -43,14 +46,15 @@ export default function VoiceMessage({ audioData, duration }: VoiceMessageProps)
     <div className="msg-voice">
       <button className="voice-play-btn" onClick={toggle}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          {playing
-            ? <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-            : <path d="M8 5v14l11-7z" />}
+          {playing ? <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /> : <path d="M8 5v14l11-7z" />}
         </svg>
       </button>
       <div className="voice-track">
         <input type="range" className="voice-track-progress" value={progress} max={100} onChange={seek} />
-        <span className="voice-track-time">{dm}:{ds < 10 ? '0' : ''}{ds}</span>
+        <span className="voice-track-time">
+          {dm}:{ds < 10 ? '0' : ''}
+          {ds}
+        </span>
       </div>
     </div>
   );

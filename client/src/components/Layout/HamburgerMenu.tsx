@@ -36,7 +36,7 @@ export default function HamburgerMenu({ open, onClose, storyBadge }: HamburgerMe
     { path: '/settings', label: 'Paramètres', active: isSettings, icon: 'bi-gear' },
   ];
 
-  const handleNav = (item: typeof items[0]) => {
+  const handleNav = (item: (typeof items)[0]) => {
     if (item.onClick) {
       item.onClick();
     } else {
@@ -56,11 +56,7 @@ export default function HamburgerMenu({ open, onClose, storyBadge }: HamburgerMe
         </div>
         <div className="hamburger-items">
           {items.map((item, i) => (
-            <button
-              key={i}
-              className={`hamburger-item${item.active ? ' active' : ''}`}
-              onClick={() => handleNav(item)}
-            >
+            <button key={i} className={`hamburger-item${item.active ? ' active' : ''}`} onClick={() => handleNav(item)}>
               <i className={`bi ${item.icon} fs-5`} />
               <span>{item.label}</span>
               {item.badge && <span className="hamburger-badge" />}

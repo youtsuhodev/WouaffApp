@@ -1,6 +1,6 @@
 import Peer, { type SignalData } from 'simple-peer';
-import { getSocket } from './socket';
 import type { CallPayload } from '../types';
+import { getSocket } from './socket';
 
 const ICE_SERVERS: RTCConfiguration['iceServers'] = [
   { urls: 'stun:stun.l.google.com:19302' },
@@ -58,9 +58,12 @@ function iceRestart() {
         emitCall('call:offer', { from: '', to: callTargetUid, sdp: JSON.stringify(data) });
       }
     });
-    (peer as any)._pc?.createOffer({ iceRestart: true })
+    (peer as any)._pc
+      ?.createOffer({ iceRestart: true })
       .then((offer: RTCSessionDescriptionInit) => (peer as any)._pc?.setLocalDescription(offer))
-      .catch(() => { reconnecting = false; });
+      .catch(() => {
+        reconnecting = false;
+      });
   } catch {
     reconnecting = false;
   }
@@ -120,7 +123,7 @@ export async function startCall(targetUid: string): Promise<void> {
   } catch (err) {
     console.error('[voice] startCall: getUserMedia failed:', err);
     setState('idle');
-    callbacks.onError('Impossible d\'accéder au micro');
+    callbacks.onError("Impossible d'accéder au micro");
     return;
   }
 
@@ -149,14 +152,17 @@ export async function acceptCall(): Promise<void> {
     if (peer) console.warn('[voice] acceptCall: peer already exists');
     return;
   }
-  if (incomingTimeout) { clearTimeout(incomingTimeout); incomingTimeout = null; }
+  if (incomingTimeout) {
+    clearTimeout(incomingTimeout);
+    incomingTimeout = null;
+  }
 
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch (err) {
     console.error('[voice] getUserMedia failed:', err);
     setState('idle');
-    callbacks.onError('Impossible d\'accéder au micro');
+    callbacks.onError("Impossible d'accéder au micro");
     return;
   }
 
@@ -181,7 +187,10 @@ export async function acceptCall(): Promise<void> {
 
 export function rejectCall(): void {
   if (!callTargetUid) return;
-  if (incomingTimeout) { clearTimeout(incomingTimeout); incomingTimeout = null; }
+  if (incomingTimeout) {
+    clearTimeout(incomingTimeout);
+    incomingTimeout = null;
+  }
   emitCall('call:reject', { from: '', to: callTargetUid });
   setState('idle');
   callTargetUid = null;
@@ -214,7 +223,9 @@ export function handleOffer(data: CallPayload): void {
 
 export function handleICE(data: CallPayload): void {
   if (!peer || !data.ice) return;
-  try { peer.signal({ type: 'candidate', candidate: data.ice }); } catch (err) {
+  try {
+    peer.signal({ type: 'candidate', candidate: data.ice });
+  } catch (err) {
     console.error('[voice] handleICE error:', err);
   }
 }
@@ -235,7 +246,9 @@ export function endCall(): void {
 export function toggleMute(): boolean {
   isMuted = !isMuted;
   if (localStream) {
-    localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
+    localStream.getAudioTracks().forEach((track) => {
+      track.enabled = !isMuted;
+    });
   }
   return isMuted;
 }
@@ -243,7 +256,9 @@ export function toggleMute(): boolean {
 export function toggleDeafen(): boolean {
   isDeafened = !isDeafened;
   if (remoteStream) {
-    remoteStream.getAudioTracks().forEach(track => { track.enabled = !isDeafened; });
+    remoteStream.getAudioTracks().forEach((track) => {
+      track.enabled = !isDeafened;
+    });
   }
   return isDeafened;
 }
@@ -275,13 +290,15 @@ export async function toggleCamera(): Promise<boolean> {
     }
   } else if (localStream) {
     const videoTracks = localStream.getVideoTracks();
-    videoTracks.forEach(t => {
+    videoTracks.forEach((t) => {
       t.stop();
       localStream?.removeTrack(t);
     });
     const sender = pc?.getSenders()?.find((s: RTCRtpSender) => s.track?.kind === 'video');
     if (sender) {
-      try { await sender.replaceTrack(null); } catch (err) {
+      try {
+        await sender.replaceTrack(null);
+      } catch (err) {
         console.error('[voice] toggleCamera off replaceTrack error:', err);
       }
     }
@@ -289,16 +306,30 @@ export async function toggleCamera(): Promise<boolean> {
   return isCameraOn;
 }
 
-export function getMuted(): boolean { return isMuted; }
-export function getDeafened(): boolean { return isDeafened; }
-export function getCameraOn(): boolean { return isCameraOn; }
+export function getMuted(): boolean {
+  return isMuted;
+}
+export function getDeafened(): boolean {
+  return isDeafened;
+}
+export function getCameraOn(): boolean {
+  return isCameraOn;
+}
 
 function cleanup(): void {
   setState('ended');
-  if (incomingTimeout) { clearTimeout(incomingTimeout); incomingTimeout = null; }
-  if (peer) { try { peer.destroy(); } catch {} peer = null; }
+  if (incomingTimeout) {
+    clearTimeout(incomingTimeout);
+    incomingTimeout = null;
+  }
+  if (peer) {
+    try {
+      peer.destroy();
+    } catch {}
+    peer = null;
+  }
   if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
+    localStream.getTracks().forEach((t) => t.stop());
     localStream = null;
   }
   remoteStream = null;

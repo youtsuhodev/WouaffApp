@@ -1,37 +1,36 @@
 import './services/logger.js';
 
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import express from 'express';
 import { createServer } from 'http';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import { resolve, dirname } from 'path';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-
-import { runMigrations } from './config/migrate.js';
 import pool from './config/database.js';
-import { setupSocket } from './socket/index.js';
-import { errorHandler, setupProcessHandlers } from './middleware/errorHandler.js';
-import { requestTimeout } from './middleware/timeout.js';
-import { rateLimit } from './middleware/rateLimit.js';
+import { runMigrations } from './config/migrate.js';
 import { patchRouter } from './middleware/asyncHandler.js';
-import { initColdStorage, archiveOldCalls, isColdStorageEnabled } from './services/coldStorage.js';
-import { cleanExpiredEphemeralMessages } from './services/rtdb.js';
-import authRouter from './routes/auth.js';
-import messagesRouter from './routes/messages.js';
-import conversationsRouter from './routes/conversations.js';
-import profilesRouter from './routes/profiles.js';
-import groupsRouter from './routes/groups.js';
-import contactsRouter from './routes/contacts.js';
-import storiesRouter from './routes/stories.js';
-import notificationsRouter from './routes/notifications.js';
-import searchRouter from './routes/search.js';
+import { errorHandler, setupProcessHandlers } from './middleware/errorHandler.js';
+import { rateLimit } from './middleware/rateLimit.js';
+import { requestTimeout } from './middleware/timeout.js';
 import adminRouter from './routes/admin.js';
-import statusRouter from './routes/status.js';
-import publicRouter from './routes/public.js';
-import linkPreviewRouter from './routes/linkPreview.js';
+import authRouter from './routes/auth.js';
 import blocksRouter from './routes/blocks.js';
 import callsRouter from './routes/calls.js';
+import contactsRouter from './routes/contacts.js';
+import conversationsRouter from './routes/conversations.js';
+import groupsRouter from './routes/groups.js';
+import linkPreviewRouter from './routes/linkPreview.js';
+import messagesRouter from './routes/messages.js';
+import notificationsRouter from './routes/notifications.js';
+import profilesRouter from './routes/profiles.js';
+import publicRouter from './routes/public.js';
+import searchRouter from './routes/search.js';
+import statusRouter from './routes/status.js';
+import storiesRouter from './routes/stories.js';
 import videosRouter from './routes/videos.js';
+import { archiveOldCalls, initColdStorage, isColdStorageEnabled } from './services/coldStorage.js';
+import { cleanExpiredEphemeralMessages } from './services/rtdb.js';
+import { setupSocket } from './socket/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -102,7 +101,9 @@ app.use(errorHandler);
 
 /* Process handlers */
 setupProcessHandlers(async () => {
-  try { await pool.end(); } catch {}
+  try {
+    await pool.end();
+  } catch {}
   httpServer.close();
 });
 
@@ -115,7 +116,9 @@ runMigrations()
     await initColdStorage();
     if (isColdStorageEnabled()) {
       await archiveOldCalls();
-      setInterval(() => { archiveOldCalls().catch(() => {}); }, 21600000); /* every 6h */
+      setInterval(() => {
+        archiveOldCalls().catch(() => {});
+      }, 21600000); /* every 6h */
     }
     /* Start ephemeral messages cleanup every 10 seconds */
     setInterval(async () => {
@@ -127,7 +130,9 @@ runMigrations()
             io.to(room).emit('message:removed', { convId, key });
           }
         }
-      } catch { /* silent */ }
+      } catch {
+        /* silent */
+      }
     }, 10000);
 
     httpServer.listen(PORT, '0.0.0.0', () => {

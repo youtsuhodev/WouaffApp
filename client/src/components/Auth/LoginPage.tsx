@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login, register } from '../../services/auth';
 import { useAuth } from '../../hooks/useAuth';
+import { login, register } from '../../services/auth';
 
 function validateEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -39,42 +39,69 @@ export default function LoginPage() {
   }, [user, navigate]);
 
   const pwReqs = getPasswordReqs(password);
-  const pwValid = Object.values(pwReqs).every(v => v);
+  const pwValid = Object.values(pwReqs).every((v) => v);
 
-  const handleSubmit = useCallback(async (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    setError('');
+  const handleSubmit = useCallback(
+    async (e: React.SyntheticEvent) => {
+      e.preventDefault();
+      setError('');
 
-    if (!email) { setError('Email obligatoire.'); return; }
-    if (!validateEmail(email)) { setError("L'adresse email n'est pas valide."); return; }
-    if (!password) { setError('Mot de passe obligatoire.'); return; }
+      if (!email) {
+        setError('Email obligatoire.');
+        return;
+      }
+      if (!validateEmail(email)) {
+        setError("L'adresse email n'est pas valide.");
+        return;
+      }
+      if (!password) {
+        setError('Mot de passe obligatoire.');
+        return;
+      }
 
-    if (isRegister) {
-      if (!pseudo) { setError('Pseudo obligatoire.'); return; }
-      if (!validatePseudo(pseudo)) { setError('Le pseudo doit contenir 3-20 caractères (lettres, chiffres et _).'); return; }
-      if (!confirmPassword) { setError('Confirmation du mot de passe obligatoire.'); return; }
-      if (password !== confirmPassword) { setError('Les mots de passe ne correspondent pas.'); return; }
-      if (!pwValid) { setError('Le mot de passe ne respecte pas les exigences de sécurité.'); return; }
-    }
+      if (isRegister) {
+        if (!pseudo) {
+          setError('Pseudo obligatoire.');
+          return;
+        }
+        if (!validatePseudo(pseudo)) {
+          setError('Le pseudo doit contenir 3-20 caractères (lettres, chiffres et _).');
+          return;
+        }
+        if (!confirmPassword) {
+          setError('Confirmation du mot de passe obligatoire.');
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError('Les mots de passe ne correspondent pas.');
+          return;
+        }
+        if (!pwValid) {
+          setError('Le mot de passe ne respecte pas les exigences de sécurité.');
+          return;
+        }
+      }
 
       setIsLoading(true);
-    try {
-      if (isRegister) {
-        await register(email, password, pseudo);
-      } else {
-        await login(email, password);
+      try {
+        if (isRegister) {
+          await register(email, password, pseudo);
+        } else {
+          await login(email, password);
+        }
+        await refresh();
+        requestAnimationFrame(() => navigate('/'));
+      } catch (err: unknown) {
+        setError((err as Error).message || "Une erreur s'est produite");
+      } finally {
+        setIsLoading(false);
       }
-      await refresh();
-      requestAnimationFrame(() => navigate('/'));
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Une erreur s\'est produite');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [email, password, pseudo, confirmPassword, isRegister, pwValid, navigate, refresh]);
+    },
+    [email, password, pseudo, confirmPassword, isRegister, pwValid, navigate, refresh],
+  );
 
   const toggleMode = () => {
-    setIsRegister(r => !r);
+    setIsRegister((r) => !r);
     setError('');
     setPseudo('');
     setConfirmPassword('');
@@ -87,7 +114,9 @@ export default function LoginPage() {
         {!isRegister && (
           <div className="text-center mb-8">
             <img src="/assets/logo/logo.png" alt="Logo Wouaff" className="w-16 h-16 mx-auto mb-3" />
-            <h1 className="text-2xl font-black m-0 text-[var(--text-primary)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">Wouaff</h1>
+            <h1 className="text-2xl font-black m-0 text-[var(--text-primary)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+              Wouaff
+            </h1>
             <p className="text-[var(--text-secondary)] text-sm mt-1 m-0">T'as capté 🐺</p>
           </div>
         )}
@@ -103,23 +132,64 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-4">
-            <input id="email" type="email" inputMode="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-              className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200" />
+            <input
+              id="email"
+              type="email"
+              inputMode="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+              className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200"
+            />
           </div>
 
           {isRegister && (
             <div className="mb-4">
-              <input id="pseudo" type="text" inputMode="text" placeholder="Pseudo" maxLength={20} value={pseudo} onChange={e => setPseudo(e.target.value)} autoComplete="username" onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200" />
+              <input
+                id="pseudo"
+                type="text"
+                inputMode="text"
+                placeholder="Pseudo"
+                maxLength={20}
+                value={pseudo}
+                onChange={(e) => setPseudo(e.target.value)}
+                autoComplete="username"
+                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200"
+              />
             </div>
           )}
 
           <div className="mb-4">
             <div className="relative">
-              <input id="password" type={showPassword ? 'text' : 'password'} inputMode="text" placeholder="Mot de passe" value={password} onChange={e => setPassword(e.target.value)} autoComplete={isRegister ? 'new-password' : 'current-password'} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200" />
-              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" onClick={() => setShowPassword(p => !p)} tabIndex={-1}>
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                inputMode="text"
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
+                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                onClick={() => setShowPassword((p) => !p)}
+                tabIndex={-1}
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   {showPassword ? (
                     <>
                       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
@@ -137,11 +207,15 @@ export default function LoginPage() {
             {isRegister && (
               <div className="text-xs mt-2">
                 <ul className="list-none p-0 m-0">
-                  <li className={pwReqs.length ? 'text-green-500' : 'text-[var(--text-muted)]'}>Au moins 8 caractères</li>
+                  <li className={pwReqs.length ? 'text-green-500' : 'text-[var(--text-muted)]'}>
+                    Au moins 8 caractères
+                  </li>
                   <li className={pwReqs.uppercase ? 'text-green-500' : 'text-[var(--text-muted)]'}>Une majuscule</li>
                   <li className={pwReqs.lowercase ? 'text-green-500' : 'text-[var(--text-muted)]'}>Une minuscule</li>
                   <li className={pwReqs.number ? 'text-green-500' : 'text-[var(--text-muted)]'}>Un chiffre</li>
-                  <li className={pwReqs.special ? 'text-green-500' : 'text-[var(--text-muted)]'}>Un caractère spécial</li>
+                  <li className={pwReqs.special ? 'text-green-500' : 'text-[var(--text-muted)]'}>
+                    Un caractère spécial
+                  </li>
                 </ul>
               </div>
             )}
@@ -150,10 +224,34 @@ export default function LoginPage() {
           {isRegister && (
             <div className="mb-4">
               <div className="relative">
-                <input id="confirmPassword" type={showConfirmPassword ? 'text' : 'password'} inputMode="text" placeholder="Confirmer le mot de passe" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                  className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200" />
-                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" onClick={() => setShowConfirmPassword(p => !p)} tabIndex={-1}>
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  inputMode="text"
+                  placeholder="Confirmer le mot de passe"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  onFocus={(e) =>
+                    setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)
+                  }
+                  className="w-full bg-[var(--bg-input)] rounded-xl px-4 py-3.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none focus:ring-2 focus:ring-[var(--brand)] font-sans transition-all duration-200"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                  onClick={() => setShowConfirmPassword((p) => !p)}
+                  tabIndex={-1}
+                >
+                  <svg
+                    className="w-4 h-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     {showConfirmPassword ? (
                       <>
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
@@ -173,8 +271,14 @@ export default function LoginPage() {
 
           {!isRegister && (
             <div className="text-right mb-4">
-              <a href="/forgot-password" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs no-underline transition-colors"
-                onClick={e => { e.preventDefault(); navigate('/forgot-password'); }}>
+              <a
+                href="/forgot-password"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xs no-underline transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/forgot-password');
+                }}
+              >
                 Mot de passe oublié ?
               </a>
             </div>
@@ -186,13 +290,28 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button className="w-full bg-brand text-white px-6 py-3.5 rounded-xl font-bold text-sm border-none cursor-pointer font-sans hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed" onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? (isRegister ? 'Création...' : 'Connexion...') : (isRegister ? 'Créer le compte' : 'Se connecter')}
+          <button
+            className="w-full bg-brand text-white px-6 py-3.5 rounded-xl font-bold text-sm border-none cursor-pointer font-sans hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading
+              ? isRegister
+                ? 'Création...'
+                : 'Connexion...'
+              : isRegister
+                ? 'Créer le compte'
+                : 'Se connecter'}
           </button>
 
           <div className="text-center text-sm mt-6">
             <span className="text-[var(--text-muted)]">{isRegister ? 'Déjà un compte ?' : 'Pas de compte ?'}</span>
-            <button className="bg-transparent border-none text-brand font-bold cursor-pointer text-sm ml-1 font-sans hover:underline" onClick={toggleMode}>{isRegister ? 'Connecte-toi' : 'Inscris-toi'}</button>
+            <button
+              className="bg-transparent border-none text-brand font-bold cursor-pointer text-sm ml-1 font-sans hover:underline"
+              onClick={toggleMode}
+            >
+              {isRegister ? 'Connecte-toi' : 'Inscris-toi'}
+            </button>
           </div>
         </div>
       </div>

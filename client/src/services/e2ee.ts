@@ -40,7 +40,10 @@ async function _getAesKey(partnerPubJwk: JsonWebKey): Promise<CryptoKey> {
 
 /* ── Public API ── */
 
-export async function initE2EE(uid: string, fetchPublicKeyFromAPI: (uid: string) => Promise<JsonWebKey | null>): Promise<void> {
+export async function initE2EE(
+  uid: string,
+  fetchPublicKeyFromAPI: (uid: string) => Promise<JsonWebKey | null>,
+): Promise<void> {
   const stored = localStorage.getItem(KEY);
   if (stored) {
     try {
@@ -67,11 +70,7 @@ export function clearE2EE(): void {
 export async function encrypt(partnerPubJwk: JsonWebKey, plaintext: string): Promise<{ ct: string; iv: string }> {
   const aes = await _getAesKey(partnerPubJwk);
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const enc = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    aes,
-    new TextEncoder().encode(plaintext),
-  );
+  const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aes, new TextEncoder().encode(plaintext));
   return {
     ct: btoa(String.fromCharCode(...new Uint8Array(enc))),
     iv: btoa(String.fromCharCode(...iv)),
@@ -136,9 +135,19 @@ export function decryptMessageData(
       } else if (msg.type === 'voice') {
         msg.audioData = pt;
       } else if (msg.type === 'file') {
-        try { const p = JSON.parse(pt); msg.fileData = p.d; msg.fileName = p.n; } catch (e) { console.error(e); }
+        try {
+          const p = JSON.parse(pt);
+          msg.fileData = p.d;
+          msg.fileName = p.n;
+        } catch (e) {
+          console.error(e);
+        }
       } else if (msg.type === 'contact') {
-        try { msg.contact = JSON.parse(pt); } catch (e) { console.error(e); }
+        try {
+          msg.contact = JSON.parse(pt);
+        } catch (e) {
+          console.error(e);
+        }
       } else {
         msg.text = pt;
       }

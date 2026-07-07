@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { formatTime } from '../../utils/chatHelpers';
 import type { MessageData } from '../../types';
+import { formatTime } from '../../utils/chatHelpers';
 
 interface SearchBarProps {
   searchOpen: boolean;
@@ -12,7 +12,15 @@ interface SearchBarProps {
   onResultClick: (mid: string) => void;
 }
 
-export default function SearchBar({ searchOpen, searchQuery, searching, searchResults, onSearchChange, onClose, onResultClick }: SearchBarProps) {
+export default function SearchBar({
+  searchOpen,
+  searchQuery,
+  searching,
+  searchResults,
+  onSearchChange,
+  onClose,
+  onResultClick,
+}: SearchBarProps) {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -36,12 +44,14 @@ export default function SearchBar({ searchOpen, searchQuery, searching, searchRe
       {searching && <span className="search-bar-spinner" />}
       {searchQuery && !searching && Object.keys(searchResults).length > 0 && (
         <div className="search-results">
-          {Object.entries(searchResults).slice(0, 10).map(([mid, m]) => (
-            <div key={mid} className="search-result-item" onClick={() => onResultClick(mid)}>
-              <span className="search-result-text">{m.text?.substring(0, 80)}</span>
-              <span className="search-result-time">{formatTime(m.time)}</span>
-            </div>
-          ))}
+          {Object.entries(searchResults)
+            .slice(0, 10)
+            .map(([mid, m]) => (
+              <div key={mid} className="search-result-item" onClick={() => onResultClick(mid)}>
+                <span className="search-result-text">{m.text?.substring(0, 80)}</span>
+                <span className="search-result-time">{formatTime(m.time)}</span>
+              </div>
+            ))}
         </div>
       )}
       {searchQuery && !searching && Object.keys(searchResults).length === 0 && (

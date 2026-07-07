@@ -1,14 +1,22 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { Server } from 'socket.io';
+import { Router } from 'express';
+import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
-import type { AuthRequest } from '../types/index.js';
 import {
-  getContacts, addContact, removeContact,
-  searchByWouaffId, getProfile, getConversationsForUser,
-  sendContactRequest, acceptContactRequest, rejectContactRequest,
-  getPendingRequests, getSentRequests, isBlocked,
+  acceptContactRequest,
+  addContact,
+  getContacts,
+  getConversationsForUser,
+  getPendingRequests,
+  getProfile,
+  getSentRequests,
+  isBlocked,
+  rejectContactRequest,
+  removeContact,
+  searchByWouaffId,
+  sendContactRequest,
 } from '../services/rtdb.js';
+import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
 router.use(verifyToken);
@@ -28,10 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
 /* GET /contacts/pending — demandes entrantes + sortantes */
 router.get('/pending', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
-  const [incoming, outgoing] = await Promise.all([
-    getPendingRequests(authReq.uid!),
-    getSentRequests(authReq.uid!),
-  ]);
+  const [incoming, outgoing] = await Promise.all([getPendingRequests(authReq.uid!), getSentRequests(authReq.uid!)]);
   const incomingProfiles = await Promise.all(
     incoming.map(async (r) => {
       const profile = await getProfile(r.fromUid);
@@ -53,7 +58,7 @@ router.post('/', async (req: Request, res: Response) => {
   let { wouaffId } = req.body as { wouaffId: string };
   if (typeof wouaffId === 'string') wouaffId = wouaffId.trim();
   if (!wouaffId?.startsWith('@')) {
-    res.status(400).json({ error: 'L\'identifiant doit commencer par @' });
+    res.status(400).json({ error: "L'identifiant doit commencer par @" });
     return;
   }
   const contactUid = await searchByWouaffId(wouaffId);
@@ -80,7 +85,7 @@ router.post('/', async (req: Request, res: Response) => {
 
   /* Check if target already sent us a request → auto-accept */
   const targetSent = await getSentRequests(contactUid);
-  if (targetSent.some(r => r.toUid === authReq.uid)) {
+  if (targetSent.some((r) => r.toUid === authReq.uid)) {
     await acceptContactRequest(authReq.uid!, contactUid);
     const requesterProfile = await getProfile(authReq.uid!);
     const targetProfile = await getProfile(contactUid);
@@ -108,7 +113,10 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:uid/accept', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const ok = await acceptContactRequest(authReq.uid!, req.params.uid);
-  if (!ok) { res.status(404).json({ error: 'Demande introuvable' }); return; }
+  if (!ok) {
+    res.status(404).json({ error: 'Demande introuvable' });
+    return;
+  }
   const acceptorProfile = await getProfile(authReq.uid!);
   const requesterProfile = await getProfile(req.params.uid);
   const io: Server = req.app.get('io');
@@ -123,7 +131,10 @@ router.put('/:uid/accept', async (req: Request, res: Response) => {
 router.delete('/:uid/reject', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const ok = await rejectContactRequest(authReq.uid!, req.params.uid);
-  if (!ok) { res.status(404).json({ error: 'Demande introuvable' }); return; }
+  if (!ok) {
+    res.status(404).json({ error: 'Demande introuvable' });
+    return;
+  }
   const io: Server = req.app.get('io');
   if (io) {
     io.to(`user:${req.params.uid}`).emit('contact:request:rejected', { by: authReq.uid! });

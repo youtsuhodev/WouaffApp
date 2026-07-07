@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
 type Theme = 'dark' | 'light';
 
@@ -18,7 +18,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === 'undefined') return 'dark';
     const stored = localStorage.getItem('wouaff-theme');
-    return (stored === 'dark' || stored === 'light') ? stored : 'dark';
+    return stored === 'dark' || stored === 'light' ? stored : 'dark';
   });
 
   useEffect(() => {
@@ -31,16 +31,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   const toggleTheme = () => {
-    setThemeState(prev => prev === 'dark' ? 'light' : 'dark');
+    setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   const setTheme = (t: Theme) => setThemeState(t);
 
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

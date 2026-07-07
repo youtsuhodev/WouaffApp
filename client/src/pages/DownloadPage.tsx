@@ -50,13 +50,11 @@ export default function DownloadPage() {
           </svg>
         </div>
         <h1 className="dl-title">Télécharger Wouaff</h1>
-        <p className="dl-subtitle">
-          Choisis ta plateforme et installe l'application pour une expérience optimale.
-        </p>
+        <p className="dl-subtitle">Choisis ta plateforme et installe l'application pour une expérience optimale.</p>
       </div>
 
       <div className="dl-cards">
-        {DOWNLOADS.map(d => (
+        {DOWNLOADS.map((d) => (
           <a key={d.platform} href={d.url} className="dl-card" download>
             <div className="dl-card-icon-wrap">
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-9 h-9">

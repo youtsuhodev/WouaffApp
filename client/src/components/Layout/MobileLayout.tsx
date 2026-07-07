@@ -1,6 +1,6 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { useEffect, useState, useRef, useCallback } from 'react';
 import HamburgerMenu from './HamburgerMenu';
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
@@ -15,26 +15,34 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   useEffect(() => {
     if (!user) return;
     fetch('/api/stories/list')
-      .then(r => r.json())
-      .then(data => {
+      .then((r) => r.json())
+      .then((data) => {
         const now = Date.now();
         const hasActive = Object.values(data as Record<string, unknown>).some((stories) =>
-          Object.values(stories as Record<string, unknown>).some((s: unknown) => (s as Record<string, unknown>).expiresAt as number > now)
+          Object.values(stories as Record<string, unknown>).some(
+            (s: unknown) => ((s as Record<string, unknown>).expiresAt as number) > now,
+          ),
         );
         setStoryBadge(hasActive);
       })
-      .catch((e) => { console.error(e); });
+      .catch((e) => {
+        console.error(e);
+      });
     const interval = setInterval(() => {
       fetch('/api/stories')
-        .then(r => r.json())
-        .then(data => {
+        .then((r) => r.json())
+        .then((data) => {
           const now = Date.now();
           const hasActive = Object.values(data as Record<string, unknown>).some((stories) =>
-            Object.values(stories as Record<string, unknown>).some((s: unknown) => (s as Record<string, unknown>).expiresAt as number > now)
+            Object.values(stories as Record<string, unknown>).some(
+              (s: unknown) => ((s as Record<string, unknown>).expiresAt as number) > now,
+            ),
           );
           setStoryBadge(hasActive);
         })
-        .catch((e) => { console.error(e); });
+        .catch((e) => {
+          console.error(e);
+        });
     }, 60000);
     return () => clearInterval(interval);
   }, [user]);
@@ -50,15 +58,20 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() };
   }, []);
 
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (isChat || isAdmin) return;
-    const dx = e.changedTouches[0].clientX - touchStart.current.x;
-    const dt = Date.now() - touchStart.current.t;
-    if (dx > 60 && dt < 400) {
-      if (!swipeHint.current) { swipeHint.current = true; }
-      goBackToChat();
-    }
-  }, [isChat, isAdmin, goBackToChat]);
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (isChat || isAdmin) return;
+      const dx = e.changedTouches[0].clientX - touchStart.current.x;
+      const dt = Date.now() - touchStart.current.t;
+      if (dx > 60 && dt < 400) {
+        if (!swipeHint.current) {
+          swipeHint.current = true;
+        }
+        goBackToChat();
+      }
+    },
+    [isChat, isAdmin, goBackToChat],
+  );
 
   return (
     <div className="flex flex-col h-full" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>

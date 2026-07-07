@@ -1,9 +1,9 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { Server } from 'socket.io';
+import { Router } from 'express';
+import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
+import { deleteUserProfile, getProfile, getPublicKey, getReverseContactUids, updateProfile } from '../services/rtdb.js';
 import type { AuthRequest } from '../types/index.js';
-import { getProfile, updateProfile, getPublicKey, deleteUserProfile, getReverseContactUids } from '../services/rtdb.js';
 
 const router: Router = Router();
 router.use(verifyToken);
@@ -12,14 +12,20 @@ router.use(verifyToken);
 router.get('/me', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const profile = await getProfile(authReq.uid!);
-  if (!profile) { res.status(404).json({ error: 'Profil introuvable' }); return; }
+  if (!profile) {
+    res.status(404).json({ error: 'Profil introuvable' });
+    return;
+  }
   res.json(profile);
 });
 
 /* GET /profiles/:uid */
 router.get('/:uid', async (req: Request, res: Response) => {
   const profile = await getProfile(req.params.uid);
-  if (!profile) { res.status(404).json({ error: 'Profil introuvable' }); return; }
+  if (!profile) {
+    res.status(404).json({ error: 'Profil introuvable' });
+    return;
+  }
   res.json(profile);
 });
 
@@ -61,7 +67,10 @@ router.delete('/me', async (req: Request, res: Response) => {
 router.put('/me/publicKey', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { publicKey } = req.body as { publicKey: Record<string, unknown> };
-  if (!publicKey) { res.status(400).json({ error: 'Clé publique requise' }); return; }
+  if (!publicKey) {
+    res.status(400).json({ error: 'Clé publique requise' });
+    return;
+  }
   await updateProfile(authReq.uid!, { publicKey });
   const io: Server = req.app.get('io');
   if (io) {

@@ -1,8 +1,8 @@
+import { ChevronLeft, Globe, UserPlus, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { groups as groupsAPI } from '../services/api';
 import { showToast } from '../components/Common/Toast';
-import { Users, Globe, ChevronLeft, UserPlus } from 'lucide-react';
+import { groups as groupsAPI } from '../services/api';
 
 interface PublicGroup {
   gid: string;
@@ -28,7 +28,9 @@ export default function PublicGroupsPage() {
     try {
       const data = await groupsAPI.public();
       setGroups(data as unknown as PublicGroup[]);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -41,18 +43,25 @@ export default function PublicGroupsPage() {
         if (entry.group?.gid) gids.add(entry.group.gid);
       }
       setJoinedGids(gids);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleJoin = async (gid: string) => {
     try {
-      const g = groups.find(x => x.gid === gid);
+      const g = groups.find((x) => x.gid === gid);
       const inviteId = g ? await getInviteForGroup(gid) : null;
-      if (!inviteId) { showToast('Ce groupe n\'a pas de lien d\'invitation', 'error'); return; }
+      if (!inviteId) {
+        showToast("Ce groupe n'a pas de lien d'invitation", 'error');
+        return;
+      }
       await groupsAPI.join(inviteId);
-      setJoinedGids(prev => new Set(prev).add(gid));
+      setJoinedGids((prev) => new Set(prev).add(gid));
       showToast('Vous avez rejoint le groupe !', 'success');
-    } catch { showToast('Impossible de rejoindre le groupe', 'error'); }
+    } catch {
+      showToast('Impossible de rejoindre le groupe', 'error');
+    }
   };
 
   const getInviteForGroup = async (gid: string): Promise<string | null> => {
@@ -61,7 +70,9 @@ export default function PublicGroupsPage() {
       const inviteId = (g as Record<string, unknown>).inviteId as string | undefined;
       if (!inviteId || inviteId === 'null') return null;
       return inviteId;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   };
 
   const handleOpen = (gid: string) => {
@@ -90,28 +101,34 @@ export default function PublicGroupsPage() {
             {groups.map((g) => {
               const joined = joinedGids.has(g.gid);
               return (
-                <div key={g.gid} className="pubg-card" onClick={() => joined ? handleOpen(g.gid) : undefined}>
+                <div key={g.gid} className="pubg-card" onClick={() => (joined ? handleOpen(g.gid) : undefined)}>
                   <div className="pubg-card-banner" style={g.icon ? { backgroundImage: `url(${g.icon})` } : {}}>
                     <div className="pubg-card-banner-overlay" />
-                    <div className="pubg-card-avatar">
-                      {g.icon ? <img src={g.icon} alt="" /> : <Users size={24} />}
-                    </div>
+                    <div className="pubg-card-avatar">{g.icon ? <img src={g.icon} alt="" /> : <Users size={24} />}</div>
                   </div>
                   <div className="pubg-card-body">
                     <div className="pubg-card-name">{g.name}</div>
                     <div className="pubg-card-desc">{g.description || 'Aucune description'}</div>
                     <div className="pubg-card-meta">
                       <Users size={13} />
-                      <span>{g.memberCount || Object.keys(g.members).length} membre{(g.memberCount || Object.keys(g.members).length) !== 1 ? 's' : ''}</span>
+                      <span>
+                        {g.memberCount || Object.keys(g.members).length} membre
+                        {(g.memberCount || Object.keys(g.members).length) !== 1 ? 's' : ''}
+                      </span>
                     </div>
                     <button
                       className={`pubg-card-btn ${joined ? 'pubg-btn-joined' : 'pubg-btn-join'}`}
-                      onClick={(e) => { e.stopPropagation(); joined ? handleOpen(g.gid) : handleJoin(g.gid); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        joined ? handleOpen(g.gid) : handleJoin(g.gid);
+                      }}
                     >
                       {joined ? (
                         <>Ouvrir</>
                       ) : (
-                        <><UserPlus size={14} /> Rejoindre</>
+                        <>
+                          <UserPlus size={14} /> Rejoindre
+                        </>
                       )}
                     </button>
                   </div>

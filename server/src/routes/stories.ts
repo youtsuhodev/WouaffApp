@@ -1,12 +1,17 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { Server } from 'socket.io';
+import { Router } from 'express';
+import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
-import type { AuthRequest } from '../types/index.js';
 import {
-  getStories, createStory, markStoryViewed, deleteStory, cleanupExpiredStories,
-  getContactUids, getProfile,
+  cleanupExpiredStories,
+  createStory,
+  deleteStory,
+  getContactUids,
+  getProfile,
+  getStories,
+  markStoryViewed,
 } from '../services/rtdb.js';
+import type { AuthRequest } from '../types/index.js';
 
 const router: Router = Router();
 router.use(verifyToken);
@@ -27,7 +32,7 @@ router.get('/', async (req: Request, res: Response) => {
         if ((s.expiresAt as number) > now) active[sid] = s;
       }
       return Object.keys(active).length ? { uid, stories: active } : null;
-    })
+    }),
   );
   for (const entry of storyResults) {
     if (entry) result[entry.uid] = entry.stories;
@@ -52,10 +57,18 @@ router.get('/mine', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { media, type, audioData, audioName, audioStartTime, audioExtractDuration, description } = req.body as {
-    media: string; type: string; audioData?: string; audioName?: string;
-    audioStartTime?: number; audioExtractDuration?: number; description?: string;
+    media: string;
+    type: string;
+    audioData?: string;
+    audioName?: string;
+    audioStartTime?: number;
+    audioExtractDuration?: number;
+    description?: string;
   };
-  if (!media) { res.status(400).json({ error: 'Media requis' }); return; }
+  if (!media) {
+    res.status(400).json({ error: 'Media requis' });
+    return;
+  }
   const now = Date.now();
   const storyData: Record<string, unknown> = {
     media,
@@ -75,7 +88,14 @@ router.post('/', async (req: Request, res: Response) => {
   if (io) {
     const contactUids = await getContactUids(authReq.uid!);
     for (const cu of contactUids) {
-      if (cu !== authReq.uid) io.to(`user:${cu}`).emit('story:added', { uid: authReq.uid!, storyId, media, type: type || 'image', timestamp: now });
+      if (cu !== authReq.uid)
+        io.to(`user:${cu}`).emit('story:added', {
+          uid: authReq.uid!,
+          storyId,
+          media,
+          type: type || 'image',
+          timestamp: now,
+        });
     }
   }
   res.json({ storyId, ...storyData });
@@ -85,7 +105,10 @@ router.post('/', async (req: Request, res: Response) => {
 router.post('/:storyId/view', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { uid } = req.body as { uid: string };
-  if (!uid) { res.status(400).json({ error: 'UID du propriétaire requis' }); return; }
+  if (!uid) {
+    res.status(400).json({ error: 'UID du propriétaire requis' });
+    return;
+  }
   await markStoryViewed(uid, req.params.storyId, authReq.uid!);
   const io: Server = req.app.get('io');
   if (io) {
@@ -102,7 +125,8 @@ router.delete('/:storyId', async (req: Request, res: Response) => {
   if (io) {
     const contactUids = await getContactUids(authReq.uid!);
     for (const cu of contactUids) {
-      if (cu !== authReq.uid) io.to(`user:${cu}`).emit('story:removed', { uid: authReq.uid!, storyId: req.params.storyId });
+      if (cu !== authReq.uid)
+        io.to(`user:${cu}`).emit('story:removed', { uid: authReq.uid!, storyId: req.params.storyId });
     }
   }
   res.json({ success: true });

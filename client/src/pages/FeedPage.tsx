@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { ChevronLeft, Film, Upload } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { VideoData } from '../types';
 import FeedCard from '../components/Feed/FeedCard';
-import VideoUploader from '../components/Feed/VideoUploader';
 import VideoModal from '../components/Feed/VideoModal';
-import { Upload, ChevronLeft, Film } from 'lucide-react';
+import VideoUploader from '../components/Feed/VideoUploader';
+import type { VideoData } from '../types';
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -16,28 +16,41 @@ export default function FeedPage() {
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const loadVideos = useCallback(async (p: number) => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/videos?page=${p}&limit=12`);
-      const data = await res.json();
-      if (data.length === 0) { setHasMore(false); return; }
-      setVideos(prev => p === 1 ? data : [...prev, ...data]);
-    } catch (e) { console.error(e); } finally {
-      setLoading(false);
-    }
-  }, [loading]);
+  const loadVideos = useCallback(
+    async (p: number) => {
+      if (loading) return;
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/videos?page=${p}&limit=12`);
+        const data = await res.json();
+        if (data.length === 0) {
+          setHasMore(false);
+          return;
+        }
+        setVideos((prev) => (p === 1 ? data : [...prev, ...data]));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading],
+  );
 
-  useEffect(() => { loadVideos(1); }, []);
+  useEffect(() => {
+    loadVideos(1);
+  }, []);
 
   useEffect(() => {
     if (!sentinelRef.current) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasMore && !loading) {
-        setPage(prev => prev + 1);
-      }
-    }, { rootMargin: '200px' });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          setPage((prev) => prev + 1);
+        }
+      },
+      { rootMargin: '200px' },
+    );
     observer.observe(sentinelRef.current);
     return () => observer.disconnect();
   }, [hasMore, loading]);
@@ -47,11 +60,15 @@ export default function FeedPage() {
   }, [page]);
 
   const handleLike = (id: string) => {
-    setVideos(prev => prev.map(v => v.id === id ? { ...v, liked: !v.liked, likesCount: v.liked ? v.likesCount - 1 : v.likesCount + 1 } : v));
+    setVideos((prev) =>
+      prev.map((v) =>
+        v.id === id ? { ...v, liked: !v.liked, likesCount: v.liked ? v.likesCount - 1 : v.likesCount + 1 } : v,
+      ),
+    );
   };
 
   const handleUploaded = (video: VideoData) => {
-    setVideos(prev => [video, ...prev]);
+    setVideos((prev) => [video, ...prev]);
   };
 
   return (
@@ -83,7 +100,7 @@ export default function FeedPage() {
           </div>
         ) : (
           <div className="feed-grid">
-            {videos.map(v => (
+            {videos.map((v) => (
               <FeedCard key={v.id} video={v} onLike={handleLike} onOpen={() => setSelectedVideo(v)} />
             ))}
             <div ref={sentinelRef} className="feed-sentinel">

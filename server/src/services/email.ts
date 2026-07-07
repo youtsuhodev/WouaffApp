@@ -1,6 +1,6 @@
-import { createTransport } from 'nodemailer';
 import dotenv from 'dotenv';
-import { resolve, dirname } from 'path';
+import { createTransport } from 'nodemailer';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync, existsSync } from 'fs';
-import { resolve, dirname } from 'path';
+import { existsSync, readdirSync, readFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import pool from './database.js';
 
@@ -14,13 +14,13 @@ export async function runMigrations(): Promise<void> {
     const migrationsDir = existsSync(distMigrations) ? distMigrations : srcMigrations;
 
     const files = readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql'))
+      .filter((f) => f.endsWith('.sql'))
       .sort();
 
     for (const file of files) {
       const sqlPath = resolve(migrationsDir, file);
       const sql = readFileSync(sqlPath, 'utf8');
-      const statements = sql.split(';').filter(s => s.trim().length > 0);
+      const statements = sql.split(';').filter((s) => s.trim().length > 0);
       for (const stmt of statements) {
         try {
           await connection.execute(stmt);

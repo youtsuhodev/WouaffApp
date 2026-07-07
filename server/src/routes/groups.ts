@@ -1,14 +1,26 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { Server } from 'socket.io';
+import { Router } from 'express';
+import type { Server } from 'socket.io';
 import { verifyToken } from '../middleware/auth.js';
-import type { AuthRequest } from '../types/index.js';
 import {
-  getGroup, createGroup, updateGroup, deleteGroup,
-  addGroupMember, removeGroupMember, setGroupMemberRole,
-  getGroupInvite, getGroupInviteByGroup, createGroupInvite, removeGroupInvite, isGroupInvited,
-  reportGroup, getProfile, getGroupConversations, getPublicGroups,
+  addGroupMember,
+  createGroup,
+  createGroupInvite,
+  deleteGroup,
+  getGroup,
+  getGroupConversations,
+  getGroupInvite,
+  getGroupInviteByGroup,
+  getProfile,
+  getPublicGroups,
+  isGroupInvited,
+  removeGroupInvite,
+  removeGroupMember,
+  reportGroup,
+  setGroupMemberRole,
+  updateGroup,
 } from '../services/rtdb.js';
+import type { AuthRequest } from '../types/index.js';
 
 function getMemberUids(group: Record<string, unknown>): string[] {
   const members = group.members as Record<string, unknown> | undefined;
@@ -32,9 +44,15 @@ router.use(verifyToken);
 router.post('/', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const { name, description, icon, members } = req.body as {
-    name: string; description?: string; icon?: string; members?: string[];
+    name: string;
+    description?: string;
+    icon?: string;
+    members?: string[];
   };
-  if (!name?.trim()) { res.status(400).json({ error: 'Nom requis' }); return; }
+  if (!name?.trim()) {
+    res.status(400).json({ error: 'Nom requis' });
+    return;
+  }
   const inviteId = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
   const groupMembers: Record<string, { role: string; joinedAt: number }> = {
     [authReq.uid!]: { role: 'owner', joinedAt: Date.now() },
@@ -79,7 +97,10 @@ router.get('/public', async (_req: Request, res: Response) => {
 /* GET /groups/:gid — infos d'un groupe */
 router.get('/:gid', async (req: Request, res: Response) => {
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   res.json(group);
 });
 
@@ -87,10 +108,14 @@ router.get('/:gid', async (req: Request, res: Response) => {
 router.put('/:gid', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
   if (myRole !== 'admin' && myRole !== 'owner') {
-    res.status(403).json({ error: 'Action réservée aux admins' }); return;
+    res.status(403).json({ error: 'Action réservée aux admins' });
+    return;
   }
   await updateGroup(req.params.gid, req.body);
   const io: Server = req.app.get('io');
@@ -104,10 +129,14 @@ router.put('/:gid', async (req: Request, res: Response) => {
 router.delete('/:gid', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
   if (myRole !== 'owner') {
-    res.status(403).json({ error: 'Seul le propriétaire peut supprimer' }); return;
+    res.status(403).json({ error: 'Seul le propriétaire peut supprimer' });
+    return;
   }
   const inv = await getGroupInviteByGroup(req.params.gid);
   if (inv?.inviteId) await removeGroupInvite(inv.inviteId as string);
@@ -123,19 +152,29 @@ router.delete('/:gid', async (req: Request, res: Response) => {
 router.post('/:gid/members', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
   if (myRole !== 'admin' && myRole !== 'owner') {
-    res.status(403).json({ error: 'Action réservée aux admins' }); return;
+    res.status(403).json({ error: 'Action réservée aux admins' });
+    return;
   }
   const { uids } = req.body as { uids: string[] };
-  if (!uids?.length) { res.status(400).json({ error: 'Aucun membre spécifié' }); return; }
+  if (!uids?.length) {
+    res.status(400).json({ error: 'Aucun membre spécifié' });
+    return;
+  }
   const io: Server = req.app.get('io');
   for (const uid of uids) {
     await addGroupMember(req.params.gid, uid);
     if (io) {
       const profile = await getProfile(uid);
-      io.to(`user:${uid}`).emit('group:member:added', { gid: req.params.gid, name: (group as Record<string, string>).name || '' });
+      io.to(`user:${uid}`).emit('group:member:added', {
+        gid: req.params.gid,
+        name: (group as Record<string, string>).name || '',
+      });
       emitToGroup(io, req.params.gid, 'group:member:added', { gid: req.params.gid, uid, profile });
     }
   }
@@ -147,12 +186,16 @@ router.delete('/:gid/members/:uid', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const targetUid = req.params.uid;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   if (targetUid === authReq.uid) {
     /* Quitter le groupe */
     const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
     if (myRole === 'owner') {
-      res.status(403).json({ error: 'Transférez la propriété avant de quitter' }); return;
+      res.status(403).json({ error: 'Transférez la propriété avant de quitter' });
+      return;
     }
     await removeGroupMember(req.params.gid, targetUid);
     const io: Server = req.app.get('io');
@@ -165,7 +208,8 @@ router.delete('/:gid/members/:uid', async (req: Request, res: Response) => {
   /* Exclure un membre (admin/owner) */
   const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
   if (myRole !== 'admin' && myRole !== 'owner') {
-    res.status(403).json({ error: 'Action réservée aux admins' }); return;
+    res.status(403).json({ error: 'Action réservée aux admins' });
+    return;
   }
   await removeGroupMember(req.params.gid, targetUid);
   const io: Server = req.app.get('io');
@@ -180,10 +224,14 @@ router.delete('/:gid/members/:uid', async (req: Request, res: Response) => {
 router.put('/:gid/members/:uid/role', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
   if (myRole !== 'owner') {
-    res.status(403).json({ error: 'Seul le propriétaire peut changer les rôles' }); return;
+    res.status(403).json({ error: 'Seul le propriétaire peut changer les rôles' });
+    return;
   }
   const { role } = req.body as { role: string };
   if (role === 'owner') {
@@ -205,10 +253,14 @@ router.put('/:gid/members/:uid/role', async (req: Request, res: Response) => {
 router.post('/:gid/invite', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const myRole = (group.members as Record<string, { role: string }>)?.[authReq.uid!]?.role;
   if (myRole !== 'admin' && myRole !== 'owner') {
-    res.status(403).json({ error: 'Action réservée aux admins' }); return;
+    res.status(403).json({ error: 'Action réservée aux admins' });
+    return;
   }
   const oldInv = await getGroupInviteByGroup(req.params.gid);
   if (oldInv?.inviteId) await removeGroupInvite(oldInv.inviteId as string);
@@ -221,22 +273,35 @@ router.post('/:gid/invite', async (req: Request, res: Response) => {
 router.post('/join/:inviteId', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const inv = await getGroupInvite(req.params.inviteId);
-  if (!inv) { res.status(404).json({ error: 'Lien d\'invitation invalide' }); return; }
+  if (!inv) {
+    res.status(404).json({ error: "Lien d'invitation invalide" });
+    return;
+  }
   const groupId = (inv.gid as string) || (inv.groupId as string);
   const group = await getGroup(groupId);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const members = group.members as Record<string, unknown>;
   if (members?.[authReq.uid!]) {
-    res.json({ alreadyMember: true, gid: groupId }); return;
+    res.json({ alreadyMember: true, gid: groupId });
+    return;
   }
   if ((group as Record<string, string>).privacy === 'private') {
     const invited = await isGroupInvited(groupId!, authReq.uid!);
-    if (!invited) { res.status(403).json({ error: 'Ce groupe est privé' }); return; }
+    if (!invited) {
+      res.status(403).json({ error: 'Ce groupe est privé' });
+      return;
+    }
   }
   await addGroupMember(groupId, authReq.uid!);
   const io: Server = req.app.get('io');
   if (io) {
-    io.to(`user:${authReq.uid!}`).emit('group:member:added', { gid: groupId, name: (group as Record<string, string>).name || '' });
+    io.to(`user:${authReq.uid!}`).emit('group:member:added', {
+      gid: groupId,
+      name: (group as Record<string, string>).name || '',
+    });
     const profile = await getProfile(authReq.uid!);
     emitToGroup(io, groupId, 'group:member:added', { gid: groupId, uid: authReq.uid!, profile });
   }
@@ -247,7 +312,10 @@ router.post('/join/:inviteId', async (req: Request, res: Response) => {
 router.post('/:gid/report', async (req: Request, res: Response) => {
   const authReq = req as AuthRequest;
   const group = await getGroup(req.params.gid);
-  if (!group) { res.status(404).json({ error: 'Groupe introuvable' }); return; }
+  if (!group) {
+    res.status(404).json({ error: 'Groupe introuvable' });
+    return;
+  }
   const name = (group as Record<string, string>).name || 'Groupe';
   await reportGroup(req.params.gid, name, authReq.uid!);
   res.json({ success: true });

@@ -1,5 +1,5 @@
-import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { Router } from 'express';
 
 const router: Router = Router();
 
@@ -32,7 +32,7 @@ router.post('/', async (req: Request, res: Response) => {
       signal: controller.signal,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; WouaffBot/1.0; +https://wouaff.app)',
-        'Accept': 'text/html,application/xhtml+xml',
+        Accept: 'text/html,application/xhtml+xml',
       },
       redirect: 'follow',
     });

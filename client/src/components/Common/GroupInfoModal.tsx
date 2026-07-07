@@ -1,13 +1,38 @@
-import { useEffect, useState, useRef } from 'react';
+import {
+  ArrowDown,
+  ArrowUp,
+  Check,
+  Copy,
+  Crown,
+  Edit3,
+  Flag,
+  Globe,
+  Image,
+  Link2,
+  Lock,
+  LogOut,
+  RefreshCw,
+  Save,
+  Shield,
+  Trash2,
+  Users,
+  UserX,
+  X,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { groups as groupsAPI } from '../../services/api';
-import { showToast } from './Toast';
-import { onGroupMemberAdded, offGroupMemberAdded, onGroupMemberRemoved, offGroupMemberRemoved, onGroupRoleChanged, offGroupRoleChanged, onGroupUpdated, offGroupUpdated } from '../../services/socket';
 import {
-  Users, Link2, Copy, Check, RefreshCw, Crown, Shield,
-  Flag, Trash2, LogOut, X, ArrowUp, ArrowDown, UserX, Globe, Lock,
-  Save, Edit3, Image,
-} from 'lucide-react';
+  offGroupMemberAdded,
+  offGroupMemberRemoved,
+  offGroupRoleChanged,
+  offGroupUpdated,
+  onGroupMemberAdded,
+  onGroupMemberRemoved,
+  onGroupRoleChanged,
+  onGroupUpdated,
+} from '../../services/socket';
+import { showToast } from './Toast';
 
 interface GroupInfoModalProps {
   gid: string;
@@ -65,7 +90,7 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
       setEditDesc((g.description as string) || '');
       setEditIcon((g.icon as string) || '');
       setEditBanner((g.banner as string) || '');
-      const membersData = g.members as Record<string, { role: string; joinedAt: number }> || {};
+      const membersData = (g.members as Record<string, { role: string; joinedAt: number }>) || {};
       setMyRole(membersData[user?.uid || '']?.role || '');
       const memberList: MemberInfo[] = [];
       for (const [uid, m] of Object.entries(membersData)) {
@@ -76,7 +101,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
           const p = await res.json();
           pseudo = p.pseudo || uid;
           avatar = p.avatar || '';
-        } catch (e) { console.error(e); }
+        } catch (e) {
+          console.error(e);
+        }
         memberList.push({ uid, pseudo, avatar, role: m.role });
       }
       setMembers(memberList);
@@ -103,7 +130,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
       setEditing(false);
       showToast('Groupe mis à jour !', 'success');
       loadGroupInfo();
-    } catch { showToast('Erreur lors de la sauvegarde', 'error'); }
+    } catch {
+      showToast('Erreur lors de la sauvegarde', 'error');
+    }
     setSaving(false);
   };
 
@@ -112,7 +141,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
       const res = await groupsAPI.newInvite(gid);
       setInviteLink(`${window.location.origin}/?invite=${res.inviteId}`);
       showToast('Nouveau lien généré !', 'success');
-    } catch { showToast('Erreur', 'error'); }
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const copyInvite = () => {
@@ -125,31 +156,56 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
 
   const handleKick = async (uid: string) => {
     if (!confirm('Exclure ce membre ?')) return;
-    try { await groupsAPI.removeMember(gid, uid); showToast('Membre exclu.', ''); loadGroupInfo(); }
-    catch { showToast('Erreur', 'error'); }
+    try {
+      await groupsAPI.removeMember(gid, uid);
+      showToast('Membre exclu.', '');
+      loadGroupInfo();
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const handleSetRole = async (uid: string, role: string) => {
-    try { await groupsAPI.setRole(gid, uid, role); showToast('Rôle mis à jour.', 'success'); loadGroupInfo(); }
-    catch { showToast('Erreur', 'error'); }
+    try {
+      await groupsAPI.setRole(gid, uid, role);
+      showToast('Rôle mis à jour.', 'success');
+      loadGroupInfo();
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const handleTransfer = async (uid: string) => {
     if (!confirm('Transférer la propriété à ce membre ?')) return;
-    try { await groupsAPI.setRole(gid, uid, 'owner'); showToast('Propriété transférée.', 'success'); loadGroupInfo(); }
-    catch { showToast('Erreur', 'error'); }
+    try {
+      await groupsAPI.setRole(gid, uid, 'owner');
+      showToast('Propriété transférée.', 'success');
+      loadGroupInfo();
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const handleDeleteGroup = async () => {
     if (!confirm('Supprimer définitivement le groupe ?')) return;
-    try { await groupsAPI.delete(gid); showToast('Groupe supprimé.', ''); onClose(); }
-    catch { showToast('Erreur', 'error'); }
+    try {
+      await groupsAPI.delete(gid);
+      showToast('Groupe supprimé.', '');
+      onClose();
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const handleLeave = async () => {
     if (!confirm('Quitter le groupe ?')) return;
-    try { await groupsAPI.removeMember(gid, user!.uid); showToast('Vous avez quitté le groupe.', ''); onClose(); }
-    catch { showToast('Erreur', 'error'); }
+    try {
+      await groupsAPI.removeMember(gid, user!.uid);
+      showToast('Vous avez quitté le groupe.', '');
+      onClose();
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const togglePrivacy = async () => {
@@ -158,12 +214,18 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
       await groupsAPI.update(gid, { privacy: newPrivacy });
       setPrivacy(newPrivacy);
       showToast(`Groupe passé en ${newPrivacy === 'public' ? 'public' : 'privé'}`, 'success');
-    } catch { showToast('Erreur', 'error'); }
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const handleReport = async () => {
-    try { await groupsAPI.report(gid); showToast('Groupe signalé. Merci !', 'success'); }
-    catch { showToast('Erreur', 'error'); }
+    try {
+      await groupsAPI.report(gid);
+      showToast('Groupe signalé. Merci !', 'success');
+    } catch {
+      showToast('Erreur', 'error');
+    }
   };
 
   const groupIcon = group?.icon as string | undefined;
@@ -172,69 +234,110 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
   const memberCount = members.length;
 
   const sortedMembers = [...members].sort((a, b) => {
-    const rank = (r: string) => r === 'owner' ? 0 : r === 'admin' ? 1 : 2;
+    const rank = (r: string) => (r === 'owner' ? 0 : r === 'admin' ? 1 : 2);
     return rank(a.role) - rank(b.role);
   });
 
   const roleLabel = (role: string) => {
     switch (role) {
-      case 'owner': return 'Propriétaire';
-      case 'admin': return 'Admin';
-      default: return 'Membre';
+      case 'owner':
+        return 'Propriétaire';
+      case 'admin':
+        return 'Admin';
+      default:
+        return 'Membre';
     }
   };
 
   const RoleIcon = ({ role }: { role: string }) => {
     switch (role) {
-      case 'owner': return <Crown size={12} className="mr-0.5" />;
-      case 'admin': return <Shield size={12} className="mr-0.5" />;
-      default: return null;
+      case 'owner':
+        return <Crown size={12} className="mr-0.5" />;
+      case 'admin':
+        return <Shield size={12} className="mr-0.5" />;
+      default:
+        return null;
     }
   };
 
-  const bannerStyle = editBanner || groupBanner
-    ? { backgroundImage: `url(${editing ? editBanner || groupBanner : groupBanner || editBanner})` }
-    : {};
+  const bannerStyle =
+    editBanner || groupBanner
+      ? { backgroundImage: `url(${editing ? editBanner || groupBanner : groupBanner || editBanner})` }
+      : {};
 
   return (
-    <div className="modal-overlay active" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div
+      className="modal-overlay active"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="grp-modal">
         <div className="grp-banner" style={bannerStyle}>
           <div className="grp-banner-overlay" />
           <div className="grp-banner-content">
             <div className={`grp-avatar ${editing ? 'grp-avatar-editable' : ''}`}>
-              {editIcon || groupIcon
-                ? <img src={editing ? editIcon || groupIcon : groupIcon || editIcon} alt="" />
-                : <Users size={28} />}
+              {editIcon || groupIcon ? (
+                <img src={editing ? editIcon || groupIcon : groupIcon || editIcon} alt="" />
+              ) : (
+                <Users size={28} />
+              )}
             </div>
             <div className="grp-banner-info">
               {editing ? (
-                <input className="grp-edit-input grp-edit-name" value={editName}
-                  onChange={(e) => setEditName(e.target.value)} placeholder="Nom du groupe" />
+                <input
+                  className="grp-edit-input grp-edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Nom du groupe"
+                />
               ) : (
                 <div className="grp-name">{groupName}</div>
               )}
-              <div className="grp-meta">{memberCount} membre{memberCount !== 1 ? 's' : ''}</div>
+              <div className="grp-meta">
+                {memberCount} membre{memberCount !== 1 ? 's' : ''}
+              </div>
             </div>
           </div>
-          <button className="grp-close" onClick={onClose}><X size={16} /></button>
+          <button className="grp-close" onClick={onClose}>
+            <X size={16} />
+          </button>
         </div>
 
         <div className="grp-body">
           {editing ? (
             <div className="grp-edit-section">
               <label className="grp-edit-label">Description</label>
-              <textarea className="grp-edit-textarea" value={editDesc}
-                onChange={(e) => setEditDesc(e.target.value)} placeholder="Description du groupe"
-                rows={3} maxLength={500} />
+              <textarea
+                className="grp-edit-textarea"
+                value={editDesc}
+                onChange={(e) => setEditDesc(e.target.value)}
+                placeholder="Description du groupe"
+                rows={3}
+                maxLength={500}
+              />
               <label className="grp-edit-label">Icône (URL)</label>
-              <input className="grp-edit-input" value={editIcon}
-                onChange={(e) => setEditIcon(e.target.value)} placeholder="https://..." />
+              <input
+                className="grp-edit-input"
+                value={editIcon}
+                onChange={(e) => setEditIcon(e.target.value)}
+                placeholder="https://..."
+              />
               <label className="grp-edit-label">Bannière (URL)</label>
-              <input className="grp-edit-input" value={editBanner}
-                onChange={(e) => setEditBanner(e.target.value)} placeholder="https://..." />
+              <input
+                className="grp-edit-input"
+                value={editBanner}
+                onChange={(e) => setEditBanner(e.target.value)}
+                placeholder="https://..."
+              />
               <div className="grp-edit-actions">
-                <button className="grp-btn grp-btn-secondary" onClick={() => { setEditing(false); loadGroupInfo(); }}>
+                <button
+                  className="grp-btn grp-btn-secondary"
+                  onClick={() => {
+                    setEditing(false);
+                    loadGroupInfo();
+                  }}
+                >
                   Annuler
                 </button>
                 <button className="grp-btn grp-btn-primary" onClick={handleSave} disabled={saving}>
@@ -266,7 +369,9 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
               {isAdmin && (
                 <button className="grp-privacy-btn" onClick={togglePrivacy}>
                   {privacy === 'public' ? <Globe size={14} /> : <Lock size={14} />}
-                  {privacy === 'public' ? 'Groupe public — visible dans Explorer' : 'Groupe privé — uniquement sur invitation'}
+                  {privacy === 'public'
+                    ? 'Groupe public — visible dans Explorer'
+                    : 'Groupe privé — uniquement sur invitation'}
                 </button>
               )}
             </>
@@ -297,15 +402,27 @@ export default function GroupInfoModal({ gid, onClose }: GroupInfoModalProps) {
                     {m.role !== 'owner' && (
                       <>
                         {m.role === 'admin' ? (
-                          <button className="grp-act grp-act-demote" onClick={() => handleSetRole(m.uid, 'member')} title="Rétrograder">
+                          <button
+                            className="grp-act grp-act-demote"
+                            onClick={() => handleSetRole(m.uid, 'member')}
+                            title="Rétrograder"
+                          >
                             <ArrowDown size={14} />
                           </button>
                         ) : (
-                          <button className="grp-act grp-act-promote" onClick={() => handleSetRole(m.uid, 'admin')} title="Promouvoir admin">
+                          <button
+                            className="grp-act grp-act-promote"
+                            onClick={() => handleSetRole(m.uid, 'admin')}
+                            title="Promouvoir admin"
+                          >
                             <ArrowUp size={14} />
                           </button>
                         )}
-                        <button className="grp-act grp-act-transfer" onClick={() => handleTransfer(m.uid)} title="Transférer la propriété">
+                        <button
+                          className="grp-act grp-act-transfer"
+                          onClick={() => handleTransfer(m.uid)}
+                          title="Transférer la propriété"
+                        >
                           <Crown size={14} />
                         </button>
                         <button className="grp-act grp-act-kick" onClick={() => handleKick(m.uid)} title="Exclure">

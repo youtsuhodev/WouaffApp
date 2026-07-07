@@ -1,8 +1,9 @@
-import type { Request, Response, NextFunction, RequestHandler } from 'express';
-import { Router } from 'express';
+import type { NextFunction, Request, RequestHandler, Response, Router } from 'express';
 
 /* Wrap a single async route handler */
-export function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>): RequestHandler {
+export function asyncHandler(
+  fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>,
+): RequestHandler {
   return (req, res, next) => {
     fn(req, res, next).catch(next);
   };

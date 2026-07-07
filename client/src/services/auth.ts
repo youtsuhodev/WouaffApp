@@ -1,18 +1,22 @@
-import { clearE2EE, initE2EE, getPublicKey } from './e2ee';
+import { clearE2EE, getPublicKey, initE2EE } from './e2ee';
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
   return match ? decodeURIComponent(match[2]) : null;
 }
 
-export async function register(email: string, password: string, pseudo: string): Promise<{ uid: string; pseudo: string; wouaffId: string }> {
+export async function register(
+  email: string,
+  password: string,
+  pseudo: string,
+): Promise<{ uid: string; pseudo: string; wouaffId: string }> {
   const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, pseudo }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Erreur lors de l\'inscription');
+  if (!res.ok) throw new Error(data.error || "Erreur lors de l'inscription");
   return data;
 }
 
@@ -56,5 +60,7 @@ export async function initSession(uid: string): Promise<void> {
         localStorage.setItem('wouaff_e2ee_pubkey', keyStr);
       }
     }
-  } catch (e) { console.warn('E2EE init failed', e); }
+  } catch (e) {
+    console.warn('E2EE init failed', e);
+  }
 }

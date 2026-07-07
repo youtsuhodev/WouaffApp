@@ -1,6 +1,9 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
-interface Entry { count: number; resetAt: number }
+interface Entry {
+  count: number;
+  resetAt: number;
+}
 
 const store = new Map<string, Entry>();
 

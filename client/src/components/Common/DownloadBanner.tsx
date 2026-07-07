@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'wouaff_download_banner_dismissed';
 const VERSION = '1.0.0';
