@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Server as HTTPServer } from 'node:http';
-import * as cookie from 'cookie';
+import { parseCookie } from 'cookie';
 import { Server } from 'socket.io';
 import { getOne, query } from '../config/database.js';
 import { isColdStorageEnabled, saveCallRecord } from '../services/coldStorage.js';
@@ -41,7 +41,7 @@ export function setupSocket(httpServer: HTTPServer): Server {
   io.use(async (socket, next) => {
     let sessionId = socket.handshake.auth?.session_id as string | undefined;
     if (!sessionId && socket.handshake.headers.cookie) {
-      const cookies = cookie.parse(socket.handshake.headers.cookie);
+      const cookies = parseCookie(socket.handshake.headers.cookie);
       sessionId = cookies.session_id;
     }
     if (!sessionId) {
