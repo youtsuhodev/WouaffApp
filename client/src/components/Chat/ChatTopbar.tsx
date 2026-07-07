@@ -15,7 +15,7 @@ export default function ChatTopbar({
   chatWithPseudo,
   currentGroupId,
   chatWith,
-  _searchOpen,
+  searchOpen: _searchOpen,
   onToggleSearch,
   onOpenGroupInfo,
   onOpenUserProfile,
